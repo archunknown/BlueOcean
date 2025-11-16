@@ -15,6 +15,21 @@ const config: Config = {
         lightGray: "#F4F4F4",
         emeraldGreen: "#2E8B57",
       },
+      animation: {
+        kenburns: 'kenburns 20s ease-out infinite alternate-reverse',
+        'spin-slow': 'spin 6s linear infinite',
+        scroll: 'scroll 40s linear infinite',
+      },
+      keyframes: {
+        kenburns: {
+          '0%': { transform: 'scale(1) translate(0, 0)' },
+          '100%': { transform: 'scale(1.1) translate(-2%, 2%)' },
+        },
+        scroll: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(calc(-250px * 7))' }, // Ajusta el número de items
+        },
+      },
     },
   },
   plugins: [],
