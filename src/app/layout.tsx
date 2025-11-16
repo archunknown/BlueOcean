@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import type { Metadata } from "next";
+import type { Metadata } from "next"; // Importar Metadata como tipo
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -20,7 +20,6 @@ const geistMono = Geist_Mono({
 });
 
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
+        <Navbar onOpenBookingModal={toggleBookingModal} />
         {children}
         <Footer />
 

@@ -5,12 +5,13 @@ import Link from 'next/link';
 export default function Hero() {
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      {/* Fondo con Efecto Ken Burns */}
+      {/* Fondo con Overlay Oscuro y Efecto Ken Burns */}
       <div className="absolute inset-0 z-0">
         <div
           className="h-full w-full bg-cover bg-center animate-kenburns"
-          style={{ backgroundImage: "url('https://picsum.photos/1920/1080?random=11')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1974&auto=format&fit=crop')" }}
         ></div>
+        <div className="absolute inset-0 bg-black/40"></div> {/* Overlay Oscuro */}
       </div>
 
       {/* Contenido Central con Glassmorphism */}
