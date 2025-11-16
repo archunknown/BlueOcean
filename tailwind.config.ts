@@ -9,11 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "ocean-blue": "#1E3A5F",
+        oceanBlue: "#1E3A5F",
         turquoise: "#33A8B1",
-        "warm-yellow": "#FFCC00",
-        "light-gray": "#F4F4F4",
-        "emerald-green": "#2E8B57",
+        warmYellow: "#FFCC00",
+        lightGray: "#F4F4F4",
+        emeraldGreen: "#2E8B57",
       },
     },
   },
