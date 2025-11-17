@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,14 +15,27 @@ const navLinks = [
 ];
 
 interface NavbarProps {
-  onOpenBookingModal: () => void;
+  scrolled: boolean;
 }
 
-export default function Navbar({ onOpenBookingModal }: NavbarProps) {
+export default function Navbar({ scrolled }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement>(null);
+  
+  const isHomePage = pathname === '/';
+
+  // Detectar scroll para cambiar el estilo del navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -45,18 +59,14 @@ export default function Navbar({ onOpenBookingModal }: NavbarProps) {
         'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
       );
       if (!focusableElements) return;
-
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
       if (e.shiftKey) {
-        // Shift + Tab
         if (document.activeElement === firstElement) {
           lastElement.focus();
           e.preventDefault();
         }
       } else {
-        // Tab
         if (document.activeElement === lastElement) {
           firstElement.focus();
           e.preventDefault();
@@ -67,67 +77,86 @@ export default function Navbar({ onOpenBookingModal }: NavbarProps) {
 
   return (
     <>
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-50 w-full bg-oceanBlue shadow-lg transition-all duration-300"
+      <header 
+        className={`fixed left-0 right-0 top-0 z-50 w-full transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-white/95 py-3 shadow-lg backdrop-blur-lg' 
+            : 'bg-white/90 py-4 shadow-md backdrop-blur-md'
+        }`}
       >
-        <nav className="container mx-auto flex items-center justify-between px-6 py-3">
-          <Link href="/" className="group">
-            <span
-              className="bg-gradient-to-r from-turquoise to-warmYellow bg-clip-text text-2xl font-bold text-transparent transition-filter duration-300 group-hover:brightness-125"
-            >
-              Blue Ocean
-            </span>
+        <nav className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo - Optimizado */}
+          <Link href="/" className="group relative z-10 flex items-center transition-transform duration-300 hover:scale-105">
+            <Image
+              src="/logo2.png"
+              alt="Blue Ocean Paracas"
+              width={200}
+              height={70}
+              className={`h-auto w-auto transition-all duration-300 ${
+                isScrolled ? 'max-h-12 sm:max-h-14' : 'max-h-14 sm:max-h-16 lg:max-h-[72px]'
+              }`}
+              priority
+            />
           </Link>
 
           {/* Desktop Menu */}
-          <ul className="hidden items-center space-x-8 md:flex">
+          <ul className="hidden items-center gap-1 lg:flex xl:gap-2">
             {navLinks.map((link) => (
               <li key={link.name}>
                 <Link
                   href={link.href}
-                  className={`group relative text-white transition-colors duration-300 hover:text-warmYellow
-                    ${pathname === link.href ? 'text-warmYellow font-bold' : ''}
+                  className={`group relative px-3 py-2 text-base font-semibold transition-all duration-300 xl:px-4 xl:text-lg
+                    ${pathname === link.href 
+                      ? 'text-turquoise' 
+                      : 'text-oceanBlue hover:text-turquoise'
+                    }
                   `}
                 >
                   {link.name}
+                  {/* Underline animado con gradiente */}
                   <span
-                    className={`absolute bottom-0 left-0 h-0.5 w-full scale-x-0 transition-transform duration-300 group-hover:scale-x-100
-                      ${pathname === link.href ? 'scale-x-100 bg-warmYellow' : 'bg-warmYellow'}
+                    className={`absolute bottom-0 left-0 h-0.5 w-full origin-left bg-gradient-to-r from-turquoise to-cyan-400 transition-transform duration-300
+                      ${pathname === link.href 
+                        ? 'scale-x-100' 
+                        : 'scale-x-0 group-hover:scale-x-100'
+                      }
                     `}
                   ></span>
                 </Link>
               </li>
             ))}
-            <li>
-              <button
-                onClick={onOpenBookingModal}
-                className="rounded-full bg-emeraldGreen px-5 py-2 font-bold text-white shadow-lg transition-all duration-300 hover:bg-green-600 hover:brightness-110"
-              >
-                Reservar Ahora
-              </button>
-            </li>
           </ul>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               ref={mobileMenuButtonRef}
               onClick={toggleMobileMenu}
-              className="text-white focus:outline-none"
+              className="group relative flex h-11 w-11 items-center justify-center rounded-lg text-oceanBlue transition-all duration-300 hover:bg-turquoise/10 focus:outline-none focus:ring-2 focus:ring-turquoise/50"
               aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
               aria-expanded={isMobileMenuOpen}
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                )}
-              </svg>
+              <div className="relative h-5 w-6">
+                <span
+                  className={`absolute left-0 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                    isMobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
+                  }`}
+                ></span>
+                <span
+                  className={`absolute left-0 top-2 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                    isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                  }`}
+                ></span>
+                <span
+                  className={`absolute left-0 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                    isMobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
+                  }`}
+                ></span>
+              </div>
             </button>
           </div>
         </nav>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu Panel */}
       <AnimatePresence>
@@ -136,8 +165,8 @@ export default function Navbar({ onOpenBookingModal }: NavbarProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
-            onClick={closeMobileMenu} // Cierra al hacer clic fuera
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={closeMobileMenu}
           >
             <motion.div
               ref={mobileMenuPanelRef}
@@ -146,52 +175,77 @@ export default function Navbar({ onOpenBookingModal }: NavbarProps) {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="absolute right-0 top-0 h-full w-3/4 bg-oceanBlue p-8 shadow-lg" // Panel más pequeño
-              onClick={(e) => e.stopPropagation()} // Evita que el click en el panel cierre el menú
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-gradient-to-br from-oceanBlue via-oceanBlue to-cyan-900 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
               aria-modal="true"
               role="dialog"
             >
-              <button onClick={closeMobileMenu} className="absolute top-4 right-4 text-white focus:outline-none">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <ul className="mt-16 flex flex-col items-start space-y-6">
+              {/* Header del menú móvil */}
+              <div className="relative border-b border-white/10 p-5">
+                <button 
+                  onClick={closeMobileMenu} 
+                  className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full text-white transition-all duration-300 hover:bg-white/10 hover:rotate-90 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  aria-label="Cerrar menú"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                
+                {/* Logo en el menú móvil */}
+                <div className="pr-12">
+                  <Image
+                    src="/logo2.png"
+                    alt="Blue Ocean Paracas"
+                    width={140}
+                    height={45}
+                    className="h-auto w-auto max-h-11 brightness-0 invert"
+                  />
+                </div>
+              </div>
+
+              {/* Links del menú móvil */}
+              <ul className="flex flex-col space-y-1 p-5">
                 {navLinks.map((link, i) => (
                   <motion.li
                     key={link.name}
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * i, duration: 0.3 }}
+                    transition={{ delay: 0.05 * i, duration: 0.3 }}
                   >
                     <Link
                       href={link.href}
                       onClick={closeMobileMenu}
-                      className={`text-3xl font-bold transition-colors duration-300 hover:text-warmYellow
-                        ${pathname === link.href ? 'text-warmYellow' : 'text-white'}
+                      className={`group flex items-center justify-between rounded-xl px-4 py-4 text-xl font-bold transition-all duration-300 sm:text-2xl
+                        ${pathname === link.href 
+                          ? 'bg-white/10 text-warmYellow' 
+                          : 'text-white hover:bg-white/5 hover:text-warmYellow'
+                        }
                       `}
                     >
-                      {link.name}
+                      <span>{link.name}</span>
+                      <svg 
+                        className={`h-5 w-5 transition-transform duration-300 group-hover:translate-x-1
+                          ${pathname === link.href ? 'text-warmYellow' : 'text-white/50'}
+                        `}
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </Link>
                   </motion.li>
                 ))}
-                <motion.li
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * navLinks.length, duration: 0.3 }}
-                >
-                  <button
-                    onClick={() => {
-                      onOpenBookingModal();
-                      closeMobileMenu();
-                    }}
-                    className="mt-4 w-full rounded-full bg-emeraldGreen px-5 py-2 font-bold text-white shadow-lg transition-all duration-300 hover:bg-green-600"
-                  >
-                    Reservar Ahora
-                  </button>
-                </motion.li>
               </ul>
+
+              {/* Footer del menú móvil */}
+              <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-5">
+                <p className="text-center text-sm text-white/60">
+                  © 2024 Blue Ocean Paracas
+                </p>
+              </div>
             </motion.div>
           </motion.div>
         )}
