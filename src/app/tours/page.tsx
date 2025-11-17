@@ -4,7 +4,7 @@ import ToursSection from '@/components/sections/Tours';
 export default function ToursPage() {
   return (
     <main>
-      <ToursSection />
+      <ToursSection showButton={false} /> {/* <-- MODIFICADO */}
     </main>
   );
 }
