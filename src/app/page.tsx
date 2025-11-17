@@ -13,7 +13,7 @@ export default function Home() {
     <main>
       <Hero />
       <WhyChooseUs />
-      <Tours />
+      <Tours limit={3} showButton={true} /> {/* <-- MODIFICADO */}
       <OurProcess />
       <Gallery />
       <InstagramFeed />

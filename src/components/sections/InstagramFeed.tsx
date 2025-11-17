@@ -19,7 +19,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.5,
-      ease: 'easeOut',
+      ease: 'easeOut' as const, // <-- AÑADIR 'as const'
     },
   },
 };
@@ -79,7 +79,7 @@ export default function InstagramFeed() {
 
         <div className="mt-12 text-center">
           <Link
-            href="https://www.instagram.com/blueoceanparacas/"
+            href="https://www.instagram.com/blue_ocean_paracas/" // <-- MODIFICADO
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block rounded-full bg-oceanBlue px-8 py-3 font-bold text-white shadow-lg transition-all duration-300 hover:bg-turquoise hover:scale-105"
