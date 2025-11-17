@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import FakeMap from '../FakeMap';
 
 // Esquema de validación con Zod
 const contactFormSchema = z.object({
@@ -43,20 +44,20 @@ export default function Contact() {
   };
 
   const getInputClasses = (fieldName: keyof ContactFormInputs) => `
-    peer w-full px-4 py-3 pt-6 border rounded-lg bg-white text-gray-900
-    focus:outline-none focus:ring-2 focus:ring-turquoise
-    ${errors[fieldName] ? 'border-red-500' : 'border-gray-300'}
+    peer w-full px-4 py-3 pt-6 border rounded-lg bg-lightGray/50 text-oceanBlue
+    focus:outline-none focus:ring-4 focus:ring-turquoise/20
+    ${errors[fieldName] ? 'border-danger' : 'border-oceanBlue/20'}
   `;
 
   const getLabelClasses = (fieldName: keyof ContactFormInputs) => `
-    absolute left-4 top-1 text-xs text-gray-500 transition-all duration-200
+    absolute left-4 top-1 text-xs text-oceanBlue/70 transition-all duration-200
     peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-base
     peer-focus:top-1 peer-focus:text-xs peer-focus:-translate-y-0
-    ${errors[fieldName] ? 'text-red-500' : ''}
+    ${errors[fieldName] ? 'text-danger peer-focus:text-danger' : 'peer-focus:text-turquoise'}
   `;
 
   return (
-    <section className="py-24 bg-lightGray">
+    <section className="bg-lightGray pt-28 sm:pt-32 lg:pt-36 pb-20 sm:pb-24 lg:pb-28">
       <div className="container mx-auto px-4">
         <h2 className="text-6xl font-black text-center text-oceanBlue mb-16 tracking-tight">
           ¿Listo para tu Aventura?
@@ -71,7 +72,9 @@ export default function Contact() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="bg-white p-8 rounded-2xl shadow-xl"
           >
-            <h3 className="text-3xl font-bold text-oceanBlue mb-6">Envíanos un Mensaje</h3>
+            <h3 className="text-3xl font-bold text-oceanBlue mb-2">Envíanos un Mensaje</h3>
+            <div className="mb-6 flex flex-wrap gap-x-4 gap-y-2 text-sm text-oceanBlue/80">
+            </div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="relative">
                 <input
@@ -85,7 +88,7 @@ export default function Contact() {
                   Nombre Completo
                 </label>
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+                  <p className="mt-1 text-sm text-danger">{errors.name.message}</p>
                 )}
               </div>
 
@@ -101,7 +104,7 @@ export default function Contact() {
                   Correo Electrónico
                 </label>
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-danger">{errors.email.message}</p>
                 )}
               </div>
 
@@ -117,15 +120,16 @@ export default function Contact() {
                   Tu Mensaje
                 </label>
                 {errors.message && (
-                  <p className="mt-1 text-sm text-red-500">{errors.message.message}</p>
+                  <p className="mt-1 text-sm text-danger">{errors.message.message}</p>
                 )}
               </div>
 
               <motion.button
                 type="submit"
                 className={`w-full rounded-full py-3 text-lg font-bold text-white transition-all duration-300
-                  ${submitStatus === 'loading' ? 'bg-gray-500 cursor-not-allowed' : 'bg-oceanBlue hover:bg-turquoise'}
+                  ${submitStatus === 'loading' ? 'bg-oceanBlue/50 cursor-not-allowed' : 'bg-oceanBlue hover:bg-turquoise'}
                   ${submitStatus === 'success' ? 'bg-emeraldGreen' : ''}
+                  ${submitStatus === 'error' ? 'bg-danger' : ''}
                 `}
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
@@ -137,8 +141,13 @@ export default function Contact() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 )}
-                {submitStatus === 'success' ? '¡Mensaje Enviado!' : 'Enviar Mensaje'}
+                {submitStatus === 'success' && '¡Mensaje Enviado!'}
+                {submitStatus === 'error' && 'Error al Enviar'}
+                {submitStatus === 'idle' && 'Enviar Mensaje'}
               </motion.button>
+              <p className="text-center text-sm text-oceanBlue/60 mt-4">
+                🔥 8 personas han preguntado hoy
+              </p>
             </form>
           </motion.div>
 
@@ -152,10 +161,10 @@ export default function Contact() {
           >
             <div>
               <h3 className="text-3xl font-bold text-oceanBlue mb-6">Encuéntranos</h3>
-              <p className="text-gray-700 mb-4">
+              <p className="text-oceanBlue/80 mb-4">
                 Estamos ubicados en el corazón de Paracas, listos para ayudarte a planificar tu próxima aventura.
               </p>
-              <ul className="space-y-3 text-gray-700">
+              <ul className="space-y-3 text-oceanBlue/80">
                 <li className="flex items-center">
                   <svg className="h-6 w-6 mr-3 text-turquoise" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0L6.343 16.657a8 8 0 1111.314 0z" />
@@ -177,9 +186,9 @@ export default function Contact() {
                 </li>
               </ul>
             </div>
-            {/* Placeholder para Google Maps */}
-            <div className="mt-8 h-64 w-full rounded-lg bg-gray-200 flex items-center justify-center text-gray-500">
-              Mapa de Google Maps aquí
+            {/* Mapa */}
+            <div className="mt-8 h-64 w-full rounded-lg lg:h-full">
+              <FakeMap />
             </div>
           </motion.div>
         </div>
