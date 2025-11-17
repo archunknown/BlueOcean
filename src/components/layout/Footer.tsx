@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
-// Hook personalizado para scroll (simulado)
 const useScroll = (threshold = 200) => {
   const [scrolled, setScrolled] = useState(false);
   
@@ -35,33 +34,35 @@ export default function Footer() {
   return (
     <footer className="relative bg-gradient-to-b from-oceanBlue via-[#152d4a] to-[#0f2238] text-white overflow-hidden">
       {/* Decorative Wave */}
-      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-white/5 to-transparent">
-        <svg className="absolute bottom-0 w-full h-24" viewBox="0 0 1440 100" preserveAspectRatio="none">
+      <div className="absolute top-0 left-0 w-full h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-white/5 to-transparent">
+        <svg className="absolute bottom-0 w-full h-16 sm:h-20 lg:h-24" viewBox="0 0 1440 100" preserveAspectRatio="none">
           <path fill="currentColor" className="text-white/5" d="M0,50 C360,100 720,0 1080,50 C1440,100 1440,0 1440,0 L1440,100 L0,100 Z" />
         </svg>
       </div>
 
-      <div className="container mx-auto px-4 pt-24 pb-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+      <div className="container mx-auto px-3 pt-16 pb-6 relative z-10 xs:px-4 xs:pt-18 sm:pt-20 sm:pb-8 lg:pt-24 lg:px-8">
+        {/* Grid Principal - Optimizado para móviles */}
+        <div className="grid grid-cols-2 gap-6 mb-10 xs:gap-7 xs:mb-12 sm:gap-8 sm:mb-14 lg:grid-cols-4 lg:gap-10 lg:mb-16">
           
-          {/* Columna 1: Marca + Newsletter */}
-          <div className="lg:col-span-1">
+          {/* Columna 1: Marca + Newsletter - Ocupa 2 columnas en móvil */}
+          <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="group inline-block">
               <Image
                 src="/logo.png"
-                alt="New Logo"
+                alt="Blue Ocean Logo"
                 width={200}
                 height={80}
+                className="h-auto w-auto max-w-[160px] xs:max-w-[180px] sm:max-w-[200px]"
                 priority
               />
             </Link>
-            <p className="mt-4 text-white/70 text-sm leading-relaxed">
+            <p className="mt-3 text-white/70 text-xs leading-relaxed xs:text-sm sm:mt-4">
               Creando experiencias inolvidables en el paraíso costero de Paracas desde 2009.
             </p>
             
             {/* Newsletter con Glassmorphism */}
-            <form onSubmit={handleNewsletterSubmit} className="mt-8">
-              <p className="font-bold mb-3 text-warmYellow text-sm tracking-wide uppercase">
+            <form onSubmit={handleNewsletterSubmit} className="mt-6 sm:mt-8">
+              <p className="font-bold mb-2 text-warmYellow text-xs tracking-wide uppercase xs:text-sm sm:mb-3">
                 Newsletter
               </p>
               <div className="relative group">
@@ -70,24 +71,24 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 pr-12 text-white placeholder-white/50 backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-turquoise focus:border-transparent focus:bg-white/10"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 pr-10 text-sm text-white placeholder-white/50 backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-turquoise focus:border-transparent focus:bg-white/10 xs:px-4 xs:py-3 xs:pr-12"
                   required
                 />
                 <button 
                   type="submit"
-                  className="absolute right-1 top-1 bottom-1 rounded-lg bg-gradient-to-r from-turquoise to-emeraldGreen px-4 font-bold text-white shadow-lg transition-all duration-300 hover:shadow-turquoise/50 hover:scale-105 active:scale-95"
+                  className="absolute right-1 top-1 bottom-1 rounded-lg bg-gradient-to-r from-turquoise to-emeraldGreen px-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:shadow-turquoise/50 hover:scale-105 active:scale-95 xs:px-4"
                 >
                   →
                 </button>
               </div>
             </form>
 
-            {/* Certificaciones */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="px-3 py-1.5 rounded-lg bg-emeraldGreen/20 border border-emeraldGreen/30 text-emeraldGreen text-xs font-bold">
+            {/* Certificaciones - Responsive */}
+            <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3">
+              <div className="px-2.5 py-1 rounded-lg bg-emeraldGreen/20 border border-emeraldGreen/30 text-emeraldGreen text-[10px] font-bold xs:px-3 xs:py-1.5 xs:text-xs">
                 ✓ Certificado
               </div>
-              <div className="px-3 py-1.5 rounded-lg bg-warmYellow/20 border border-warmYellow/30 text-warmYellow text-xs font-bold">
+              <div className="px-2.5 py-1 rounded-lg bg-warmYellow/20 border border-warmYellow/30 text-warmYellow text-[10px] font-bold xs:px-3 xs:py-1.5 xs:text-xs">
                 ★ 4.9/5
               </div>
             </div>
@@ -95,10 +96,10 @@ export default function Footer() {
 
           {/* Columna 2: Enlaces Rápidos */}
           <div>
-            <h3 className="mb-6 text-xl font-black text-warmYellow tracking-tight">
+            <h3 className="mb-4 text-lg font-black text-warmYellow tracking-tight xs:text-xl sm:mb-6">
               Explorar
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2 xs:space-y-3">
               {[
                 { name: 'Inicio', href: '/' },
                 { name: 'Tours', href: '/tours' },
@@ -109,9 +110,9 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="group relative inline-flex items-center text-white/70 transition-colors duration-300 hover:text-turquoise"
+                    className="group relative inline-flex items-center text-sm text-white/70 transition-colors duration-300 hover:text-turquoise xs:text-base"
                   >
-                    <span className="mr-2 text-turquoise opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:mr-3">
+                    <span className="mr-1.5 text-turquoise opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:mr-2.5 xs:mr-2 xs:group-hover:mr-3">
                       →
                     </span>
                     {link.name}
@@ -124,10 +125,10 @@ export default function Footer() {
 
           {/* Columna 3: Contacto */}
           <div>
-            <h3 className="mb-6 text-xl font-black text-warmYellow tracking-tight">
+            <h3 className="mb-4 text-lg font-black text-warmYellow tracking-tight xs:text-xl sm:mb-6">
               Contáctanos
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-3 xs:space-y-4">
               {[
                 {
                   icon: (
@@ -148,13 +149,13 @@ export default function Footer() {
                   text: 'ytasayco59@gmail.com',
                 },
               ].map((item, idx) => (
-                <li key={idx} className="group flex items-start gap-3 transition-transform duration-300 hover:translate-x-1">
-                  <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-turquoise/10 border border-turquoise/20 transition-all duration-300 group-hover:bg-turquoise/20 group-hover:border-turquoise/40">
-                    <svg className="h-5 w-5 text-turquoise" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li key={idx} className="group flex items-start gap-2.5 transition-transform duration-300 hover:translate-x-1 xs:gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-turquoise/10 border border-turquoise/20 transition-all duration-300 group-hover:bg-turquoise/20 group-hover:border-turquoise/40 xs:h-9 xs:w-9 sm:h-10 sm:w-10">
+                    <svg className="h-4 w-4 text-turquoise xs:h-4.5 xs:w-4.5 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       {item.icon}
                     </svg>
                   </div>
-                  <span className="text-white/70 leading-relaxed text-sm group-hover:text-white/90 transition-colors">
+                  <span className="text-xs leading-relaxed text-white/70 group-hover:text-white/90 transition-colors xs:text-sm">
                     {item.text}
                   </span>
                 </li>
@@ -164,13 +165,13 @@ export default function Footer() {
 
           {/* Columna 4: Redes Sociales */}
           <div>
-            <h3 className="mb-6 text-xl font-black text-warmYellow tracking-tight">
+            <h3 className="mb-4 text-lg font-black text-warmYellow tracking-tight xs:text-xl sm:mb-6">
               Síguenos
             </h3>
-            <p className="text-white/70 text-sm mb-6 leading-relaxed">
+            <p className="text-xs leading-relaxed text-white/70 mb-4 xs:text-sm sm:mb-6">
               Únete a nuestra comunidad y descubre las mejores experiencias en Paracas.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2.5 xs:gap-3">
               {[
                 {
                   name: 'Instagram',
@@ -190,12 +191,12 @@ export default function Footer() {
                 <a
                   key={social.name}
                   href={social.href}
-                  target="_blank" // Asegura que se abra en nueva pestaña
-                  rel="noopener noreferrer" // Mejora la seguridad
-                  className="group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-turquoise/50 hover:scale-110 hover:shadow-lg hover:shadow-turquoise/20"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-turquoise/50 hover:scale-110 hover:shadow-lg hover:shadow-turquoise/20 xs:h-11 xs:w-11 sm:h-12 sm:w-12"
                   aria-label={social.name}
                 >
-                  <svg className="h-5 w-5 text-white/70 transition-colors duration-300 group-hover:text-turquoise" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 text-white/70 transition-colors duration-300 group-hover:text-turquoise xs:h-4.5 xs:w-4.5 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 24 24">
                     {social.icon}
                   </svg>
                   <span className="absolute inset-0 bg-gradient-to-br from-turquoise/0 to-turquoise/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></span>
@@ -204,20 +205,20 @@ export default function Footer() {
             </div>
 
             {/* Horarios */}
-            <div className="mt-6 rounded-xl bg-white/5 border border-white/10 p-4 backdrop-blur-sm">
-              <p className="text-xs font-bold text-warmYellow mb-2 uppercase tracking-wide">Horario</p>
-              <p className="text-white/70 text-sm">Lun - Dom: 7:00 AM - 8:00 PM</p>
+            <div className="mt-5 rounded-xl bg-white/5 border border-white/10 p-3 backdrop-blur-sm xs:mt-6 xs:p-4">
+              <p className="text-[10px] font-bold text-warmYellow mb-1.5 uppercase tracking-wide xs:text-xs xs:mb-2">Horario</p>
+              <p className="text-white/70 text-xs xs:text-sm">Lun - Dom: 7:00 AM - 8:00 PM</p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/10 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/50 text-sm">
+        {/* Bottom Bar - 100% Responsive */}
+        <div className="border-t border-white/10 pt-6 sm:pt-8">
+          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-4">
+            <p className="text-white/50 text-[10px] text-center xs:text-xs sm:text-left sm:text-sm">
               &copy; {currentYear} Blue Ocean Adventure Tours. Todos los derechos reservados.
             </p>
-            <div className="flex items-center gap-2 text-white/50 text-sm">
+            <div className="flex items-center gap-1.5 text-white/50 text-[10px] xs:gap-2 xs:text-xs sm:text-sm">
               <span>Hecho con</span>
               <motion.span
                 className="text-red-500"
@@ -228,7 +229,7 @@ export default function Footer() {
               </motion.span>
               <span>en Paracas | By Arch Adrian</span>
             </div>
-            <div className="flex gap-4 text-xs">
+            <div className="flex gap-3 text-[10px] xs:gap-4 xs:text-xs">
               <Link href="/privacy" className="text-white/50 hover:text-turquoise transition-colors">
                 Privacidad
               </Link>
@@ -240,7 +241,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Botón Volver Arriba - Mejorado */}
+      {/* Botón Volver Arriba - Responsive */}
       <AnimatePresence>
         {scrolled && (
           <motion.button
@@ -248,17 +249,14 @@ export default function Footer() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0 }}
             onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 group"
+            className="fixed bottom-6 right-6 z-50 group xs:bottom-7 xs:right-7 sm:bottom-8 sm:right-8"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             <div className="relative">
-              {/* Glow effect */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-warmYellow to-turquoise opacity-75 blur-lg"></div>
-              
-              {/* Button */}
-              <div className="relative rounded-full bg-gradient-to-br from-warmYellow to-turquoise p-4 shadow-2xl transition-all duration-300 group-hover:shadow-warmYellow/50">
-                <svg className="h-6 w-6 text-oceanBlue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <div className="relative rounded-full bg-gradient-to-br from-warmYellow to-turquoise p-3 shadow-2xl transition-all duration-300 group-hover:shadow-warmYellow/50 xs:p-3.5 sm:p-4">
+                <svg className="h-5 w-5 text-oceanBlue xs:h-5.5 xs:w-5.5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
               </div>
@@ -268,8 +266,8 @@ export default function Footer() {
       </AnimatePresence>
 
       {/* Decorative gradient orbs */}
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-turquoise/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-warmYellow/5 rounded-full blur-3xl translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-turquoise/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96"></div>
+      <div className="absolute top-1/2 right-0 w-64 h-64 bg-warmYellow/5 rounded-full blur-3xl translate-x-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96"></div>
     </footer>
   );
 }

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientProvider from "./client-provider";
 import { metadata as appMetadata } from "./metadata";
+import StickyCTA from "../components/StickyCTA"; // Import StickyCTA
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClientProvider>{children}</ClientProvider>
+        <ClientProvider>
+          {children}
+          <StickyCTA /> {/* Render StickyCTA here */}
+        </ClientProvider>
       </body>
     </html>
   );

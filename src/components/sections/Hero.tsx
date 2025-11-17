@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen w-full overflow-hidden pt-20 sm:pt-24 lg:pt-20">
+    <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen">
       {/* Fondo con Overlay y Efecto Ken Burns */}
       <div className="absolute inset-0 z-0">
         <div
@@ -14,53 +14,53 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
       </div>
 
-      {/* Contenido Central - 100% Responsivo */}
-      <div className="relative z-10 flex min-h-[calc(100vh-64px)] items-center justify-center px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      {/* Contenido Central - Optimizado para móvil */}
+      <div className="relative z-10 flex min-h-[70vh] sm:min-h-[80vh] lg:min-h-[calc(100vh-80px)] items-center justify-center px-3 py-6 xs:px-4 xs:py-8 sm:px-6 sm:py-10 md:py-12 lg:px-8 lg:py-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="w-full max-w-6xl rounded-2xl border border-white/20 bg-white/5 p-6 text-center shadow-2xl backdrop-blur-xl sm:rounded-3xl sm:p-10 md:p-12 lg:p-16 xl:p-20"
+          className="w-full max-w-6xl rounded-xl border border-white/20 bg-white/5 p-4 text-center shadow-2xl backdrop-blur-xl xs:rounded-2xl xs:p-5 sm:p-7 md:rounded-3xl md:p-9 lg:p-16 xl:p-20"
         >
-          {/* Título Principal - Totalmente Responsivo */}
+          {/* Título Principal - Compacto en móvil */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="text-4xl font-black uppercase leading-[1.1] tracking-tight text-white drop-shadow-2xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
+            className="text-2xl font-black uppercase leading-[1.1] tracking-tight text-white drop-shadow-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
           >
             <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
               Siente el Poder
             </span>
-            <br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
+            <br className="hidden xs:block" />
+            <span className="xs:hidden"> </span>
             <span className="text-white">del Océano</span>
           </motion.h1>
 
-          {/* Subtítulo - Optimizado para móviles */}
+          {/* Subtítulo - Más corto en móvil */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="mx-auto mt-4 max-w-3xl text-base font-light leading-relaxed text-gray-100 sm:mt-6 sm:text-lg md:text-xl lg:text-2xl"
+            className="mx-auto mt-2.5 max-w-3xl text-xs font-light leading-relaxed text-gray-100 xs:text-sm xs:mt-3 sm:mt-4 sm:text-base md:text-lg lg:text-xl lg:mt-5"
           >
-            Tu aventura épica en Paracas comienza aquí. Donde el desierto se encuentra con el mar.
+            Tu aventura épica en Paracas comienza aquí
           </motion.p>
 
-          {/* Botón CTA - Completamente Responsivo */}
+          {/* Botón CTA - Compacto */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="mt-6 sm:mt-8 lg:mt-10"
+            className="mt-4 xs:mt-5 sm:mt-6 lg:mt-8"
           >
             <Link
               href="/tours"
-              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-warmYellow to-yellow-400 px-6 py-3 text-base font-bold uppercase tracking-wide text-oceanBlue shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-yellow-500/50 sm:gap-3 sm:px-10 sm:py-4 sm:text-lg lg:px-12 lg:py-5 lg:text-xl"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-warmYellow to-yellow-400 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-oceanBlue shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-yellow-500/50 xs:gap-2 xs:px-6 xs:py-3 sm:gap-2.5 sm:px-7 sm:py-3.5 sm:text-base md:px-9 md:py-4 lg:px-11 lg:py-4.5 lg:text-lg"
             >
-              <span>Explora Nuestros Tours</span>
+              <span>Ver Tours</span>
               <svg 
-                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 sm:h-5 sm:w-5" 
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 xs:h-4 xs:w-4 sm:h-5 sm:w-5" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
@@ -70,25 +70,23 @@ export default function Hero() {
             </Link>
           </motion.div>
 
-          {/* Indicador de Scroll - Solo desktop */}
+          {/* Badge de "Scroll para más" - Solo desktop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.4 }}
-            className="mt-8 hidden lg:mt-12 lg:block"
+            transition={{ duration: 1, delay: 1.2 }}
+            className="mt-4 hidden text-xs text-white/70 lg:mt-6 lg:block"
           >
-            <div className="mx-auto flex h-10 w-6 items-start justify-center rounded-full border-2 border-white/30 p-1">
+            <div className="mx-auto flex h-8 w-5 items-start justify-center rounded-full border-2 border-white/30 p-1">
               <motion.div
-                animate={{ y: [0, 12, 0] }}
+                animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                className="h-2 w-2 rounded-full bg-white/60"
+                className="h-1.5 w-1.5 rounded-full bg-white/60"
               />
             </div>
           </motion.div>
         </motion.div>
       </div>
-
-      {/* BLOQUE <style jsx> ELIMINADO */}
     </section>
   );
 }

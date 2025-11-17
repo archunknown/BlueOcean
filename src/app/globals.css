@@ -1,5 +1,48 @@
 @import "tailwindcss";
 
+/* ========================================
+   🔧 FIX CRÍTICO: Viewport & Overflow
+   ======================================== */
+
+/* Prevenir scroll horizontal en TODA la app */
+html {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Asegurar que todos los contenedores respeten el viewport */
+* {
+  max-width: 100vw;
+}
+
+/* Fix para imágenes y videos que pueden desbordar */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevenir que los pre/code tags desborden */
+pre,
+code {
+  overflow-x: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* ========================================
+   🎨 Animaciones
+   ======================================== */
+
 @keyframes kenburns {
   0% {
     transform: scale(1) translate(0, 0);
@@ -9,8 +52,106 @@
   }
 }
 
+/* ========================================
+   🎴 Componentes Específicos
+   ======================================== */
+
 .testimonial-card-border {
   border: 2px solid transparent;
   background: linear-gradient(#1E3A5F, #1E3A5F) padding-box,
               linear-gradient(45deg, #33A8B1, #FFCC00) border-box;
+}
+
+/* ========================================
+   📱 MOBILE OPTIMIZATIONS
+   ======================================== */
+
+/* Reducir padding en móviles para evitar overflow */
+@media (max-width: 640px) {
+  /* Contenedores principales */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Prevenir textos muy largos sin espacios */
+  h1, h2, h3, h4, h5, h6, p, span, a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Tablas responsive */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* ========================================
+   🎯 SMOOTH SCROLLING
+   ======================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scroll suave desactivado si el usuario prefiere reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ========================================
+   ⚡ PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Hardware acceleration para animaciones */
+.animate-kenburns,
+[class*="animate-"],
+[class*="transition-"] {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ========================================
+   🎨 UTILITY CLASSES
+   ======================================== */
+
+/* Para debugging viewport issues */
+.debug-viewport {
+  outline: 2px solid red !important;
+  outline-offset: -2px;
+}
+
+/* Clase helper para prevenir overflow en elementos específicos */
+.no-overflow {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+/* ========================================
+   🔍 ACCESIBILIDAD
+   ======================================== */
+
+/* Focus visible mejorado */
+*:focus-visible {
+  outline: 2px solid #33A8B1;
+  outline-offset: 2px;
+}
+
+/* Ocultar elementos solo visualmente (mantener para screen readers) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
