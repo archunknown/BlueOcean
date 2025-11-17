@@ -4,14 +4,14 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const allImages = [
-  { src: 'https://picsum.photos/seed/islas/800/1200', category: 'Islas', title: 'Lobo Marino al Sol' },
-  { src: 'https://picsum.photos/seed/desierto/800/900', category: 'Desierto', title: 'Duna Infinita' },
-  { src: 'https://picsum.photos/seed/reserva/800/1000', category: 'Reserva', title: 'Acantilado Rojo' },
-  { src: 'https://picsum.photos/seed/aventura/800/1100', category: 'Aventura', title: 'Salto en Buggy' },
-  { src: 'https://picsum.photos/seed/fauna/800/950', category: 'Islas', title: 'Pelícanos en Vuelo' },
-  { src: 'https://picsum.photos/seed/paisaje/800/1250', category: 'Reserva', title: 'La Catedral' },
-  { src: 'https://picsum.photos/seed/buggy/800/850', category: 'Aventura', title: 'Adrenalina Pura' },
-  { src: 'https://picsum.photos/seed/arena/800/1050', category: 'Desierto', title: 'Atardecer Dorado' },
+  { src: '/gallery/post-1.png', category: 'Islas', title: 'Lobo Marino al Sol' },
+  { src: '/gallery/post-2.png', category: 'Desierto', title: 'Duna Infinita' },
+  { src: '/gallery/post-3.png', category: 'Reserva', title: 'Acantilado Rojo' },
+  { src: '/gallery/post-4.png', category: 'Aventura', title: 'Salto en Buggy' },
+  { src: '/gallery/post-5.png', category: 'Islas', title: 'Pelícanos en Vuelo' },
+  { src: '/gallery/post-6.png', category: 'Reserva', title: 'La Catedral' },
+  { src: '/gallery/post-7.png', category: 'Aventura', title: 'Adrenalina Pura' },
+  { src: '/gallery/post-8.png', category: 'Desierto', title: 'Atardecer Dorado' },
 ];
 
 const filters = ['Todas', 'Islas', 'Reserva', 'Desierto', 'Aventura'];

@@ -165,9 +165,9 @@ export default function Testimonials() {
           className="mt-12 grid grid-cols-2 gap-6 sm:mt-16 sm:grid-cols-4 sm:gap-8"
         >
           {[
-            { label: 'Tours Realizados', value: '10,000+' },
-            { label: 'Clientes Felices', value: '8,500+' },
-            { label: 'Años de Experiencia', value: '15+' },
+            { label: 'Tours Realizados', value: '1,500+' },
+            { label: 'Clientes Felices', value: '1,000+' },
+            { label: 'Años de Experiencia', value: '3+' },
             { label: 'Rating Promedio', value: '4.9/5' },
           ].map((stat, index) => (
             <div key={index} className="text-center">

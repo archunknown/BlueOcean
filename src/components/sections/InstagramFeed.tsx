@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const instagramPosts = [
-  { id: 1, imageUrl: 'https://picsum.photos/seed/insta1/400/400', likes: 123, comments: 12 },
-  { id: 2, imageUrl: 'https://picsum.photos/seed/insta2/400/400', likes: 245, comments: 34 },
-  { id: 3, imageUrl: 'https://picsum.photos/seed/insta3/400/400', likes: 89, comments: 8 },
-  { id: 4, imageUrl: 'https://picsum.photos/seed/insta4/400/400', likes: 301, comments: 56 },
-  { id: 5, imageUrl: 'https://picsum.photos/seed/insta5/400/400', likes: 199, comments: 21 },
-  { id: 6, imageUrl: 'https://picsum.photos/seed/insta6/400/400', likes: 450, comments: 78 },
+  { id: 1, imageUrl: '/instagram/post-1.png', likes: 123, comments: 12 },
+  { id: 2, imageUrl: '/instagram/post-2.png', likes: 245, comments: 34 },
+  { id: 3, imageUrl: '/instagram/post-3.png', likes: 89, comments: 8 },
+  { id: 4, imageUrl: '/instagram/post-4.png', likes: 301, comments: 56 },
+  { id: 5, imageUrl: '/instagram/post-5.png', likes: 199, comments: 21 },
+  { id: 6, imageUrl: '/instagram/post-6.png', likes: 450, comments: 78 },
 ];
 
 const itemVariants = {
@@ -32,7 +32,7 @@ export default function InstagramFeed() {
           Síguenos en Instagram
         </h2>
         <p className="text-center text-lg text-gray-600 mb-12">
-          @blueoceanparacas - Tus aventuras, nuestra pasión.
+          @blue_ocean_paracas - Tus aventuras, nuestra pasión.
         </p>
 
         <motion.div
@@ -82,7 +82,7 @@ export default function InstagramFeed() {
             href="https://www.instagram.com/blue_ocean_paracas/" // <-- MODIFICADO
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block rounded-full bg-oceanBlue px-8 py-3 font-bold text-white shadow-lg transition-all duration-300 hover:bg-turquoise hover:scale-105"
+            className="inline-block rounded-full bg-oceanBlue px-8 py-3 font-bold text-black shadow-lg transition-all duration-300 hover:bg-turquoise hover:scale-105"
           >
             Ver más en Instagram
           </Link>

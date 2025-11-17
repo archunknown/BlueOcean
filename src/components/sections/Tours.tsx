@@ -7,7 +7,7 @@ const toursData = [
   {
     title: 'Islas Ballestas',
     description: 'Un increíble viaje en bote para observar la vida marina, incluyendo lobos marinos, pingüinos de Humboldt y aves guaneras.',
-    price: 'S/ 50',
+    price: 'S/ XX.X',
     imageUrl: 'https://picsum.photos/seed/islas-ballestas/800/600',
     duration: '2 horas',
     difficulty: 'Fácil',
@@ -16,7 +16,7 @@ const toursData = [
   {
     title: 'Reserva Nacional de Paracas',
     description: 'Explora el impresionante paisaje desértico, playas vírgenes y las famosas formaciones rocosas de la costa peruana.',
-    price: 'S/ 40',
+    price: 'S/ XX.X',
     imageUrl: 'https://picsum.photos/seed/reserva-paracas/800/600',
     duration: '3 horas',
     difficulty: 'Moderado',
@@ -25,7 +25,7 @@ const toursData = [
   {
     title: 'Buggy y Sandboard',
     description: 'Siente la adrenalina recorriendo las dunas del desierto en buggy y deslízate por la arena dorada al atardecer.',
-    price: 'S/ 80',
+    price: 'S/ XX.X',
     imageUrl: 'https://picsum.photos/seed/buggy-adventure/800/600',
     duration: '1.5 horas',
     difficulty: 'Avanzado',

@@ -138,17 +138,17 @@ export default function Navbar({ scrolled }: NavbarProps) {
             >
               <div className="relative h-5 w-6">
                 <span
-                  className={`absolute left-0 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                  className={`absolute left-0 h-0.5 w-6 bg-black transition-all duration-300 ${
                     isMobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
                   }`}
                 ></span>
                 <span
-                  className={`absolute left-0 top-2 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                  className={`absolute left-0 top-2 h-0.5 w-6 bg-black transition-all duration-300 ${
                     isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
                   }`}
                 ></span>
                 <span
-                  className={`absolute left-0 h-0.5 w-6 bg-oceanBlue transition-all duration-300 ${
+                  className={`absolute left-0 h-0.5 w-6 bg-black transition-all duration-300 ${
                     isMobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
                   }`}
                 ></span>

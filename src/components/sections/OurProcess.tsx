@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const processSteps = [
   {
@@ -153,12 +154,15 @@ export default function OurProcess() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-12 text-center sm:mt-16"
         >
-          <button className="group inline-flex items-center gap-2 rounded-full bg-warmYellow px-8 py-4 font-bold text-oceanBlue shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+          <Link
+            href="/contact"
+            className="group inline-flex items-center gap-2 rounded-full bg-warmYellow px-8 py-4 font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+          >
             <span>Comienza tu Aventura Ahora</span>
             <svg className="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-          </button>
+          </Link>
         </motion.div>
       </div>
     </section>

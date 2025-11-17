@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const features = [
   {
-    title: '15+ años de experiencia',
+    title: '3+ años de experiencia',
     description: 'Líderes en turismo de aventura en Paracas, con un historial probado de excelencia.',
     icon: (
       <svg 
@@ -158,7 +158,7 @@ export default function WhyChooseUs() {
           className="mt-12 text-center sm:mt-16"
         >
           <p className="text-lg font-semibold text-oceanBlue sm:text-xl">
-            Más de <span className="text-turquoise">10,000 viajeros felices</span> confían en nosotros
+            Más de <span className="text-turquoise">1,000 viajeros felices</span> confían en nosotros
           </p>
         </motion.div>
       </div>
