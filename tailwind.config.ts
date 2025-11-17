@@ -14,6 +14,7 @@ const config: Config = {
         warmYellow: "#FFCC00",
         lightGray: "#F4F4F4",
         emeraldGreen: "#2E8B57",
+        danger: "#EF4444",
       },
       animation: {
         kenburns: 'kenburns 20s ease-out infinite alternate-reverse',

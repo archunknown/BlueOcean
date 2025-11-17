@@ -8,3 +8,9 @@
     transform: scale(1.1) translate(-2%, 2%);
   }
 }
+
+.testimonial-card-border {
+  border: 2px solid transparent;
+  background: linear-gradient(#1E3A5F, #1E3A5F) padding-box,
+              linear-gradient(45deg, #33A8B1, #FFCC00) border-box;
+}
