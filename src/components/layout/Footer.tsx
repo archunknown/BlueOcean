@@ -187,6 +187,13 @@ export default function Footer() {
                     <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.271 0-4.192 1.549-4.192 4.615v3.385z" />
                   ),
                 },
+                {
+                  name: 'TikTok',
+                  href: 'https://www.tiktok.com/@blue_ocean_paracas',
+                  icon: (
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  ),
+                },
               ].map((social) => (
                 <a
                   key={social.name}
@@ -196,7 +203,7 @@ export default function Footer() {
                   className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-turquoise/50 hover:scale-110 hover:shadow-lg hover:shadow-turquoise/20 xs:h-11 xs:w-11 sm:h-12 sm:w-12"
                   aria-label={social.name}
                 >
-                  <svg className="h-4 w-4 text-white/70 transition-colors duration-300 group-hover:text-turquoise xs:h-4.5 xs:w-4.5 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-white/70 transition-colors duration-300 group-hover:text-turquoise xs:h-5 xs:w-5 sm:h-6 sm:w-6" fill="currentColor" viewBox="0 0 24 24">
                     {social.icon}
                   </svg>
                   <span className="absolute inset-0 bg-gradient-to-br from-turquoise/0 to-turquoise/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></span>
