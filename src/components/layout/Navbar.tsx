@@ -116,24 +116,24 @@ export default function Navbar() {
               className={`group relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 sm:h-11 sm:w-11 ${
                 isTransparent 
                   ? 'text-white hover:bg-white/10 focus:ring-white/50' 
-                  : 'text-oceanBlue hover:bg-turquoise/10 focus:ring-turquoise/50'
+                  : 'text-black hover:bg-turquoise/10 focus:ring-turquoise/50'
               }`}
               aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
               aria-expanded={isMobileMenuOpen}
             >
               <div className="relative h-5 w-5 sm:h-5 sm:w-6">
                 <span
-                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-oceanBlue'} ${
+                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
                     isMobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
                   }`}
                 ></span>
                 <span
-                  className={`absolute left-0 top-2 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-oceanBlue'} ${
+                  className={`absolute left-0 top-2 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
                     isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
                   }`}
                 ></span>
                 <span
-                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-oceanBlue'} ${
+                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
                     isMobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
                   }`}
                 ></span>

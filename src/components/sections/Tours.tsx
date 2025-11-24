@@ -83,8 +83,10 @@ export default function Tours({ limit, showButton = true }: ToursProps) {
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                  <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-warmYellow px-4 py-2 shadow-xl">
-                    <span className="text-lg font-black text-oceanBlue sm:text-xl">{tour.price}</span>
+                  <div className="absolute top-4 -right-10 z-10">
+                    <div className="relative w-48 h-8 flex justify-center items-center transform rotate-45 bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-xl border-b-2 border-yellow-600">
+                        <span className="font-black text-lg tracking-wider text-red-700 [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]">{tour.price}</span>
+                    </div>
                   </div>
                    <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-oceanBlue backdrop-blur-sm sm:text-sm">
                     {tour.category}
@@ -130,7 +132,7 @@ export default function Tours({ limit, showButton = true }: ToursProps) {
           >
             <Link
               href="/tours"
-              className="group inline-flex items-center gap-2 rounded-full border-2 border-oceanBlue px-8 py-3 font-bold text-oceanBlue transition-all duration-300 hover:bg-oceanBlue hover:text-white sm:px-10 sm:py-4"
+              className="group inline-flex items-center gap-2 rounded-full border-2 border-oceanBlue px-8 py-3 font-bold text-oceanBlue transition-all duration-300 hover:bg-oceanBlue hover:text-black sm:px-10 sm:py-4"
             >
               <span>Ver Todos los Tours</span>
               <svg 

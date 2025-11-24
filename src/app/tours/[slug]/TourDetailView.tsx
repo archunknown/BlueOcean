@@ -5,12 +5,14 @@ import { motion } from 'framer-motion';
 import { CheckCircleIcon, ClockIcon, UsersIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import type { Tour } from '@/lib/tours-data';
+import RelatedTours from '@/components/sections/RelatedTours'; // 1. IMPORTAR CARRUSEL
 
 interface TourDetailViewProps {
   tour: Tour;
+  allTours: Tour[]; // 2. ACEPTAR LA LISTA COMPLETA DE TOURS
 }
 
-export default function TourDetailView({ tour }: TourDetailViewProps) {
+export default function TourDetailView({ tour, allTours }: TourDetailViewProps) {
 
   const InfoCard = () => (
     <div className="md:sticky md:top-28">
@@ -51,6 +53,7 @@ export default function TourDetailView({ tour }: TourDetailViewProps) {
   );
 
   return (
+    <>
       <div className="bg-lightGray">
         {/* Hero Section */}
         <motion.section 
@@ -137,5 +140,9 @@ export default function TourDetailView({ tour }: TourDetailViewProps) {
           </div>
         </section>
       </div>
+      
+      {/* 3. RENDERIZAR CARRUSEL */}
+      <RelatedTours allTours={allTours} currentTourSlug={tour.slug} />
+    </>
   );
 }

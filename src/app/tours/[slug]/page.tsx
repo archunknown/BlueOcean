@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { toursData } from '@/lib/tours-data';
-import TourDetailView from './TourDetailView'; // 1. IMPORTAR EL COMPONENTE DE CLIENTE
+import { toursData, Tour } from '@/lib/tours-data'; // Import Tour type
+import TourDetailView from './TourDetailView';
 
 // Definición de tipos para los parámetros de la ruta
 type Props = {
@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 }
 
 // Helper para obtener los datos del tour por slug
-const getTourBySlug = (slug: string) => {
+const getTourBySlug = (slug: string): Tour | undefined => {
   return toursData.find((tour) => tour.slug === slug);
 };
 
@@ -47,6 +47,6 @@ export default async function TourDetailPage({ params }: Props) {
     notFound();
   }
 
-  // 2. RENDERIZAR EL COMPONENTE DE CLIENTE Y PASARLE LOS DATOS
-  return <TourDetailView tour={tour} />;
+  // RENDERIZAR EL COMPONENTE DE CLIENTE Y PASARLE TODOS LOS DATOS NECESARIOS
+  return <TourDetailView tour={tour} allTours={toursData} />;
 }
