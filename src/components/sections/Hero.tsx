@@ -5,13 +5,30 @@ import Link from 'next/link';
 export default function Hero() {
   return (
     <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen">
-      {/* Fondo con Overlay y Efecto Ken Burns */}
+      {/* Fondo con Video y Overlay - Optimizado para Responsive */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="h-full w-full bg-cover bg-center animate-kenburns"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1974&auto=format&fit=crop')" }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover object-center"
+          style={{
+            // Asegura que el video cubra toda el área sin distorsión
+            minWidth: '100%',
+            minHeight: '100%',
+          }}
+        >
+          <source src="/videoHover.mp4" type="video/mp4" />
+          {/* Fallback para navegadores que no soporten video */}
+          Tu navegador no soporta el elemento de video.
+        </video>
+
+        {/* Overlay con efecto Vignette - Adaptativo por dispositivo */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60 sm:from-black/40 sm:via-transparent sm:to-black/50 lg:from-black/30 lg:via-transparent lg:to-black/40"></div>
+
+        {/* Vignette lateral para enmarcar el contenido */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_40%,rgba(0,0,0,0.3)_100%)] sm:bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_50%,rgba(0,0,0,0.2)_100%)]"></div>
       </div>
 
       {/* Contenido Central - Optimizado para móvil */}
@@ -59,10 +76,10 @@ export default function Hero() {
               className="group inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-warmYellow to-yellow-400 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-oceanBlue shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-yellow-500/50 xs:gap-2 xs:px-6 xs:py-3 sm:gap-2.5 sm:px-7 sm:py-3.5 sm:text-base md:px-9 md:py-4 lg:px-11 lg:py-4.5 lg:text-lg"
             >
               <span>Ver Tours</span>
-              <svg 
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 xs:h-4 xs:w-4 sm:h-5 sm:w-5" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 xs:h-4 xs:w-4 sm:h-5 sm:w-5"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />

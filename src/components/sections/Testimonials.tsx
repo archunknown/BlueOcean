@@ -67,7 +67,7 @@ export default function Testimonials() {
   const duplicatedTestimonials = [...testimonialsData, ...testimonialsData];
 
   return (
-    <section className="overflow-hidden bg-gradient-to-br from-oceanBlue to-cyan-900 pt-28 sm:pt-32 lg:pt-36 pb-20 sm:pb-24 lg:pb-28">
+    <section className="overflow-hidden bg-lightGray pt-28 sm:pt-32 lg:pt-36 pb-20 sm:pb-24 lg:pb-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="mb-12 text-center sm:mb-16">
@@ -76,7 +76,7 @@ export default function Testimonials() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="text-4xl font-black tracking-tight text-oceanBlue sm:text-5xl lg:text-6xl"
           >
             Historias Reales de Aventureros
           </motion.h2>
@@ -85,45 +85,46 @@ export default function Testimonials() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto mt-3 max-w-2xl text-base text-cyan-100 sm:mt-4 sm:text-lg"
+            className="mx-auto mt-3 max-w-2xl text-base text-gray-600 sm:mt-4 sm:text-lg"
           >
             <span className="font-bold text-warmYellow">4.9/5</span> basado en 200+ reviews
           </motion.p>
         </div>
-        
+
         {/* Carrusel de testimonios */}
         <div className="relative">
+          {/* Máscara de desvanecimiento para el carrusel */}
           <div className="group relative w-full [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-            <motion.div 
-              className="flex min-w-full animate-scroll gap-6 group-hover:[animation-play-state:paused]"
+            <motion.div
+              className="flex min-w-full animate-scroll gap-6 group-hover:[animation-play-state:paused] py-10"
               animate={{ x: ['0%', '-50%'] }}
               transition={{ ease: 'linear', duration: 40, repeat: Infinity }}
             >
               {duplicatedTestimonials.map((testimonial, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="w-[85vw] max-w-md flex-shrink-0 sm:w-[70vw] lg:w-[450px]"
                 >
-                  <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-lg transition-all duration-300 hover:bg-white/10 hover:shadow-turquoise/20 sm:p-8">
+                  <div className="h-full rounded-2xl bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl border border-gray-100 sm:p-8">
                     {/* Header con avatar y estrellas */}
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex items-center gap-4">
                         {/* Avatar */}
                         <div className="relative">
-                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-turquoise to-cyan-500 text-xl font-bold text-white shadow-lg sm:h-16 sm:w-16">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-turquoise to-cyan-500 text-xl font-bold text-white shadow-md sm:h-16 sm:w-16">
                             {testimonial.avatar}
                           </div>
                         </div>
-                        
+
                         {/* Nombre y ubicación */}
                         <div>
-                          <p className="font-bold text-white sm:text-lg">{testimonial.name}</p>
-                          <p className="text-sm text-cyan-200">{testimonial.location}</p>
+                          <p className="font-bold text-oceanBlue sm:text-lg">{testimonial.name}</p>
+                          <p className="text-sm text-gray-500">{testimonial.location}</p>
                         </div>
                       </div>
-                      
+
                       {/* Badge de verificado */}
-                      <div className="rounded-full bg-turquoise/20 p-2">
+                      <div className="rounded-full bg-turquoise/10 p-2">
                         <svg className="h-5 w-5 text-turquoise" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
@@ -138,7 +139,7 @@ export default function Testimonials() {
                     </div>
 
                     {/* Testimonial */}
-                    <p className="text-sm leading-relaxed text-gray-200 sm:text-base">
+                    <p className="text-sm leading-relaxed text-gray-600 sm:text-base italic">
                       "{testimonial.testimonial}"
                     </p>
 
@@ -171,10 +172,10 @@ export default function Testimonials() {
             { label: 'Rating Promedio', value: '4.9/5' },
           ].map((stat, index) => (
             <div key={index} className="text-center">
-              <p className="text-2xl font-black text-warmYellow sm:text-3xl lg:text-4xl">
+              <p className="text-2xl font-black text-oceanBlue sm:text-3xl lg:text-4xl">
                 {stat.value}
               </p>
-              <p className="mt-1 text-sm text-cyan-100 sm:text-base">{stat.label}</p>
+              <p className="mt-1 text-sm text-gray-500 sm:text-base">{stat.label}</p>
             </div>
           ))}
         </motion.div>

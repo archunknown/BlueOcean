@@ -2,17 +2,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import galleryData from '@/data/gallery.json';
 
-const allImages = [
-  { src: '/gallery/post-1.png', category: 'Islas', title: 'Lobo Marino al Sol' },
-  { src: '/gallery/post-2.png', category: 'Desierto', title: 'Duna Infinita' },
-  { src: '/gallery/post-3.png', category: 'Reserva', title: 'Acantilado Rojo' },
-  { src: '/gallery/post-4.png', category: 'Aventura', title: 'Salto en Buggy' },
-  { src: '/gallery/post-5.png', category: 'Islas', title: 'Pelícanos en Vuelo' },
-  { src: '/gallery/post-6.png', category: 'Reserva', title: 'La Catedral' },
-  { src: '/gallery/post-7.png', category: 'Aventura', title: 'Adrenalina Pura' },
-  { src: '/gallery/post-8.png', category: 'Desierto', title: 'Atardecer Dorado' },
-];
+// Las imágenes ahora se cargan automáticamente desde gallery.json
+// Para agregar nuevas imágenes:
+// 1. Copia la imagen a public/gallery/[categoria]/nombre-descriptivo.png
+// 2. Ejecuta: npm run gallery (o reinicia npm run dev)
+const allImages = galleryData;
 
 const filters = ['Todas', 'Islas', 'Reserva', 'Desierto', 'Aventura'];
 
@@ -48,7 +44,7 @@ export default function Gallery() {
             Descubre la belleza natural de Paracas a través de nuestras experiencias
           </motion.p>
         </div>
-        
+
         {/* Filtros - Mejorados para móvil */}
         <div className="mb-10 flex flex-wrap justify-center gap-2 sm:gap-3 lg:mb-12">
           {filters.map((filter) => (
@@ -56,8 +52,8 @@ export default function Gallery() {
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`rounded-full px-5 py-2 text-sm font-bold transition-all duration-300 sm:px-6 sm:py-2.5 sm:text-base
-                ${activeFilter === filter 
-                  ? 'bg-warmYellow text-oceanBlue shadow-lg' 
+                ${activeFilter === filter
+                  ? 'bg-warmYellow text-oceanBlue shadow-lg'
                   : 'bg-lightGray text-gray-600 hover:bg-gray-300 hover:shadow-md'
                 }`}
               whileHover={{ scale: 1.05 }}
@@ -94,7 +90,7 @@ export default function Gallery() {
                 />
                 {/* Overlay con gradiente */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                
+
                 {/* Información */}
                 <div className="absolute bottom-0 left-0 right-0 translate-y-full p-4 text-white transition-transform duration-300 group-hover:translate-y-0">
                   <h3 className="text-lg font-bold sm:text-xl">{image.title}</h3>
@@ -124,22 +120,22 @@ export default function Gallery() {
             onClick={() => setSelectedImg(null)}
           >
             {/* Imagen */}
-            <motion.div 
+            <motion.div
               className="relative max-h-[90vh] max-w-5xl"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Image 
-                src={selectedImg} 
-                alt="Imagen ampliada" 
-                width={1200} 
-                height={1800} 
-                className="h-auto max-h-[90vh] w-auto rounded-lg shadow-2xl" 
+              <Image
+                src={selectedImg}
+                alt="Imagen ampliada"
+                width={1200}
+                height={1800}
+                className="h-auto max-h-[90vh] w-auto rounded-lg shadow-2xl"
               />
             </motion.div>
-            
+
             {/* Botón cerrar */}
             <motion.button
               initial={{ opacity: 0, scale: 0.5 }}
