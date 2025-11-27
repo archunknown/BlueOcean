@@ -47,7 +47,6 @@ export const toursData: Tour[] = [
         'Chalecos salvavidas',
         'Guía profesional (español/inglés)',
         'Asistencia permanente',
-        'Impuestos turísticos',
       ],
     }
   },
