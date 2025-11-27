@@ -61,7 +61,7 @@ const itemVariants = {
 
 export default function OurProcess() {
   return (
-    <section className="bg-gradient-to-br from-oceanBlue to-cyan-900 py-20 sm:py-24 lg:py-28">
+    <section className="bg-lightGray py-20 sm:py-24 lg:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="mb-12 text-center sm:mb-16 lg:mb-20">
@@ -70,7 +70,7 @@ export default function OurProcess() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="text-4xl font-black tracking-tight text-oceanBlue sm:text-5xl lg:text-6xl"
           >
             Nuestro Proceso
           </motion.h2>
@@ -79,7 +79,7 @@ export default function OurProcess() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto mt-3 max-w-2xl text-base text-cyan-100 sm:mt-4 sm:text-lg"
+            className="mx-auto mt-3 max-w-2xl text-base text-gray-600 sm:mt-4 sm:text-lg"
           >
             Reservar tu aventura es simple y rápido en solo 4 pasos
           </motion.p>
@@ -100,7 +100,7 @@ export default function OurProcess() {
           viewport={{ once: true, amount: 0.2 }}
         >
           {/* Línea conectora - Solo desktop */}
-          <div className="absolute left-0 right-0 top-16 hidden h-1 bg-gradient-to-r from-turquoise/30 via-turquoise to-turquoise/30 lg:block"></div>
+          <div className="absolute left-0 right-0 top-16 hidden h-1 bg-gradient-to-r from-turquoise/20 via-turquoise/50 to-turquoise/20 lg:block"></div>
 
           {processSteps.map((step, index) => (
             <motion.div
@@ -110,15 +110,15 @@ export default function OurProcess() {
               whileHover={{ y: -10 }}
             >
               {/* Card */}
-              <div className="w-full rounded-2xl bg-white p-6 shadow-xl transition-all duration-300 group-hover:shadow-2xl sm:p-8">
+              <div className="w-full h-full rounded-2xl bg-white p-6 shadow-lg transition-all duration-300 group-hover:shadow-xl border border-gray-100 sm:p-8 flex flex-col items-center">
                 {/* Icono con número */}
                 <div className="relative mx-auto mb-6 w-fit">
                   {/* Círculo del icono */}
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-turquoise to-cyan-500 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-turquoise/50 sm:h-24 sm:w-24">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-turquoise to-cyan-500 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-turquoise/40 sm:h-24 sm:w-24">
                     {step.icon}
                   </div>
                   {/* Badge del número */}
-                  <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-warmYellow to-yellow-400 text-xl font-black text-oceanBlue shadow-lg transition-all duration-300 group-hover:scale-110 sm:h-12 sm:w-12 sm:text-2xl">
+                  <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-warmYellow text-xl font-black text-oceanBlue shadow-lg transition-all duration-300 group-hover:scale-110 sm:h-12 sm:w-12 sm:text-2xl border-4 border-white">
                     {step.number}
                   </div>
                 </div>
@@ -129,7 +129,7 @@ export default function OurProcess() {
                 </h3>
 
                 {/* Descripción */}
-                <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
+                <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
                   {step.description}
                 </p>
               </div>
@@ -137,7 +137,7 @@ export default function OurProcess() {
               {/* Flecha conectora - Solo móvil */}
               {index < processSteps.length - 1 && (
                 <div className="my-4 flex items-center justify-center lg:hidden">
-                  <svg className="h-8 w-8 text-turquoise" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-8 w-8 text-turquoise/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
                 </div>
@@ -156,7 +156,7 @@ export default function OurProcess() {
         >
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-2 rounded-full bg-warmYellow px-8 py-4 font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            className="group inline-flex items-center gap-2 rounded-full bg-warmYellow px-8 py-4 font-bold text-oceanBlue shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-yellow-400"
           >
             <span>Comienza tu Aventura Ahora</span>
             <svg className="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

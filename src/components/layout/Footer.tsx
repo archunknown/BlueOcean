@@ -2,17 +2,24 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const useScroll = (threshold = 200) => {
   const [scrolled, setScrolled] = useState(false);
-  
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
+
+  useEffect(() => {
+    const handleScroll = () => {
       setScrolled(window.scrollY > threshold);
-    });
-  }
-  
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Check initial scroll position
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [threshold]);
+
   return scrolled;
 };
 
@@ -43,7 +50,7 @@ export default function Footer() {
       <div className="container mx-auto px-3 pt-16 pb-6 relative z-10 xs:px-4 xs:pt-18 sm:pt-20 sm:pb-8 lg:pt-24 lg:px-8">
         {/* Grid Principal - Optimizado para móviles */}
         <div className="grid grid-cols-2 gap-6 mb-10 xs:gap-7 xs:mb-12 sm:gap-8 sm:mb-14 lg:grid-cols-4 lg:gap-10 lg:mb-16">
-          
+
           {/* Columna 1: Marca + Newsletter - Ocupa 2 columnas en móvil */}
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="group inline-block">
@@ -59,7 +66,7 @@ export default function Footer() {
             <p className="mt-3 text-white/70 text-xs leading-relaxed xs:text-sm sm:mt-4">
               Creando experiencias inolvidables en el paraíso costero de Paracas desde 2009.
             </p>
-            
+
             {/* Newsletter con Glassmorphism */}
             <form onSubmit={handleNewsletterSubmit} className="mt-6 sm:mt-8">
               <p className="font-bold mb-2 text-warmYellow text-xs tracking-wide uppercase xs:text-sm sm:mb-3">
@@ -74,7 +81,7 @@ export default function Footer() {
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 pr-10 text-sm text-white placeholder-white/50 backdrop-blur-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-turquoise focus:border-transparent focus:bg-white/10 xs:px-4 xs:py-3 xs:pr-12"
                   required
                 />
-                <button 
+                <button
                   type="submit"
                   className="absolute right-1 top-1 bottom-1 rounded-lg bg-gradient-to-r from-turquoise to-emeraldGreen px-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:shadow-turquoise/50 hover:scale-105 active:scale-95 xs:px-4"
                 >
@@ -108,8 +115,8 @@ export default function Footer() {
                 { name: 'Contacto', href: '/contact' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    href={link.href} 
+                  <Link
+                    href={link.href}
                     className="group relative inline-flex items-center text-sm text-white/70 transition-colors duration-300 hover:text-turquoise xs:text-base"
                   >
                     <span className="mr-1.5 text-turquoise opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:mr-2.5 xs:mr-2 xs:group-hover:mr-3">
@@ -191,7 +198,7 @@ export default function Footer() {
                   name: 'TikTok',
                   href: 'https://www.tiktok.com/@blue_ocean_paracas',
                   icon: (
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                   ),
                 },
               ].map((social) => (

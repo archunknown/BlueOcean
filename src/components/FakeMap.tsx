@@ -1,19 +1,17 @@
 'use client';
 
 export default function FakeMap() {
-  // This URL uses the "q" parameter to search for a specific business name,
-  // which centers the map on the exact location without needing an API key.
-  const mapSrc = "https://www.google.com/maps?q=Blue%20Ocean%20Adventure%20Tours%20Paracas&output=embed";
-
   return (
-    <div className="relative h-full w-full rounded-lg overflow-hidden">
+    <div className="w-full h-full rounded-lg overflow-hidden">
       <iframe
-        src={mapSrc}
-        className="absolute top-0 left-0 w-full h-full"
-        style={{ border: 0 }}
+        src="https://www.google.com/maps?q=-13.8325865,-76.2476819&hl=es&z=15&output=embed"
+        width="100%"
+        height="100%"
+        style={{ border: 0, minHeight: '400px' }}
         allowFullScreen={true}
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
+        title="Ubicación de Blue Ocean Paracas"
       ></iframe>
     </div>
   );
