@@ -20,7 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement>(null);
-  
+
   const isHomePage = pathname === '/';
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Navbar() {
       // Usamos un umbral pequeño (10px) para el cambio
       setIsScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Llamada inicial para establecer el estado correcto al cargar
     return () => window.removeEventListener('scroll', handleScroll);
@@ -44,7 +44,7 @@ export default function Navbar() {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-  
+
   useEffect(() => {
     if (isMobileMenuOpen && mobileMenuPanelRef.current) {
       mobileMenuPanelRef.current.focus();
@@ -53,28 +53,26 @@ export default function Navbar() {
 
   return (
     <>
-      <header 
-        className={`fixed left-0 right-0 top-0 z-50 w-full transition-all duration-300 ease-in-out ${
-          isTransparent 
-            ? 'bg-gradient-to-b from-black/50 to-transparent py-4 sm:py-5' 
-            : 'bg-white/95 py-2 shadow-md backdrop-blur-lg sm:py-3'
-        }`}
+      <header
+        className={`fixed left-0 right-0 top-0 z-50 w-full transition-all duration-300 ease-in-out ${isTransparent
+          ? 'bg-gradient-to-b from-black/50 to-transparent py-4 sm:py-5'
+          : 'bg-white/95 py-2 shadow-md backdrop-blur-lg sm:py-3'
+          }`}
       >
         <nav className="container mx-auto flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="group relative z-10 flex items-center transition-transform duration-300 hover:scale-105">
             <Image
-              src="/logo2.png"
+              src="/logo-editado.png"
               alt="Blue Ocean Paracas"
               width={200}
               height={70}
-              className={`h-auto w-auto transition-all duration-300 ${
-                isTransparent 
+              className={`h-auto w-auto transition-all duration-300 ${isTransparent
                   ? 'brightness-0 invert max-h-12 md:max-h-16' // Logo blanco
-                  : isScrolled 
+                  : isScrolled
                     ? 'max-h-10 md:max-h-14' // Logo pequeño
                     : 'max-h-12 md:max-h-16' // Logo normal
-              }`}
+                }`}
               priority
             />
           </Link>
@@ -85,23 +83,20 @@ export default function Navbar() {
               <li key={link.name}>
                 <Link
                   href={link.href}
-                  className={`group relative px-2.5 py-2 text-sm font-semibold transition-all duration-300 xl:px-3 xl:text-base 2xl:px-4 2xl:text-lg ${
-                    isTransparent
-                      ? (pathname === link.href ? 'text-warmYellow' : 'text-white hover:text-warmYellow/90')
-                      : (pathname === link.href ? 'text-turquoise' : 'text-oceanBlue hover:text-turquoise')
-                  }`}
+                  className={`group relative px-2.5 py-2 text-sm font-semibold transition-all duration-300 xl:px-3 xl:text-base 2xl:px-4 2xl:text-lg ${isTransparent
+                    ? (pathname === link.href ? 'text-warmYellow' : 'text-white hover:text-warmYellow/90')
+                    : (pathname === link.href ? 'text-turquoise' : 'text-oceanBlue hover:text-turquoise')
+                    }`}
                 >
                   {link.name}
                   <span
-                    className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-transform duration-300 ${
-                       isTransparent
-                        ? 'bg-gradient-to-r from-warmYellow to-amber-400'
-                        : 'bg-gradient-to-r from-turquoise to-cyan-400'
-                    } ${
-                      pathname === link.href 
-                        ? 'scale-x-100' 
+                    className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-transform duration-300 ${isTransparent
+                      ? 'bg-gradient-to-r from-warmYellow to-amber-400'
+                      : 'bg-gradient-to-r from-turquoise to-cyan-400'
+                      } ${pathname === link.href
+                        ? 'scale-x-100'
                         : 'scale-x-0 group-hover:scale-x-100'
-                    }`}
+                      }`}
                   ></span>
                 </Link>
               </li>
@@ -113,29 +108,25 @@ export default function Navbar() {
             <button
               ref={mobileMenuButtonRef}
               onClick={toggleMobileMenu}
-              className={`group relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 sm:h-11 sm:w-11 ${
-                isTransparent 
-                  ? 'text-white hover:bg-white/10 focus:ring-white/50' 
-                  : 'text-black hover:bg-turquoise/10 focus:ring-turquoise/50'
-              }`}
+              className={`group relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 sm:h-11 sm:w-11 ${isTransparent
+                ? 'text-white hover:bg-white/10 focus:ring-white/50'
+                : 'text-black hover:bg-turquoise/10 focus:ring-turquoise/50'
+                }`}
               aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
               aria-expanded={isMobileMenuOpen}
             >
               <div className="relative h-5 w-5 sm:h-5 sm:w-6">
                 <span
-                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
-                    isMobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
-                  }`}
+                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
+                    }`}
                 ></span>
                 <span
-                  className={`absolute left-0 top-2 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
-                    isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-                  }`}
+                  className={`absolute left-0 top-2 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                    }`}
                 ></span>
                 <span
-                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${
-                    isMobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
-                  }`}
+                  className={`absolute left-0 h-0.5 w-full transition-all duration-300 ${isTransparent ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
+                    }`}
                 ></span>
               </div>
             </button>
@@ -166,8 +157,8 @@ export default function Navbar() {
               role="dialog"
             >
               <div className="relative border-b border-white/10 p-4 sm:p-5">
-                <button 
-                  onClick={closeMobileMenu} 
+                <button
+                  onClick={closeMobileMenu}
                   className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-white transition-all duration-300 hover:bg-white/10 hover:rotate-90 focus:outline-none focus:ring-2 focus:ring-white/50 sm:right-5 sm:top-5 sm:h-10 sm:w-10"
                   aria-label="Cerrar menú"
                 >
@@ -175,10 +166,10 @@ export default function Navbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                
+
                 <div className="pr-10 sm:pr-12">
                   <Image
-                    src="/logo2.png"
+                    src="/logo-editado.png"
                     alt="Blue Ocean Paracas"
                     width={140}
                     height={45}
@@ -199,19 +190,19 @@ export default function Navbar() {
                       href={link.href}
                       onClick={closeMobileMenu}
                       className={`group flex items-center justify-between rounded-xl px-3 py-3 text-lg font-bold transition-all duration-300 sm:px-4 sm:py-4 sm:text-xl
-                        ${pathname === link.href 
-                          ? 'bg-white/10 text-warmYellow' 
+                        ${pathname === link.href
+                          ? 'bg-white/10 text-warmYellow'
                           : 'text-white hover:bg-white/5 hover:text-warmYellow'
                         }
                       `}
                     >
                       <span>{link.name}</span>
-                      <svg 
+                      <svg
                         className={`h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 sm:h-5 sm:w-5
                           ${pathname === link.href ? 'text-warmYellow' : 'text-white/50'}
                         `}
-                        fill="none" 
-                        viewBox="0 0 24 24" 
+                        fill="none"
+                        viewBox="0 0 24 24"
                         stroke="currentColor"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
