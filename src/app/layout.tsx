@@ -17,6 +17,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = appMetadata;
 
+export const viewport = {
+  themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -86,6 +86,7 @@ export default function Gallery() {
                   alt={image.title}
                   width={800}
                   height={1200}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="w-full transform transition-transform duration-500 group-hover:scale-110"
                 />
                 {/* Overlay con gradiente */}

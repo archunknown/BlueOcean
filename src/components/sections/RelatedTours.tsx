@@ -63,56 +63,57 @@ export default function RelatedTours({ allTours, currentTourSlug }: RelatedTours
             {relatedTours.map((tour) => (
               <SwiperSlide key={tour.slug}>
                 <Link href={`/tours/${tour.slug}`} passHref>
-                    <motion.div
-                        className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
-                        whileHover={{ y: -8 }}
-                    >
-                        {/* Imagen */}
-                        <div className="relative h-64 overflow-hidden">
-                        <Image
-                            src={tour.imageUrl}
-                            alt={tour.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                        <div className="absolute top-4 -right-10 z-10">
-                            <div className="relative w-48 h-8 flex justify-center items-center transform rotate-45 bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-xl border-b-2 border-yellow-600">
-                                <span className="font-black text-lg tracking-wider text-red-700 [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]">{tour.price}</span>
-                            </div>
+                  <motion.div
+                    className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                    whileHover={{ y: -8 }}
+                  >
+                    {/* Imagen */}
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={tour.imageUrl}
+                        alt={tour.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                      <div className="absolute top-4 -right-10 z-10">
+                        <div className="relative w-48 h-8 flex justify-center items-center transform rotate-45 bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-xl border-b-2 border-yellow-600">
+                          <span className="font-black text-lg tracking-wider text-red-700 [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]">{tour.price}</span>
                         </div>
-                        <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-oceanBlue backdrop-blur-sm sm:text-sm">
-                            {tour.category}
-                        </div>
-                        </div>
+                      </div>
+                      <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-oceanBlue backdrop-blur-sm sm:text-sm">
+                        {tour.category}
+                      </div>
+                    </div>
 
-                        {/* Contenido */}
-                        <div className="flex flex-1 flex-col p-5 sm:p-6">
-                        <h3 className="mb-2 text-xl font-bold text-oceanBlue transition-colors group-hover:text-turquoise sm:text-2xl truncate">
-                            {tour.title}
-                        </h3>
-                        <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">
-                            {tour.shortDescription}
-                        </p>
-                         <div className="mt-4 text-center border-t pt-4">
-                            <span className="font-bold text-oceanBlue group-hover:text-turquoise transition-colors">
-                                Ver Detalles
-                            </span>
-                            </div>
-                        </div>
-                    </motion.div>
+                    {/* Contenido */}
+                    <div className="flex flex-1 flex-col p-5 sm:p-6">
+                      <h3 className="mb-2 text-xl font-bold text-oceanBlue transition-colors group-hover:text-turquoise sm:text-2xl truncate">
+                        {tour.title}
+                      </h3>
+                      <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">
+                        {tour.shortDescription}
+                      </p>
+                      <div className="mt-4 text-center border-t pt-4">
+                        <span className="font-bold text-oceanBlue group-hover:text-turquoise transition-colors">
+                          Ver Detalles
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
                 </Link>
               </SwiperSlide>
             ))}
           </Swiper>
-           {/* Custom Navigation */}
+          {/* Custom Navigation */}
           <div className="swiper-button-prev-custom absolute top-1/2 -translate-y-1/2 left-0 z-10 cursor-pointer p-2 bg-white/80 rounded-full shadow-md hover:bg-white transition-all -ml-4 hidden lg:block">
             <ChevronLeftIcon className="h-6 w-6 text-oceanBlue" />
           </div>
           <div className="swiper-button-next-custom absolute top-1/2 -translate-y-1/2 right-0 z-10 cursor-pointer p-2 bg-white/80 rounded-full shadow-md hover:bg-white transition-all -mr-4 hidden lg:block">
             <ChevronRightIcon className="h-6 w-6 text-oceanBlue" />
           </div>
-           {/* Custom Pagination */}
+          {/* Custom Pagination */}
           <div className="swiper-pagination-custom text-center mt-4"></div>
         </div>
       </div>

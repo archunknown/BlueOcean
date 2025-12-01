@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Hero() {
   return (
-    <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen">
+    <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen landscape:min-h-[100vh]">
       {/* Fondo con Video y Overlay - Optimizado para Responsive */}
       <div className="absolute inset-0 z-0">
         <video

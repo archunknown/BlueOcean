@@ -80,15 +80,16 @@ export default function Tours({ limit, showButton = true }: ToursProps) {
                     src={tour.imageUrl}
                     alt={tour.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                   <div className="absolute top-4 -right-10 z-10">
                     <div className="relative w-48 h-8 flex justify-center items-center transform rotate-45 bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-xl border-b-2 border-yellow-600">
-                        <span className="font-black text-lg tracking-wider text-red-700 [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]">{tour.price}</span>
+                      <span className="font-black text-lg tracking-wider text-red-700 [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]">{tour.price}</span>
                     </div>
                   </div>
-                   <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-oceanBlue backdrop-blur-sm sm:text-sm">
+                  <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-oceanBlue backdrop-blur-sm sm:text-sm">
                     {tour.category}
                   </div>
                 </div>
@@ -104,17 +105,17 @@ export default function Tours({ limit, showButton = true }: ToursProps) {
                   </p>
 
                   <div className="mt-auto border-t border-gray-200 pt-4">
-                     <div className="flex items-center text-sm text-gray-700">
-                        <ClockIcon className="mr-2 h-5 w-5 text-turquoise" />
-                        <span className="font-medium">Duración:</span>
-                        <span className="ml-1.5">{tour.duration}</span>
-                     </div>
-                  </div>
-                   <div className="mt-4 text-center">
-                      <span className="font-bold text-oceanBlue group-hover:text-turquoise transition-colors">
-                        Ver Detalles
-                      </span>
+                    <div className="flex items-center text-sm text-gray-700">
+                      <ClockIcon className="mr-2 h-5 w-5 text-turquoise" />
+                      <span className="font-medium">Duración:</span>
+                      <span className="ml-1.5">{tour.duration}</span>
                     </div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <span className="font-bold text-oceanBlue group-hover:text-turquoise transition-colors">
+                      Ver Detalles
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             </Link>
@@ -135,10 +136,10 @@ export default function Tours({ limit, showButton = true }: ToursProps) {
               className="group inline-flex items-center gap-2 rounded-full border-2 border-oceanBlue px-8 py-3 font-bold text-oceanBlue transition-all duration-300 hover:bg-oceanBlue hover:text-black sm:px-10 sm:py-4"
             >
               <span>Ver Todos los Tours</span>
-              <svg 
-                className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

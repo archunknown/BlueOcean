@@ -54,9 +54,9 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 top-0 z-50 w-full transition-all duration-300 ease-in-out ${isTransparent
-          ? 'bg-gradient-to-b from-black/50 to-transparent py-4 sm:py-5'
-          : 'bg-white/95 py-2 shadow-md backdrop-blur-lg sm:py-3'
+        className={`fixed left-0 right-0 top-0 z-50 w-full transition-all duration-300 ease-in-out pt-[env(safe-area-inset-top)] ${isTransparent
+          ? 'bg-gradient-to-b from-black/50 to-transparent pb-4 sm:pb-5'
+          : 'bg-white/95 pb-2 shadow-md backdrop-blur-lg sm:pb-3'
           }`}
       >
         <nav className="container mx-auto flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
@@ -68,10 +68,10 @@ export default function Navbar() {
               width={200}
               height={70}
               className={`h-auto w-auto transition-all duration-300 ${isTransparent
-                  ? 'brightness-0 invert max-h-12 md:max-h-16' // Logo blanco
-                  : isScrolled
-                    ? 'max-h-10 md:max-h-14' // Logo pequeño
-                    : 'max-h-12 md:max-h-16' // Logo normal
+                ? 'brightness-0 invert max-h-12 md:max-h-16' // Logo blanco
+                : isScrolled
+                  ? 'max-h-10 md:max-h-14' // Logo pequeño
+                  : 'max-h-12 md:max-h-16' // Logo normal
                 }`}
               priority
             />
