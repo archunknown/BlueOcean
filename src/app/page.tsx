@@ -7,15 +7,20 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import OurProcess from "@/components/sections/OurProcess";
 import FAQ from "@/components/sections/FAQ";
 import InstagramFeed from "@/components/sections/InstagramFeed";
+import { ToursService, GalleryService } from "@/services/tours";
 
-export default function Home() {
+export default async function Home() {
+  // Fetch data on the server
+  const tours = await ToursService.getAll();
+  const galleryImages = await GalleryService.getAll();
+
   return (
     <main>
       <Hero />
       <WhyChooseUs />
-      <Tours limit={3} showButton={true} /> {/* <-- MODIFICADO */}
+      <Tours tours={tours} limit={3} showButton={true} />
       <OurProcess />
-      <Gallery />
+      <Gallery images={galleryImages} />
       <InstagramFeed />
       <Testimonials />
       <FAQ />

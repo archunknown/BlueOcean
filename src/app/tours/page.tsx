@@ -1,10 +1,13 @@
 // src/app/tours/page.tsx
 import ToursSection from '@/components/sections/Tours';
+import { ToursService } from '@/services/tours';
 
-export default function ToursPage() {
+export default async function ToursPage() {
+  const tours = await ToursService.getAll();
+
   return (
     <main>
-      <ToursSection showButton={false} /> {/* <-- MODIFICADO */}
+      <ToursSection tours={tours} showButton={false} />
     </main>
   );
 }

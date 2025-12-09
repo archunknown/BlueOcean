@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { toursData } from '@/lib/tours-data'; // 1. IMPORTAR DATOS CENTRALIZADOS
+import { Tour } from '@/lib/tours-data'; // Usamos el tipo local para mantener compatibilidad UI
 import { ClockIcon } from '@heroicons/react/24/solid';
 
 const containerVariants = {
@@ -27,12 +27,13 @@ const cardVariants = {
 };
 
 interface ToursProps {
+  tours: Tour[]; // Nueva prop: Los datos vienen de fuera
   limit?: number;
   showButton?: boolean;
 }
 
-export default function Tours({ limit, showButton = true }: ToursProps) {
-  const toursToDisplay = limit ? toursData.slice(0, limit) : toursData;
+export default function Tours({ tours, limit, showButton = true }: ToursProps) {
+  const toursToDisplay = limit ? tours.slice(0, limit) : tours;
 
   return (
     <section id="tours" className="bg-lightGray pb-20 pt-28 sm:pb-24 sm:pt-32 lg:pb-28 lg:pt-36">

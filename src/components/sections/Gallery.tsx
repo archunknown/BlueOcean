@@ -2,23 +2,30 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import galleryData from '@/data/gallery.json';
-
-// Las imágenes ahora se cargan automáticamente desde gallery.json
-// Para agregar nuevas imágenes:
-// 1. Copia la imagen a public/gallery/[categoria]/nombre-descriptivo.png
-// 2. Ejecuta: npm run gallery (o reinicia npm run dev)
-const allImages = galleryData;
+import { GalleryImage } from '@/services/tours';
 
 const filters = ['Todas', 'Islas', 'Reserva', 'Desierto', 'Aventura'];
 
-export default function Gallery() {
+interface GalleryProps {
+  images: GalleryImage[];
+}
+
+export default function Gallery({ images }: GalleryProps) {
   const [activeFilter, setActiveFilter] = useState('Todas');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
+  // Mapeamos las imágenes de BD (image_url) al formato que espera el componente (src)
+  // O ajustamos el componente. Ajustemos el componente para usar propiedades genericas si es posible,
+  // pero mantengamos compatibilidad.
+  const formattedImages = images.map(img => ({
+    src: img.image_url,
+    title: img.title,
+    category: img.category
+  }));
+
   const filteredImages = activeFilter === 'Todas'
-    ? allImages
-    : allImages.filter((image) => image.category === activeFilter);
+    ? formattedImages
+    : formattedImages.filter((image) => image.category === activeFilter);
 
   return (
     <section className="bg-white pt-28 sm:pt-32 lg:pt-36 pb-20 sm:pb-24 lg:pb-28">
