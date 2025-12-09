@@ -7,13 +7,16 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import OurProcess from "@/components/sections/OurProcess";
 import FAQ from "@/components/sections/FAQ";
 import InstagramFeed from "@/components/sections/InstagramFeed";
-import { ToursService } from "@/services/tours";
 import { getGalleryImages } from "@/services/gallery";
+import { getAllTours } from "@/services/tours";
+
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // Fetch data on the server
-  const tours = await ToursService.getAll();
-  const galleryImages = await getGalleryImages();
+  const [galleryImages, tours] = await Promise.all([
+    getGalleryImages(),
+    getAllTours()
+  ]);
 
   return (
     <main>
