@@ -2,35 +2,32 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GalleryImage } from '@/services/tours';
 
-const filters = ['Todas', 'Islas', 'Reserva', 'Desierto', 'Aventura'];
+// Definimos interfaces
+interface GalleryImage {
+  id: string;
+  src: string;
+  category: string;
+  title: string;
+}
 
 interface GalleryProps {
   images: GalleryImage[];
 }
 
+const filters = ['Todas', 'Islas', 'Reserva', 'Desierto', 'Aventura'];
+
 export default function Gallery({ images }: GalleryProps) {
   const [activeFilter, setActiveFilter] = useState('Todas');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
-  // Mapeamos las imágenes de BD (image_url) al formato que espera el componente (src)
-  // O ajustamos el componente. Ajustemos el componente para usar propiedades genericas si es posible,
-  // pero mantengamos compatibilidad.
-  const formattedImages = images.map(img => ({
-    src: img.image_url,
-    title: img.title,
-    category: img.category
-  }));
-
   const filteredImages = activeFilter === 'Todas'
-    ? formattedImages
-    : formattedImages.filter((image) => image.category === activeFilter);
+    ? images
+    : images.filter((image) => image.category === activeFilter);
 
   return (
     <section className="bg-white pt-28 sm:pt-32 lg:pt-36 pb-20 sm:pb-24 lg:pb-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Encabezado */}
         <div className="mb-10 text-center sm:mb-12 lg:mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -52,7 +49,7 @@ export default function Gallery({ images }: GalleryProps) {
           </motion.p>
         </div>
 
-        {/* Filtros - Mejorados para móvil */}
+        {/* Filtros */}
         <div className="mb-10 flex flex-wrap justify-center gap-2 sm:gap-3 lg:mb-12">
           {filters.map((filter) => (
             <motion.button
@@ -71,7 +68,7 @@ export default function Gallery({ images }: GalleryProps) {
           ))}
         </div>
 
-        {/* Galería Masonry - Optimizada */}
+        {/* Galería Masonry */}
         <motion.div
           layout
           className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4"
@@ -80,7 +77,7 @@ export default function Gallery({ images }: GalleryProps) {
             {filteredImages.map((image) => (
               <motion.div
                 layout
-                key={image.src}
+                key={image.id || image.src}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -96,20 +93,10 @@ export default function Gallery({ images }: GalleryProps) {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="w-full transform transition-transform duration-500 group-hover:scale-110"
                 />
-                {/* Overlay con gradiente */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-
-                {/* Información */}
                 <div className="absolute bottom-0 left-0 right-0 translate-y-full p-4 text-white transition-transform duration-300 group-hover:translate-y-0">
                   <h3 className="text-lg font-bold sm:text-xl">{image.title}</h3>
                   <p className="mt-1 text-sm text-turquoise">{image.category}</p>
-                </div>
-
-                {/* Icono de expandir */}
-                <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-                  </svg>
                 </div>
               </motion.div>
             ))}
@@ -117,7 +104,7 @@ export default function Gallery({ images }: GalleryProps) {
         </motion.div>
       </div>
 
-      {/* Lightbox Modal - Mejorado */}
+      {/* Lightbox */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div
@@ -127,14 +114,7 @@ export default function Gallery({ images }: GalleryProps) {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
             onClick={() => setSelectedImg(null)}
           >
-            {/* Imagen */}
-            <motion.div
-              className="relative max-h-[90vh] max-w-5xl"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div className="relative max-h-[90vh] max-w-5xl">
               <Image
                 src={selectedImg}
                 alt="Imagen ampliada"
@@ -143,19 +123,12 @@ export default function Gallery({ images }: GalleryProps) {
                 className="h-auto max-h-[90vh] w-auto rounded-lg shadow-2xl"
               />
             </motion.div>
-
-            {/* Botón cerrar */}
-            <motion.button
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
+            <button
               className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-all hover:bg-white/20 sm:right-6 sm:top-6"
               onClick={() => setSelectedImg(null)}
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </motion.button>
+              ✕
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

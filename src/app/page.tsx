@@ -7,12 +7,13 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import OurProcess from "@/components/sections/OurProcess";
 import FAQ from "@/components/sections/FAQ";
 import InstagramFeed from "@/components/sections/InstagramFeed";
-import { ToursService, GalleryService } from "@/services/tours";
+import { ToursService } from "@/services/tours";
+import { getGalleryImages } from "@/services/gallery";
 
 export default async function Home() {
   // Fetch data on the server
   const tours = await ToursService.getAll();
-  const galleryImages = await GalleryService.getAll();
+  const galleryImages = await getGalleryImages();
 
   return (
     <main>

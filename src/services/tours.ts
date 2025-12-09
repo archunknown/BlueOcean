@@ -15,7 +15,8 @@ export const ToursService = {
         try {
             const { data, error } = await supabase
                 .from('tours')
-                .select('*');
+                .select('*')
+                .returns<Tour[]>();
 
             if (error) throw error;
 
@@ -58,7 +59,7 @@ export const ToursService = {
                 .from('tours')
                 .select('*')
                 .eq('slug', slug)
-                .single();
+                .single<Tour>();
 
             if (error) throw error;
 
@@ -80,36 +81,4 @@ export const ToursService = {
         // Fallback local
         return toursData.find(t => t.slug === slug);
     },
-};
-
-/**
- * Servicio para obtener imágenes de Galería.
- */
-export const GalleryService = {
-    async getAll(): Promise<GalleryImage[]> {
-        try {
-            const { data, error } = await supabase
-                .from('gallery')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            if (data && data.length > 0) {
-                return data; // Retornamos los datos de la BD
-            }
-        } catch (error) {
-            // Ignoramos error en galería por ahora o devolvemos vacío para que no rompa,
-            // pero el usuario pidió refactorizar Gallery.tsx para NO usar json local.
-            // Sin embargo, si la BD está vacía, no se verá nada.
-            // Podríamos mantener un mini-fallback o dejar que se llene la BD.
-            // El prompt dice: "temporalmente, si la BD falla o está vacía, devuelvan los datos del archivo antiguo".
-            // PERO, eliminamos el gallery.json en paso 1. Así que aquí no hay fallback fácil
-            // a menos que hayamos inyectado los datos en este archivo antes.
-            // Como el usuario dijo "borra gallery.json", asumiremos que está bien que devuelva []
-            // O podríamos haber guardado el JSON en una variable aquí si quisieramos fallback.
-            console.error('❌ Error fetching gallery:', error);
-        }
-        return [];
-    }
 };
