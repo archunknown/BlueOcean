@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function StickyCTA() {
   const [isVisible, setIsVisible] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const pathname = usePathname();
+
+  // Ocultar en páginas de tours
+  const isOnToursPage = pathname?.startsWith('/tours');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +34,7 @@ export default function StickyCTA() {
 
   return (
     <AnimatePresence>
-      {isVisible && !isAtBottom && (
+      {isVisible && !isAtBottom && !isOnToursPage && (
         <motion.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

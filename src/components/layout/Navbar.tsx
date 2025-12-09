@@ -141,7 +141,8 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden"
             onClick={closeMobileMenu}
           >
             <motion.div
@@ -150,20 +151,35 @@ export default function Navbar() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute right-0 top-0 h-full w-[90%] max-w-xs bg-gradient-to-br from-oceanBlue via-oceanBlue to-cyan-900 shadow-2xl xs:w-[85%] sm:max-w-sm"
+              transition={{
+                type: 'spring',
+                damping: 25,
+                stiffness: 300
+              }}
+              className="absolute right-0 top-0 h-full w-[90%] max-w-xs overflow-hidden shadow-2xl xs:w-[85%] sm:max-w-sm"
               onClick={(e) => e.stopPropagation()}
               aria-modal="true"
               role="dialog"
+              style={{
+                background: 'linear-gradient(135deg, rgba(13, 71, 161, 0.95) 0%, rgba(0, 96, 100, 0.95) 100%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+              }}
             >
-              <div className="relative border-b border-white/10 p-4 sm:p-5">
+              {/* Glassmorphism overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/10 pointer-events-none" />
+
+              {/* Shimmer effect on edge */}
+              <div className="absolute top-0 left-0 h-full w-[2px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+
+              <div className="relative border-b border-white/20 p-4 sm:p-5 backdrop-blur-sm">
                 <button
                   onClick={closeMobileMenu}
-                  className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-white transition-all duration-300 hover:bg-white/10 hover:rotate-90 focus:outline-none focus:ring-2 focus:ring-white/50 sm:right-5 sm:top-5 sm:h-10 sm:w-10"
+                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-all duration-300 hover:bg-white/20 hover:rotate-90 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50 sm:right-5 sm:top-5"
                   aria-label="Cerrar menú"
                 >
-                  <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
@@ -173,50 +189,63 @@ export default function Navbar() {
                     alt="Blue Ocean Paracas"
                     width={140}
                     height={45}
-                    className="h-auto w-auto max-h-9 brightness-0 invert sm:max-h-11"
+                    className="h-auto w-auto max-h-10 brightness-0 invert sm:max-h-11 drop-shadow-lg"
                   />
                 </div>
               </div>
 
-              <ul className="flex flex-col space-y-1 p-4 sm:p-5">
+              <ul className="flex flex-col space-y-2 p-4 sm:p-5">
                 {navLinks.map((link, i) => (
                   <motion.li
                     key={link.name}
-                    initial={{ opacity: 0, x: 50 }}
+                    initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * i, duration: 0.3 }}
+                    transition={{
+                      delay: 0.1 + (0.05 * i),
+                      type: 'spring',
+                      damping: 20,
+                      stiffness: 300
+                    }}
                   >
                     <Link
                       href={link.href}
                       onClick={closeMobileMenu}
-                      className={`group flex items-center justify-between rounded-xl px-3 py-3 text-lg font-bold transition-all duration-300 sm:px-4 sm:py-4 sm:text-xl
+                      className={`group relative flex items-center justify-between overflow-hidden rounded-2xl px-4 py-4 text-lg font-bold transition-all duration-300 sm:px-5 sm:py-4 sm:text-xl
                         ${pathname === link.href
-                          ? 'bg-white/10 text-warmYellow'
-                          : 'text-white hover:bg-white/5 hover:text-warmYellow'
+                          ? 'bg-gradient-to-r from-white/20 to-white/10 text-warmYellow shadow-lg shadow-warmYellow/20'
+                          : 'text-white hover:bg-white/10 hover:text-warmYellow hover:shadow-md'
                         }
                       `}
                     >
-                      <span>{link.name}</span>
+                      {/* Glow effect for active link */}
+                      {pathname === link.href && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-warmYellow/10 to-transparent animate-pulse" />
+                      )}
+
+                      <span className="relative z-10 flex items-center gap-3">
+                        {/* Icon placeholder for visual interest */}
+                        <span className={`h-1.5 w-1.5 rounded-full transition-all ${pathname === link.href
+                          ? 'bg-warmYellow scale-100'
+                          : 'bg-white/30 scale-0 group-hover:scale-100'
+                          }`} />
+                        {link.name}
+                      </span>
+
                       <svg
-                        className={`h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 sm:h-5 sm:w-5
-                          ${pathname === link.href ? 'text-warmYellow' : 'text-white/50'}
+                        className={`relative z-10 h-5 w-5 transition-all duration-300 group-hover:translate-x-1 sm:h-5 sm:w-5
+                          ${pathname === link.href ? 'text-warmYellow' : 'text-white/40 group-hover:text-warmYellow'}
                         `}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        strokeWidth={2.5}
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
                     </Link>
                   </motion.li>
                 ))}
               </ul>
-
-              <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-4 sm:p-5">
-                <p className="text-center text-xs text-white/60 sm:text-sm">
-                  © 2025 Blue Ocean Paracas
-                </p>
-              </div>
             </motion.div>
           </motion.div>
         )}

@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Tour } from '@/lib/tours-data'; // Usamos el tipo local para mantener compatibilidad UI
 import { ClockIcon } from '@heroicons/react/24/solid';
 
@@ -33,7 +34,12 @@ interface ToursProps {
 }
 
 export default function Tours({ tours, limit, showButton = true }: ToursProps) {
+  const pathname = usePathname();
   const toursToDisplay = limit ? tours.slice(0, limit) : tours;
+
+  // Ocultar el botón si estamos en cualquier página de tours
+  const isOnToursPage = pathname?.startsWith('/tours');
+  const shouldShowButton = showButton && !isOnToursPage;
 
   return (
     <section id="tours" className="bg-lightGray pb-20 pt-28 sm:pb-24 sm:pt-32 lg:pb-28 lg:pt-36">
@@ -124,7 +130,7 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
         </motion.div>
 
         {/* CTA Ver Todos (si está en la página principal) */}
-        {showButton && (
+        {shouldShowButton && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
