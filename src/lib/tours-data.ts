@@ -1,4 +1,5 @@
 export interface Tour {
+  id?: string;
   slug: string;
   title: string;
   category: 'Tour' | 'Alquiler';

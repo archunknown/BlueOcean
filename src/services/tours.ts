@@ -27,23 +27,14 @@ export async function getAllTours(): Promise<Tour[]> {
         title: item.title,
         price: formatPrice(item.price),
         duration: item.duration || 'Por consultar',
-        difficulty: 'Fácil',
-        groupSize: item.group_size || 'Variado',
         category: item.category || 'Tour',
         imageUrl: item.image_url,
         shortDescription: item.short_description || '',
         longDescription: item.long_description || '',
-        // FIX: Provide valid default objects for itinerary and details instead of empty arrays
-        // because the Tour interface expects objects { title: string, items: string[] }
-        itinerary: { title: 'Itinerario', items: [] },
-        details: { title: 'Detalles', items: [] },
-        highlights: [],
-        included: [],
-        notIncluded: [],
-        recommendations: [],
-        mapUrl: undefined,
-        faqs: [],
-        gallery: []
+        groupSize: item.group_size || 'Variado',
+        schedule: item.schedule || '',
+        itinerary: item.itinerary,
+        details: item.details
     }));
 }
 
@@ -67,21 +58,13 @@ export async function getTourBySlug(slug: string): Promise<Tour | null> {
         title: item.title,
         price: formatPrice(item.price),
         duration: item.duration || 'Por consultar',
-        difficulty: 'Fácil',
-        groupSize: item.group_size || 'Variado',
         category: item.category || 'Tour',
         imageUrl: item.image_url,
         shortDescription: item.short_description || '',
         longDescription: item.long_description || '',
-        // FIX: Match interface requirements
-        itinerary: { title: 'Itinerario', items: [] },
-        details: { title: 'Detalles', items: [] },
-        highlights: [],
-        included: [],
-        notIncluded: [],
-        recommendations: [],
-        mapUrl: undefined,
-        faqs: [],
-        gallery: []
+        groupSize: item.group_size || 'Variado',
+        schedule: item.schedule || '',
+        itinerary: item.itinerary,
+        details: item.details
     };
 }

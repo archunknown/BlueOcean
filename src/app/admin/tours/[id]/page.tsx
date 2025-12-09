@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import TourFormWrapper from '../new/TourFormWrapper'
 
-export default async function EditTourPage({ params }: { params: { id: string } }) {
+export default async function EditTourPage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -12,10 +12,12 @@ export default async function EditTourPage({ params }: { params: { id: string } 
         redirect('/login')
     }
 
+    const { id } = await params
+
     const { data: tour, error } = await supabase
         .from('tours')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
     if (error || !tour) {

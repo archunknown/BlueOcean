@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { Loader2, Save } from 'lucide-react'
 import { motion } from 'framer-motion'
 import ImageUpload from '@/components/admin/ImageUpload'
+import DynamicList from '@/components/admin/DynamicList'
 import { createTour, updateTour } from '@/app/admin/tours/actions'
 
 interface TourFormProps {
@@ -18,8 +19,11 @@ interface TourFormProps {
         duration: string | null
         capacity?: number | string | null
         group_size?: string | null
+        schedule?: string | null
         image?: string
         image_url?: string
+        itinerary?: { title: string; items: string[] } | any
+        details?: { title: string; items: string[] } | any
     }
     mode: 'create' | 'edit'
 }
@@ -35,6 +39,23 @@ export default function TourForm({ tour, mode }: TourFormProps) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
+
+    // Prepare initial data for DynamicLists
+    // If we have data, use it. If not, use defaults.
+    const initialItineraryData = tour?.itinerary || { title: 'Itinerario', items: [] }
+    const initialDetailsData = tour?.details || { title: 'Detalles', items: [] }
+
+    // Determine if enabled initially.
+    // For 'create' mode, enable both by default.
+    // For 'edit' mode, enable only if data existed.
+    const isCreate = mode === 'create'
+    const enableItinerary = isCreate || !!tour?.itinerary
+    const enableDetails = isCreate || !!tour?.details
+
+    // State tracks the actual data to be submitted (can be null if disabled)
+    // Initialize with current data if enabled, or null otherwise.
+    const [itinerarySubmission, setItinerarySubmission] = useState(enableItinerary ? initialItineraryData : null)
+    const [detailsSubmission, setDetailsSubmission] = useState(enableDetails ? initialDetailsData : null)
 
     const numericPrice = tour ? extractNumericPrice(tour.price) : ''
     const initialImage = tour?.image_url || tour?.image
@@ -55,6 +76,7 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                     toast.error(result.error)
                 } else {
                     toast.success(mode === 'create' ? 'Tour creado exitosamente' : 'Tour actualizado exitosamente')
+                    router.push('/admin/tours')
                 }
             } catch (error) {
                 toast.error('Error inesperado')
@@ -112,6 +134,7 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                             required
                             step="0.01"
                             min="0"
+                            onWheel={(e) => e.currentTarget.blur()}
                             className="w-full rounded-lg border border-gray-300 bg-white pl-12 pr-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                             placeholder="40.00"
                         />
@@ -167,16 +190,57 @@ export default function TourForm({ tour, mode }: TourFormProps) {
 
             <div>
                 <label htmlFor="long_description" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Descripción Detallada
+                    Descripción General
                 </label>
                 <textarea
                     id="long_description"
                     name="long_description"
                     defaultValue={tour?.long_description || ''}
-                    rows={6}
+                    rows={4}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Descripción completa del tour, incluyendo itinerario, incluye/no incluye, etc..."
+                    placeholder="Descripción introductoria..."
                 />
+            </div>
+
+            {/* Schedule Field */}
+            <div>
+                <label htmlFor="schedule" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Horario de Salidas
+                </label>
+                <input
+                    type="text"
+                    id="schedule"
+                    name="schedule"
+                    defaultValue={tour?.schedule || ''}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Ej: Salidas 8am, 10am, 12pm"
+                />
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+                {/* Dynamic Block 1: Itinerary / Main Route */}
+                <div>
+                    <DynamicList
+                        label="Sección Dinámica 1 (Ej: Recorrido / Ruta)"
+                        initialTitle={initialItineraryData.title}
+                        initialItems={initialItineraryData.items}
+                        initialEnabled={enableItinerary}
+                        onUpdate={setItinerarySubmission}
+                    />
+                    <input type="hidden" name="itinerary" value={JSON.stringify(itinerarySubmission)} />
+                </div>
+
+                {/* Dynamic Block 2: Details / Includes */}
+                <div>
+                    <DynamicList
+                        label="Sección Dinámica 2 (Ej: Incluye / Requisitos)"
+                        initialTitle={initialDetailsData.title}
+                        initialItems={initialDetailsData.items}
+                        initialEnabled={enableDetails}
+                        onUpdate={setDetailsSubmission}
+                    />
+                    <input type="hidden" name="details" value={JSON.stringify(detailsSubmission)} />
+                </div>
             </div>
 
             <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
