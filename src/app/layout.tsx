@@ -5,6 +5,7 @@ import ClientProvider from "./client-provider";
 import { metadata as appMetadata } from "./metadata";
 import StickyCTA from "../components/StickyCTA";
 import { Toaster } from "sonner";
+import { getGlobalSettings } from "./admin/actions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,17 +26,19 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getGlobalSettings();
+
   return (
     <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClientProvider>
+        <ClientProvider settings={settings}>
           {children}
           <StickyCTA />
         </ClientProvider>

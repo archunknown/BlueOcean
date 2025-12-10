@@ -94,58 +94,58 @@ export default function UsersClient({ initialUsers }: { initialUsers: Profile[] 
 
             {/* Create Modal (Simple Overlay) */}
             {isCreateOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
                     <motion.div
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        className="w-full max-w-md rounded-xl bg-white p-5 sm:p-6 shadow-2xl mx-4"
                     >
-                        <h2 className="mb-4 text-xl font-bold text-gray-900">Crear Nuevo Usuario</h2>
+                        <h2 className="mb-5 text-xl font-bold text-gray-900">Crear Nuevo Usuario</h2>
                         <form action={handleCreate} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Email</label>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1">Email</label>
                                 <input
                                     name="email"
                                     type="email"
                                     required
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                     placeholder="usuario@ejemplo.com"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1">Contraseña</label>
                                 <input
                                     name="password"
                                     type="password"
                                     required
                                     minLength={6}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                     placeholder="******"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Rol</label>
+                                <label className="block text-xs font-semibold text-gray-700 mb-1">Rol</label>
                                 <select
                                     name="role"
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-white"
                                 >
                                     <option value="worker">Trabajador (Acceso Limitado)</option>
                                     <option value="admin">Administrador (Acceso Total)</option>
                                 </select>
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4">
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <button
                                     type="button"
                                     onClick={() => setIsCreateOpen(false)}
-                                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-md shadow-blue-500/20"
                                 >
                                     {isLoading ? 'Creando...' : 'Crear Usuario'}
                                 </button>

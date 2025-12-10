@@ -4,8 +4,14 @@ import { usePathname } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import { Settings } from '@/types/database'
 
-export default function ClientProvider({ children }: { children: React.ReactNode }) {
+interface Props {
+    children: React.ReactNode
+    settings?: Settings | null
+}
+
+export default function ClientProvider({ children, settings }: Props) {
     const pathname = usePathname()
 
     // Routes where we don't want the standard layout (Navbar/Footer)
@@ -15,8 +21,8 @@ export default function ClientProvider({ children }: { children: React.ReactNode
         <>
             {!isIsolatedRoute && <Navbar />}
             {children}
-            {!isIsolatedRoute && <WhatsAppButton />}
-            {!isIsolatedRoute && <Footer />}
+            {!isIsolatedRoute && <WhatsAppButton phoneNumber={settings?.whatsapp_primary} />}
+            {!isIsolatedRoute && <Footer email={settings?.contact_email} phoneNumber={settings?.whatsapp_primary} />}
         </>
     )
 }

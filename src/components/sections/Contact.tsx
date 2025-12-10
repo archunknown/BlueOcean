@@ -15,7 +15,12 @@ const contactFormSchema = z.object({
 
 type ContactFormInputs = z.infer<typeof contactFormSchema>;
 
-export default function Contact() {
+interface Props {
+  email?: string | null;
+  phoneNumber?: string | null;
+}
+
+export default function Contact({ email, phoneNumber }: Props) {
   const {
     register,
     handleSubmit,
@@ -26,9 +31,9 @@ export default function Contact() {
   });
 
   const onSubmit = (data: ContactFormInputs) => {
-    const phoneNumber = '51988211694';
+    const phone = phoneNumber || '51988211694';
     const message = `Hola Blue Ocean, mi nombre es ${data.name}. Mi correo es ${data.email}.\n\nMensaje: ${data.message}`;
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     window.open(url, '_blank');
     reset();

@@ -151,17 +151,17 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleOpenEdit(client)}
-                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all"
                                                     title="Editar"
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(client.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                    className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all"
                                                     title="Eliminar"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -184,13 +184,13 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
                     <motion.div
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl"
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        className="w-full max-w-md rounded-xl bg-white p-5 sm:p-6 shadow-2xl mx-4"
                     >
-                        <h2 className="mb-6 text-2xl font-bold text-gray-900">
+                        <h2 className="mb-5 text-xl font-bold text-gray-900">
                             {editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
                         </h2>
 

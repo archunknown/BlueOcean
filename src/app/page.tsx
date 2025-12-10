@@ -9,13 +9,15 @@ import FAQ from "@/components/sections/FAQ";
 import InstagramFeed from "@/components/sections/InstagramFeed";
 import { getGalleryImages } from "@/services/gallery";
 import { getAllTours } from "@/services/tours";
+import { getGlobalSettings } from "./admin/actions";
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [galleryImages, tours] = await Promise.all([
+  const [galleryImages, tours, settings] = await Promise.all([
     getGalleryImages(),
-    getAllTours()
+    getAllTours(),
+    getGlobalSettings()
   ]);
 
   return (
@@ -28,7 +30,7 @@ export default async function Home() {
       <InstagramFeed />
       <Testimonials />
       <FAQ />
-      <Contact />
+      <Contact email={settings?.contact_email} phoneNumber={settings?.whatsapp_primary} />
     </main>
   );
 }
