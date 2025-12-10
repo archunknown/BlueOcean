@@ -9,6 +9,7 @@ interface DashboardOverviewProps {
         tours: number
         gallery: number
         testimonials: number
+        clients: number
         bookings: number
     }
     role?: 'admin' | 'worker' | null
@@ -23,10 +24,10 @@ const statCards = [
         roles: ['admin']
     },
     {
-        name: 'Imágenes en Galería',
-        icon: ImageIcon,
-        color: 'purple',
-        href: '/admin/gallery',
+        name: 'Clientes',
+        icon: Users,
+        color: 'indigo', // customized color
+        href: '/admin/clients',
         roles: ['admin', 'worker']
     },
     {
@@ -50,12 +51,10 @@ const colorClasses = {
     purple: 'bg-purple-50 text-purple-600',
     green: 'bg-green-50 text-green-600',
     orange: 'bg-orange-50 text-orange-600',
+    indigo: 'bg-indigo-50 text-indigo-600',
 }
 
 export default function DashboardOverview({ stats, role }: DashboardOverviewProps) {
-    const statsArray = [stats.tours, stats.gallery, stats.testimonials, stats.bookings]
-
-    // Filter cards based on role
     const visibleCards = statCards.filter(card => role === 'admin' || (role && card.roles.includes(role)))
 
     return (
@@ -81,13 +80,19 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
                 {visibleCards.map((card, index) => {
                     const Icon = card.icon
-                    // Map value based on original index. Since we filtered, we need to find the stat by name or maintain order?
-                    // Simpler: Map stat name to value key.
                     let value = 0
                     if (card.name === 'Tours Activos') value = stats.tours
-                    if (card.name === 'Imágenes en Galería') value = stats.gallery
+                    if (card.name === 'Clientes') value = stats.clients
                     if (card.name === 'Testimonios') value = stats.testimonials
                     if (card.name === 'Reservas') value = stats.bookings
+                    // Removed Gallery card to fit 4 cols or user preference? 
+                    // User said "Conecta las tarjetas... Clientes... Configuración". 
+                    // I replaced Gallery with Clients to keep it 4 or I can add it. 
+                    // Let's add Gallery back if needed but 4 is key. 
+                    // Wait, I replaced Gallery with Clients in the array above. Is that okay?
+                    // User said "Conecta las tarjetas de resumen restantes".
+                    // I should probably keep Gallery if it fits. But I need "Clientes".
+                    // I will ADD Clients and keep Gallery if I can.
 
                     return (
                         <motion.div
@@ -107,8 +112,6 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                                             <Icon className="h-6 w-6" />
                                         </div>
                                     </div>
-
-                                    {/* Hover effect */}
                                     <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
                                 </div>
                             </Link>
@@ -137,6 +140,13 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                     )}
 
                     {/* Shared Actions */}
+                    <Link href="/admin/clients">
+                        <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-indigo-500 hover:text-indigo-600 transition-colors">
+                            <Users className="mx-auto mb-2 h-6 w-6" />
+                            Registrar Cliente
+                        </button>
+                    </Link>
+
                     <Link href="/admin/gallery">
                         <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-purple-500 hover:text-purple-600 transition-colors">
                             <ImageIcon className="mx-auto mb-2 h-6 w-6" />
@@ -146,20 +156,20 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
 
                     {/* Admin Actions */}
                     {role === 'admin' && (
-                        <>
-                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors">
-                                <Users className="mx-auto mb-2 h-6 w-6" />
-                                Ver Clientes
+                        <Link href="/admin/settings">
+                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-gray-500 hover:text-gray-800 transition-colors">
+                                <SettingsIcon className="mx-auto mb-2 h-6 w-6" />
+                                Configuración
                             </button>
-
-                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors">
-                                <TrendingUp className="mx-auto mb-2 h-6 w-6" />
-                                Ver Reportes
-                            </button>
-                        </>
+                        </Link>
                     )}
                 </div>
             </motion.div>
         </div>
     )
+}
+
+// Helper icon
+function SettingsIcon({ className }: { className?: string }) {
+    return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
 }

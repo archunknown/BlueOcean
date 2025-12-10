@@ -10,10 +10,12 @@ export default async function AdminDashboardPage() {
         { count: toursCount },
         { count: galleryCount },
         { count: testimonialsCount },
+        { count: clientsCount },
     ] = await Promise.all([
         supabase.from('tours').select('*', { count: 'exact', head: true }),
         supabase.from('gallery').select('*', { count: 'exact', head: true }),
         supabase.from('testimonials').select('*', { count: 'exact', head: true }),
+        supabase.from('clients').select('*', { count: 'exact', head: true }),
     ])
 
     const role = await getUserRole()
@@ -22,6 +24,7 @@ export default async function AdminDashboardPage() {
         tours: toursCount || 0,
         gallery: galleryCount || 0,
         testimonials: testimonialsCount || 0,
+        clients: clientsCount || 0,
         bookings: 0,
     }
 

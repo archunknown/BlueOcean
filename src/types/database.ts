@@ -16,6 +16,27 @@ export interface TourDetails {
     items: string[];
 }
 
+export interface Client {
+    id: string
+    full_name: string
+    email: string
+    phone: string | null
+    document_type: string | null // 'DNI' | 'CE' | 'PASAPORTE'
+    document_number: string | null
+    country: string | null
+    notes: string | null
+    source: string
+    created_at?: string
+}
+
+export interface Settings {
+    id: number
+    whatsapp_primary: string | null
+    contact_email: string | null
+    is_maintenance_mode: boolean
+    created_at?: string
+}
+
 export interface Database {
     public: {
         Tables: {
@@ -144,6 +165,67 @@ export interface Database {
                     id?: string
                     email?: string
                     role?: 'admin' | 'worker'
+                    created_at?: string
+                }
+            }
+            clients: {
+                Row: {
+                    id: string
+                    full_name: string
+                    email: string
+                    phone: string | null
+                    document_type: string | null
+                    document_number: string | null
+                    country: string | null
+                    notes: string | null
+                    source: string
+                    created_at?: string
+                }
+                Insert: {
+                    id?: string
+                    full_name: string
+                    email: string
+                    phone?: string | null
+                    document_type?: string | null
+                    document_number?: string | null
+                    country?: string | null
+                    notes?: string | null
+                    source?: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    full_name?: string
+                    email?: string
+                    phone?: string | null
+                    document_type?: string | null
+                    document_number?: string | null
+                    country?: string | null
+                    notes?: string | null
+                    source?: string
+                    created_at?: string
+                }
+            }
+            settings: {
+                Row: {
+                    id: number
+                    whatsapp_primary: string | null
+                    contact_email: string | null
+                    is_maintenance_mode: boolean
+                    created_at?: string
+                }
+                Insert: {
+                    id?: number
+                    whatsapp_primary?: string | null
+                    contact_email?: string | null
+                    is_maintenance_mode?: boolean
+                    created_at?: string
+                }
+                Update: {
+                    id?: number
+                    whatsapp_primary?: string | null
+                    contact_email?: string | null
+                    is_maintenance_mode?: boolean
                     created_at?: string
                 }
             }

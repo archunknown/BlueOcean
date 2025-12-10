@@ -25,6 +25,7 @@ interface AdminSidebarProps {
 const allNavItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin'] },
     { name: 'Tours', href: '/admin/tours', icon: Compass, roles: ['admin'] },
+    { name: 'Clientes', href: '/admin/clients', icon: Users, roles: ['admin', 'worker'] },
     { name: 'Usuarios', href: '/admin/users', icon: Users, roles: ['admin'] },
     { name: 'Galería', href: '/admin/gallery', icon: ImageIcon, roles: ['admin', 'worker'] },
     { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare, roles: ['admin', 'worker'] },
