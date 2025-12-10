@@ -94,7 +94,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
               className="md:col-span-2"
             >
               <h2 className="text-2xl md:text-3xl font-bold text-oceanBlue mb-4">Descripción General</h2>
-              <p className="text-gray-600 leading-relaxed mb-10">
+              <p className="text-gray-600 leading-relaxed mb-10 break-words whitespace-pre-wrap">
                 {tour.longDescription}
               </p>
 
@@ -108,7 +108,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                     {tour.itinerary.items.map((item, index) => (
                       <li key={index} className="flex items-start">
                         <CheckCircleIcon className="h-6 w-6 text-turquoise mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{item}</span>
+                        <span className="text-gray-700 break-words">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -125,7 +125,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                     {tour.details.items.map((item, index) => (
                       <li key={index} className="flex items-start">
                         <CheckCircleIcon className="h-6 w-6 text-turquoise mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{item}</span>
+                        <span className="text-gray-700 break-words">{item}</span>
                       </li>
                     ))}
                   </ul>

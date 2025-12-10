@@ -5,6 +5,16 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, User, Shield, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { createUser, deleteUser } from '@/app/admin/users/actions'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Profile {
     id: string
@@ -17,6 +27,8 @@ export default function UsersClient({ initialUsers }: { initialUsers: Profile[] 
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [users] = useState(initialUsers) // In a real app we might use router.refresh() to update this prop
+
+    const [userToDelete, setUserToDelete] = useState<string | null>(null)
 
     async function handleCreate(formData: FormData) {
         setIsLoading(true)
@@ -32,15 +44,19 @@ export default function UsersClient({ initialUsers }: { initialUsers: Profile[] 
         }
     }
 
-    async function handleDelete(id: string) {
-        if (!confirm('¿Estás seguro de eliminar este usuario?')) return
+    function handleDelete(id: string) {
+        setUserToDelete(id)
+    }
 
-        const result = await deleteUser(id)
+    async function confirmDelete() {
+        if (!userToDelete) return
+        const result = await deleteUser(userToDelete)
         if (result.error) {
             toast.error(result.error)
         } else {
             toast.success('Usuario eliminado')
         }
+        setUserToDelete(null)
     }
 
     return (
@@ -154,6 +170,23 @@ export default function UsersClient({ initialUsers }: { initialUsers: Profile[] 
                     </motion.div>
                 </div>
             )}
+
+            <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción no se puede deshacer. Se eliminará permanentemente la cuenta y el acceso de este usuario.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

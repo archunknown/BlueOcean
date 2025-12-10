@@ -2,6 +2,7 @@
 
 import { createClient as createSupabaseClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { Settings } from '@/types/database'
 
 // --- Clients Actions ---
 
@@ -38,7 +39,7 @@ export async function createClient(formData: FormData) {
 
     const { error } = await supabase
         .from('clients')
-        .insert(rawData)
+        .insert(rawData as any)
 
     if (error) {
         return { error: error.message }
@@ -49,7 +50,7 @@ export async function createClient(formData: FormData) {
 }
 
 export async function updateClient(id: string, formData: FormData) {
-    const supabase = await createSupabaseClient()
+    const supabase = await createSupabaseClient() as any
 
     const rawData = {
         full_name: formData.get('full_name') as string,
@@ -92,7 +93,7 @@ export async function deleteClient(id: string) {
 
 // --- Settings Actions ---
 
-export async function getGlobalSettings() {
+export async function getGlobalSettings(): Promise<Settings | null> {
     const supabase = await createSupabaseClient()
 
     const { data, error } = await supabase
@@ -106,11 +107,11 @@ export async function getGlobalSettings() {
         return null
     }
 
-    return data
+    return data as Settings
 }
 
 export async function updateGlobalSettings(formData: FormData) {
-    const supabase = await createSupabaseClient()
+    const supabase = await createSupabaseClient() as any
 
     const rawData = {
         whatsapp_primary: formData.get('whatsapp_primary') as string,
