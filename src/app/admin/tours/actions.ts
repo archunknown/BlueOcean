@@ -23,11 +23,11 @@ function createSlug(title: string): string {
 // Helper to handle image upload
 async function uploadImage(file: File): Promise<string> {
     const supabase = await createClient()
-    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`
+    const fileName = `tours/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`
 
-    // Assuming 'tours' bucket exists, otherwise we might need to handle failure or use a different bucket
+    // Assuming 'tours-images' bucket exists
     const { data, error } = await supabase.storage
-        .from('tours')
+        .from('tours-images')
         .upload(fileName, file)
 
     if (error) {
@@ -36,7 +36,7 @@ async function uploadImage(file: File): Promise<string> {
     }
 
     const { data: { publicUrl } } = supabase.storage
-        .from('tours')
+        .from('tours-images')
         .getPublicUrl(fileName)
 
     return publicUrl
@@ -74,12 +74,13 @@ export async function createTour(formData: FormData) {
         const imageUrl = await uploadImage(imageFile)
         const formattedPrice = formatPriceForDB(price)
         const slug = createSlug(title)
+        const category = formData.get('category') as string // Get category
 
         // Using any to bypass strict type mismatch (string vs number for price/id)
         const tourData: any = {
             slug,
             title,
-            category: 'Tour', // Default category
+            category: category || 'Tour', // Use form value
             price: String(formattedPrice), // Ensure string if DB expects string
             short_description,
             long_description: long_description || '',
@@ -113,6 +114,7 @@ export async function updateTour(id: string, formData: FormData) {
     const supabase = await createClient()
 
     const title = formData.get('title') as string
+    const category = formData.get('category') as string
     const price = formData.get('price')
     const short_description = formData.get('short_description') as string
     const long_description = formData.get('long_description') as string
@@ -163,6 +165,7 @@ export async function updateTour(id: string, formData: FormData) {
         // Using any to bypass strict checks
         const updateData: any = {
             title,
+            category: category || 'Tour',
             price: String(formattedPrice),
             short_description,
             long_description: long_description || '',

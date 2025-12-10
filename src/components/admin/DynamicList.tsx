@@ -8,13 +8,28 @@ interface DynamicListProps {
     label: string
     initialTitle: string
     initialItems: string[]
-    onUpdate: (data: { title: string; items: string[] } | null) => void
+    initialIcon?: string
+    onUpdate: (data: { title: string; items: string[]; icon: string } | null) => void
     initialEnabled?: boolean
 }
 
-export default function DynamicList({ label, initialTitle, initialItems, onUpdate, initialEnabled = true }: DynamicListProps) {
+const EMOJI_OPTIONS = [
+    { value: '📍', label: '📍 Ubicación' },
+    { value: '🕒', label: '🕒 Horario' },
+    { value: '✅', label: '✅ Check' },
+    { value: '🎒', label: '🎒 Mochila' },
+    { value: '🚲', label: '🚲 Bicicleta' },
+    { value: '🗺️', label: '🗺️ Mapa' },
+    { value: '⚙️', label: '⚙️ Engranaje' },
+    { value: '⚠️', label: '⚠️ Alerta' },
+    { value: '🌟', label: '🌟 Estrella' },
+    { value: '📝', label: '📝 Nota' },
+]
+
+export default function DynamicList({ label, initialTitle, initialItems, initialIcon = '📍', onUpdate, initialEnabled = true }: DynamicListProps) {
     const [isEnabled, setIsEnabled] = useState(initialEnabled)
     const [title, setTitle] = useState(initialTitle)
+    const [icon, setIcon] = useState(initialIcon || '📍')
     const [items, setItems] = useState<string[]>(initialItems)
 
     // Notify parent whenever state changes
@@ -22,9 +37,9 @@ export default function DynamicList({ label, initialTitle, initialItems, onUpdat
         if (!isEnabled) {
             onUpdate(null)
         } else {
-            onUpdate({ title, items })
+            onUpdate({ title, items, icon })
         }
-    }, [isEnabled, title, items, onUpdate])
+    }, [isEnabled, title, items, icon, onUpdate])
 
     const addItem = () => {
         setItems([...items, ''])
@@ -75,18 +90,31 @@ export default function DynamicList({ label, initialTitle, initialItems, onUpdat
             </div>
 
             <div className="space-y-4">
-                {/* Section Title Input */}
+                {/* Section Title Input + Icon Picker */}
                 <div>
                     <label className="mb-1.5 block text-xs font-medium text-gray-500">
-                        Título de la Sección
+                        Título de la Sección e Ícono
                     </label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        placeholder="Ej: Recorrido Principal"
-                    />
+                    <div className="flex gap-2">
+                        <select
+                            value={icon}
+                            onChange={(e) => setIcon(e.target.value)}
+                            className="w-20 rounded-lg border border-gray-300 bg-white px-2 py-2 text-xl text-center focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            {EMOJI_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.value}
+                                </option>
+                            ))}
+                        </select>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="Ej: Recorrido Principal"
+                        />
+                    </div>
                 </div>
 
                 {/* Items List */}

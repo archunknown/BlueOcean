@@ -13,6 +13,7 @@ interface TourFormProps {
     tour?: {
         id: string
         title: string
+        category?: 'Tour' | 'Alquiler' | 'Paquete' | 'Full Day' | string
         price: string | number
         short_description: string
         long_description: string | null
@@ -22,8 +23,8 @@ interface TourFormProps {
         schedule?: string | null
         image?: string
         image_url?: string
-        itinerary?: { title: string; items: string[] } | any
-        details?: { title: string; items: string[] } | any
+        itinerary?: { title: string; items: string[]; icon?: string } | any
+        details?: { title: string; items: string[]; icon?: string } | any
     }
     mode: 'create' | 'edit'
 }
@@ -42,8 +43,8 @@ export default function TourForm({ tour, mode }: TourFormProps) {
 
     // Prepare initial data for DynamicLists
     // If we have data, use it. If not, use defaults.
-    const initialItineraryData = tour?.itinerary || { title: 'Itinerario', items: [] }
-    const initialDetailsData = tour?.details || { title: 'Detalles', items: [] }
+    const initialItineraryData = tour?.itinerary || { title: 'Itinerario', items: [], icon: '📍' }
+    const initialDetailsData = tour?.details || { title: 'Detalles', items: [], icon: '✅' }
 
     // Determine if enabled initially.
     // For 'create' mode, enable both by default.
@@ -116,6 +117,23 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         placeholder="Ej: Tour Islas Ballestas"
                     />
+                </div>
+
+                <div>
+                    <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
+                        Categoría *
+                    </label>
+                    <select
+                        id="category"
+                        name="category"
+                        defaultValue={tour?.category || 'Tour'}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                        <option value="Tour">Tour</option>
+                        <option value="Alquiler">Alquiler</option>
+                        <option value="Paquete">Paquete</option>
+                        <option value="Full Day">Full Day</option>
+                    </select>
                 </div>
 
                 <div>
@@ -224,6 +242,7 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                         label="Sección Dinámica 1 (Ej: Recorrido / Ruta)"
                         initialTitle={initialItineraryData.title}
                         initialItems={initialItineraryData.items}
+                        initialIcon={initialItineraryData.icon}
                         initialEnabled={enableItinerary}
                         onUpdate={setItinerarySubmission}
                     />
@@ -236,6 +255,7 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                         label="Sección Dinámica 2 (Ej: Incluye / Requisitos)"
                         initialTitle={initialDetailsData.title}
                         initialItems={initialDetailsData.items}
+                        initialIcon={initialDetailsData.icon}
                         initialEnabled={enableDetails}
                         onUpdate={setDetailsSubmission}
                     />
