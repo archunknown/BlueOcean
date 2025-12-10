@@ -10,28 +10,35 @@ import {
     Image as ImageIcon,
     MessageSquare,
     Settings,
+    Users,
     ChevronLeft,
     LogOut
 } from 'lucide-react'
 import { signout } from '@/app/auth/actions'
-
 interface AdminSidebarProps {
     user: {
         email?: string
     }
+    role?: 'admin' | 'worker' | null
 }
 
-const navItems = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Tours', href: '/admin/tours', icon: Compass },
-    { name: 'Galería', href: '/admin/gallery', icon: ImageIcon },
-    { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare },
-    { name: 'Configuración', href: '/admin/settings', icon: Settings },
+const allNavItems = [
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin'] },
+    { name: 'Tours', href: '/admin/tours', icon: Compass, roles: ['admin'] },
+    { name: 'Usuarios', href: '/admin/users', icon: Users, roles: ['admin'] },
+    { name: 'Galería', href: '/admin/gallery', icon: ImageIcon, roles: ['admin', 'worker'] },
+    { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare, roles: ['admin', 'worker'] },
+    { name: 'Configuración', href: '/admin/settings', icon: Settings, roles: ['admin'] },
 ]
 
-export default function AdminSidebar({ user }: AdminSidebarProps) {
+export default function AdminSidebar({ user, role }: AdminSidebarProps) {
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(false)
+
+    // Filter items based on role
+    const navItems = allNavItems.filter(item =>
+        role === 'admin' || (role && item.roles.includes(role))
+    )
 
     return (
         <motion.aside

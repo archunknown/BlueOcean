@@ -98,6 +98,67 @@ export interface Database {
                     height?: number
                 }
             }
+            testimonials: {
+                Row: {
+                    id: number
+                    name: string
+                    location: string
+                    rating: number
+                    content: string
+                    is_approved: boolean
+                    created_at?: string
+                }
+                Insert: {
+                    id?: number
+                    name: string
+                    location: string
+                    rating: number
+                    content: string
+                    is_approved?: boolean
+                    created_at?: string
+                }
+                Update: {
+                    id?: number
+                    name?: string
+                    location?: string
+                    rating?: number
+                    content?: string
+                    is_approved?: boolean
+                    created_at?: string
+                }
+            }
+            profiles: {
+                Row: {
+                    id: string
+                    email: string
+                    role: 'admin' | 'worker'
+                    created_at?: string
+                }
+                Insert: {
+                    id: string
+                    email: string
+                    role: 'admin' | 'worker'
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    email?: string
+                    role?: 'admin' | 'worker'
+                    created_at?: string
+                }
+            }
+        }
+        Views: {
+            [_ in never]: never
+        }
+        Functions: {
+            [_ in never]: never
+        }
+        Enums: {
+            [_ in never]: never
+        }
+        CompositeTypes: {
+            [_ in never]: never
         }
     }
 }

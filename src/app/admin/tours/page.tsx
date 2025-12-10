@@ -5,7 +5,16 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
+import { redirect } from 'next/navigation'
+import { getUserRole } from '@/utils/roles'
+
 export default async function ToursPage() {
+    // Check Role
+    const role = await getUserRole()
+    if (role !== 'admin') {
+        redirect('/admin')
+    }
+
     const supabase = await createClient()
 
     const { data: tours, error } = await supabase

@@ -115,7 +115,12 @@ export default function GalleryManager({ initialImages }: GalleryManagerProps) {
     const uploadKey = `upload-${isPending ? 'pending' : 'idle'}-${images.length}`
 
     return (
-        <div className="space-y-8">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="space-y-8"
+        >
             {/* Upload Area */}
             <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -252,6 +257,6 @@ export default function GalleryManager({ initialImages }: GalleryManagerProps) {
                     <p>No hay imágenes en la galería aún.</p>
                 </div>
             )}
-        </div>
+        </motion.div>
     )
 }

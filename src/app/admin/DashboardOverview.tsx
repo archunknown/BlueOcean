@@ -11,6 +11,7 @@ interface DashboardOverviewProps {
         testimonials: number
         bookings: number
     }
+    role?: 'admin' | 'worker' | null
 }
 
 const statCards = [
@@ -18,25 +19,29 @@ const statCards = [
         name: 'Tours Activos',
         icon: Compass,
         color: 'blue',
-        href: '/admin/tours'
+        href: '/admin/tours',
+        roles: ['admin']
     },
     {
         name: 'Imágenes en Galería',
         icon: ImageIcon,
         color: 'purple',
-        href: '/admin/gallery'
+        href: '/admin/gallery',
+        roles: ['admin', 'worker']
     },
     {
         name: 'Testimonios',
         icon: MessageSquare,
         color: 'green',
-        href: '/admin/testimonials'
+        href: '/admin/testimonials',
+        roles: ['admin', 'worker']
     },
     {
         name: 'Reservas',
         icon: Calendar,
         color: 'orange',
-        href: '/admin/bookings'
+        href: '/admin/bookings',
+        roles: ['admin']
     },
 ]
 
@@ -47,8 +52,11 @@ const colorClasses = {
     orange: 'bg-orange-50 text-orange-600',
 }
 
-export default function DashboardOverview({ stats }: DashboardOverviewProps) {
+export default function DashboardOverview({ stats, role }: DashboardOverviewProps) {
     const statsArray = [stats.tours, stats.gallery, stats.testimonials, stats.bookings]
+
+    // Filter cards based on role
+    const visibleCards = statCards.filter(card => role === 'admin' || (role && card.roles.includes(role)))
 
     return (
         <div className="p-6 lg:p-8">
@@ -62,13 +70,24 @@ export default function DashboardOverview({ stats }: DashboardOverviewProps) {
                 <p className="mt-2 text-sm text-gray-600">
                     Bienvenido al panel de administración de Blue Ocean Paracas
                 </p>
+                {role === 'worker' && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2">
+                        Modo Trabajador (Acceso Limitado)
+                    </span>
+                )}
             </motion.div>
 
             {/* Stats Grid */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-                {statCards.map((card, index) => {
+                {visibleCards.map((card, index) => {
                     const Icon = card.icon
-                    const value = statsArray[index]
+                    // Map value based on original index. Since we filtered, we need to find the stat by name or maintain order?
+                    // Simpler: Map stat name to value key.
+                    let value = 0
+                    if (card.name === 'Tours Activos') value = stats.tours
+                    if (card.name === 'Imágenes en Galería') value = stats.gallery
+                    if (card.name === 'Testimonios') value = stats.testimonials
+                    if (card.name === 'Reservas') value = stats.bookings
 
                     return (
                         <motion.div
@@ -107,27 +126,38 @@ export default function DashboardOverview({ stats }: DashboardOverviewProps) {
             >
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <Link href="/admin/tours/new">
-                        <button className="w-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors">
-                            <Compass className="mx-auto mb-2 h-6 w-6" />
-                            Crear Tour
+                    {/* Admin Actions */}
+                    {role === 'admin' && (
+                        <Link href="/admin/tours/new">
+                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors">
+                                <Compass className="mx-auto mb-2 h-6 w-6" />
+                                Crear Tour
+                            </button>
+                        </Link>
+                    )}
+
+                    {/* Shared Actions */}
+                    <Link href="/admin/gallery">
+                        <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-purple-500 hover:text-purple-600 transition-colors">
+                            <ImageIcon className="mx-auto mb-2 h-6 w-6" />
+                            Subir Imagen
                         </button>
                     </Link>
 
-                    <button className="w-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-purple-500 hover:text-purple-600 transition-colors">
-                        <ImageIcon className="mx-auto mb-2 h-6 w-6" />
-                        Subir Imagen
-                    </button>
+                    {/* Admin Actions */}
+                    {role === 'admin' && (
+                        <>
+                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors">
+                                <Users className="mx-auto mb-2 h-6 w-6" />
+                                Ver Clientes
+                            </button>
 
-                    <button className="w-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors">
-                        <Users className="mx-auto mb-2 h-6 w-6" />
-                        Ver Clientes
-                    </button>
-
-                    <button className="w-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors">
-                        <TrendingUp className="mx-auto mb-2 h-6 w-6" />
-                        Ver Reportes
-                    </button>
+                            <button className="w-full h-full rounded-lg border-2 border-dashed border-gray-300 p-4 text-center text-sm font-medium text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors">
+                                <TrendingUp className="mx-auto mb-2 h-6 w-6" />
+                                Ver Reportes
+                            </button>
+                        </>
+                    )}
                 </div>
             </motion.div>
         </div>
