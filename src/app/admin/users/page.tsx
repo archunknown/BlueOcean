@@ -22,6 +22,9 @@ export default async function UsersPage() {
         return <div>Error al cargar usuarios</div>
     }
 
+    // 3. Get Current User for UI Logic
+    const { data: { user } } = await supabase.auth.getUser()
+
     return (
         <div className="space-y-8 p-6 sm:p-8">
             <div>
@@ -30,7 +33,7 @@ export default async function UsersPage() {
             </div>
 
             {/* @ts-ignore */}
-            <UsersClient initialUsers={profiles || []} />
+            <UsersClient initialUsers={profiles || []} currentUserId={user?.id} />
         </div>
     )
 }

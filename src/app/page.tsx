@@ -22,7 +22,7 @@ export default async function Home() {
 
   return (
     <main>
-      <Hero />
+      <Hero videoUrl={settings?.hero_video_url} />
       <WhyChooseUs />
       <Tours tours={tours} limit={3} showButton={true} />
       <OurProcess />

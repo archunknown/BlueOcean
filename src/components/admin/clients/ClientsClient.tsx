@@ -17,11 +17,15 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
     const [editingClient, setEditingClient] = useState<Client | null>(null)
 
     // Filter clients
-    const filteredClients = clients.filter(client =>
-        client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.document_number?.includes(searchTerm)
-    )
+    const filteredClients = clients.filter(client => {
+        const fullName = `${client.first_name || ''} ${client.paternal_surname || ''} ${client.maternal_surname || ''}`.trim()
+        console.log(fullName)
+        return (
+            fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            client.document_number?.includes(searchTerm)
+        )
+    })
 
     function handleOpenCreate() {
         setEditingClient(null)
@@ -101,10 +105,10 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                                                    {client.full_name.charAt(0)}
+                                                    {client.first_name?.charAt(0) || client.paternal_surname?.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-gray-900">{client.full_name}</p>
+                                                    <p className="font-semibold text-gray-900">{client.first_name} {client.paternal_surname} {client.maternal_surname}</p>
                                                     {client.notes && (
                                                         <span className="text-xs text-gray-400 max-w-[150px] truncate block" title={client.notes}>
                                                             {client.notes}

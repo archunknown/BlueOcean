@@ -2,27 +2,33 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-export default function Hero() {
+interface HeroProps {
+  videoUrl?: string | null;
+}
+
+export default function Hero({ videoUrl }: HeroProps) {
   return (
     <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen landscape:min-h-[100vh]">
       {/* Fondo con Video y Overlay - Optimizado para Responsive */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="h-full w-full object-cover object-center"
-          style={{
-            // Asegura que el video cubra toda el área sin distorsión
-            minWidth: '100%',
-            minHeight: '100%',
-          }}
-        >
-          <source src="/videoHover.mp4" type="video/mp4" />
-          {/* Fallback para navegadores que no soporten video */}
-          Tu navegador no soporta el elemento de video.
-        </video>
+        {videoUrl && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full object-cover object-center"
+            style={{
+              // Asegura que el video cubra toda el área sin distorsión
+              minWidth: '100%',
+              minHeight: '100%',
+            }}
+          >
+            <source src={videoUrl} type="video/mp4" />
+            {/* Fallback para navegadores que no soporten video */}
+            Tu navegador no soporta el elemento de video.
+          </video>
+        )}
 
         {/* Overlay con efecto Vignette - Adaptativo por dispositivo */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60 sm:from-black/40 sm:via-transparent sm:to-black/50 lg:from-black/30 lg:via-transparent lg:to-black/40"></div>

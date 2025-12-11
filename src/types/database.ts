@@ -18,7 +18,9 @@ export interface TourDetails {
 
 export interface Client {
     id: string
-    full_name: string
+    first_name: string
+    paternal_surname: string
+    maternal_surname: string
     email: string
     phone: string | null
     document_type: string | null // 'DNI' | 'CE' | 'PASAPORTE'
@@ -34,6 +36,7 @@ export interface Settings {
     whatsapp_primary: string | null
     contact_email: string | null
     is_maintenance_mode: boolean
+    hero_video_url: string | null
     created_at?: string
 }
 
@@ -152,18 +155,27 @@ export interface Database {
                 Row: {
                     id: string
                     email: string
+                    first_name: string | null
+                    last_name: string | null
+                    dni: string | null
                     role: 'admin' | 'worker'
                     created_at?: string
                 }
                 Insert: {
                     id: string
                     email: string
+                    first_name?: string | null
+                    last_name?: string | null
+                    dni?: string | null
                     role: 'admin' | 'worker'
                     created_at?: string
                 }
                 Update: {
                     id?: string
                     email?: string
+                    first_name?: string | null
+                    last_name?: string | null
+                    dni?: string | null
                     role?: 'admin' | 'worker'
                     created_at?: string
                 }
@@ -212,6 +224,7 @@ export interface Database {
                     whatsapp_primary: string | null
                     contact_email: string | null
                     is_maintenance_mode: boolean
+                    hero_video_url: string | null
                     created_at?: string
                 }
                 Insert: {
@@ -219,6 +232,7 @@ export interface Database {
                     whatsapp_primary?: string | null
                     contact_email?: string | null
                     is_maintenance_mode?: boolean
+                    hero_video_url?: string | null
                     created_at?: string
                 }
                 Update: {
@@ -226,6 +240,7 @@ export interface Database {
                     whatsapp_primary?: string | null
                     contact_email?: string | null
                     is_maintenance_mode?: boolean
+                    hero_video_url?: string | null
                     created_at?: string
                 }
             }
