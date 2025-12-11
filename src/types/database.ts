@@ -45,7 +45,7 @@ export interface Database {
         Tables: {
             tours: {
                 Row: {
-                    id: number
+                    id: string
                     slug: string
                     title: string
                     category: string // 'Tour' | 'Alquiler'
@@ -58,7 +58,7 @@ export interface Database {
                     schedule: string | null
                     itinerary: Json | null
                     details: Json | null
-                    created_at?: string
+                    created_at: string
                 }
                 Insert: {
                     id?: number
@@ -92,19 +92,20 @@ export interface Database {
                     details?: Json | null
                     created_at?: string
                 }
+                Relationships: []
             }
             gallery: {
                 Row: {
-                    id: number
+                    id: string
                     title: string
-                    category: string // 'Islas' | 'Reserva' | 'Desierto' | 'Aventura'
+                    category: string
                     image_url: string
-                    created_at?: string
+                    created_at: string
                     width?: number
                     height?: number
                 }
                 Insert: {
-                    id?: number
+                    id?: string
                     title: string
                     category: string
                     image_url: string
@@ -113,7 +114,7 @@ export interface Database {
                     height?: number
                 }
                 Update: {
-                    id?: number
+                    id?: string
                     title?: string
                     category?: string
                     image_url?: string
@@ -121,6 +122,7 @@ export interface Database {
                     width?: number
                     height?: number
                 }
+                Relationships: []
             }
             testimonials: {
                 Row: {
@@ -130,7 +132,7 @@ export interface Database {
                     rating: number
                     content: string
                     is_approved: boolean
-                    created_at?: string
+                    created_at: string
                 }
                 Insert: {
                     id?: number
@@ -150,6 +152,7 @@ export interface Database {
                     is_approved?: boolean
                     created_at?: string
                 }
+                Relationships: []
             }
             profiles: {
                 Row: {
@@ -159,7 +162,7 @@ export interface Database {
                     last_name: string | null
                     dni: string | null
                     role: 'admin' | 'worker'
-                    created_at?: string
+                    created_at: string
                 }
                 Insert: {
                     id: string
@@ -179,11 +182,14 @@ export interface Database {
                     role?: 'admin' | 'worker'
                     created_at?: string
                 }
+                Relationships: []
             }
             clients: {
                 Row: {
                     id: string
-                    full_name: string
+                    first_name: string
+                    paternal_surname: string
+                    maternal_surname: string
                     email: string
                     phone: string | null
                     document_type: string | null
@@ -191,11 +197,13 @@ export interface Database {
                     country: string | null
                     notes: string | null
                     source: string
-                    created_at?: string
+                    created_at: string
                 }
                 Insert: {
                     id?: string
-                    full_name: string
+                    first_name: string
+                    paternal_surname: string
+                    maternal_surname: string
                     email: string
                     phone?: string | null
                     document_type?: string | null
@@ -207,7 +215,9 @@ export interface Database {
                 }
                 Update: {
                     id?: string
-                    full_name?: string
+                    first_name?: string
+                    paternal_surname?: string
+                    maternal_surname?: string
                     email?: string
                     phone?: string | null
                     document_type?: string | null
@@ -217,6 +227,7 @@ export interface Database {
                     source?: string
                     created_at?: string
                 }
+                Relationships: []
             }
             settings: {
                 Row: {
@@ -225,7 +236,7 @@ export interface Database {
                     contact_email: string | null
                     is_maintenance_mode: boolean
                     hero_video_url: string | null
-                    created_at?: string
+                    created_at: string
                 }
                 Insert: {
                     id?: number
@@ -243,6 +254,7 @@ export interface Database {
                     hero_video_url?: string | null
                     created_at?: string
                 }
+                Relationships: []
             }
         }
         Views: {

@@ -6,6 +6,7 @@ import { Save, Building2, User, Lock, Loader2, Video } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateGlobalSettings } from '@/app/admin/actions'
 import { Settings } from '@/types/database'
+import { createClient } from '@/utils/supabase/client'
 
 interface SettingsClientProps {
     initialSettings: Settings | null
@@ -17,33 +18,73 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
     const [activeTab, setActiveTab] = useState<'company' | 'account'>('company')
     const [isLoading, setIsLoading] = useState(false)
     const [videoSelected, setVideoSelected] = useState(false)
+    const supabase = createClient() // Initialize browser client
+
+    async function uploadVideo(file: File): Promise<string> {
+        const fileName = `hero_${Date.now()}.mp4`
+        const { error: uploadError } = await supabase.storage
+            .from('assets')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            })
+
+        if (uploadError) {
+            throw new Error('Error al subir video a Storage: ' + uploadError.message)
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('assets')
+            .getPublicUrl(fileName)
+
+        return publicUrl
+    }
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-
-        // Force check for video file to ensure UI feedback appears
         const videoFile = formData.get('hero_video') as File
         const isUploadingVideo = videoFile && videoFile.size > 0
 
         setIsLoading(true)
         if (isUploadingVideo) {
             setVideoSelected(true)
+            // Client-side validation
+            if (videoFile.size > 20 * 1024 * 1024) {
+                toast.error('El video excede el límite de 20MB')
+                setIsLoading(false)
+                setVideoSelected(false)
+                return
+            }
         }
 
-        const result = await updateGlobalSettings(formData)
-
-        setIsLoading(false)
-        setVideoSelected(false)
-
-        if (result.error) {
-            toast.error(result.error)
-        } else {
-            toast.success('Configuración actualizada')
-            // Refresh to ensure new video is loaded if applicable
+        try {
+            let videoUrl = ''
             if (isUploadingVideo) {
-                window.location.reload()
+                // 1. Client-Side Upload
+                videoUrl = await uploadVideo(videoFile)
+                // 2. Remove file from payload to prevent server limits
+                formData.delete('hero_video')
+                // 3. Add URL instead
+                formData.append('hero_video_url', videoUrl)
             }
+
+            const result = await updateGlobalSettings(formData)
+
+            if (result.error) {
+                toast.error(result.error)
+            } else {
+                toast.success('Configuración actualizada')
+                if (isUploadingVideo) {
+                    window.location.reload()
+                }
+            }
+        } catch (error: any) {
+            console.error(error)
+            toast.error(error.message || 'Error inesperado')
+        } finally {
+            setIsLoading(false)
+            setVideoSelected(false)
         }
     }
 

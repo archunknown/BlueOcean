@@ -11,7 +11,7 @@ import { getGalleryImages } from "@/services/gallery";
 import { getAllTours } from "@/services/tours";
 import { getGlobalSettings } from "./admin/actions";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export default async function Home() {
   const [galleryImages, tours, settings] = await Promise.all([

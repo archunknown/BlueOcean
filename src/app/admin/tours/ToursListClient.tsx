@@ -4,8 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 import { Plus, Pencil, Trash2, Search, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { deleteTour } from './actions'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import {
@@ -39,7 +39,7 @@ interface ToursListClientProps {
 
 export default function ToursListClient({ initialTours }: ToursListClientProps) {
     const router = useRouter()
-    const supabase = createClient()
+
     const [tours, setTours] = useState(initialTours)
     const [isLoading, setIsLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
@@ -53,12 +53,9 @@ export default function ToursListClient({ initialTours }: ToursListClientProps) 
     async function handleDelete(id: string) {
         setDeletingId(id)
         try {
-            const { error } = await supabase
-                .from('tours')
-                .delete()
-                .eq('id', id)
+            const result = await deleteTour(id)
 
-            if (error) throw error
+            if (result.error) throw new Error(result.error)
 
             setTours(current => current.filter(t => t.id !== id))
             toast.success('Tour eliminado correctamente')

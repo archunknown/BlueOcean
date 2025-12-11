@@ -120,11 +120,11 @@ export async function updateGlobalSettings(formData: FormData) {
     const whatsapp_primary = formData.get('whatsapp_primary') as string
     const contact_email = formData.get('contact_email') as string
     const hero_video = formData.get('hero_video') as File | null
+    // New: Accept URL directly from client upload
+    let hero_video_url = formData.get('hero_video_url') as string | undefined
 
-    let hero_video_url: string | undefined
-
-    // Handle Video Upload
-    if (hero_video && hero_video.size > 0) {
+    // Handle Server-Side Video Upload (Fallback)
+    if (!hero_video_url && hero_video && hero_video.size > 0) {
         // 1. Validation
         const MAX_SIZE = 20 * 1024 * 1024 // 20MB
         if (hero_video.size > MAX_SIZE) {
@@ -154,8 +154,10 @@ export async function updateGlobalSettings(formData: FormData) {
             .getPublicUrl(fileName)
 
         hero_video_url = publicUrl
+    }
 
-        // 4. Delete Old Video (Cleanup)
+    // Cleanup Old Video if a new one is set
+    if (hero_video_url) {
         try {
             const { data: oldSettings } = await supabase
                 .from('settings')
@@ -163,7 +165,7 @@ export async function updateGlobalSettings(formData: FormData) {
                 .eq('id', 1)
                 .single()
 
-            if (oldSettings?.hero_video_url) {
+            if (oldSettings?.hero_video_url && oldSettings.hero_video_url !== hero_video_url) {
                 // Extract filename from URL (assumes standard Supabase Storage URL structure)
                 const oldUrl = oldSettings.hero_video_url
                 const oldFileName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1)

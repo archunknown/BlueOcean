@@ -31,8 +31,8 @@ export async function createUser(formData: FormData) {
         if (!authData.user) throw new Error('No se pudo crear el usuario')
 
         // 2. Update Profile with extra data
-        const { error: profileError } = await (supabaseAdmin
-            .from('profiles') as any)
+        const { error: profileError } = await supabaseAdmin
+            .from('profiles')
             .update({
                 role,
                 first_name,
@@ -68,8 +68,8 @@ export async function updateUser(id: string, formData: FormData) {
         }
 
         // 2. Update Profile Data
-        const { error } = await (supabaseAdmin
-            .from('profiles') as any)
+        const { error } = await supabaseAdmin
+            .from('profiles')
             .update({
                 email, // Sync email in profile
                 role,

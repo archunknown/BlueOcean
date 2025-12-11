@@ -40,7 +40,6 @@ export async function submitTestimonial(formData: FormData) {
     try {
         const { error } = await supabase
             .from('testimonials')
-            // @ts-ignore
             .insert({
                 name,
                 location: location || '',
@@ -72,7 +71,6 @@ export async function approveTestimonial(id: number) {
     try {
         const { error } = await supabase
             .from('testimonials')
-            // @ts-ignore
             .update({ is_approved: true })
             .eq('id', id)
 

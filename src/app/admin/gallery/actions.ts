@@ -42,7 +42,7 @@ export async function createImage(formData: FormData) {
                 title,
                 category: category || 'Social',
                 image_url: imageUrl
-            } as any)
+            })
 
         if (error) throw error
 

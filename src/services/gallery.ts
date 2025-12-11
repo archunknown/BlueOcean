@@ -13,7 +13,7 @@ export async function getGalleryImages(): Promise<GalleryItem[]> {
             return galleryData;
         }
 
-        return (data as any[]).map((item) => ({
+        return data.map((item) => ({
             id: item.id,
             title: item.title,
             category: item.category,

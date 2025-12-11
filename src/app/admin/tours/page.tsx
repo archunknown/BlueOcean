@@ -42,7 +42,7 @@ export default async function ToursPage() {
                 </div>
             </div>
 
-            <ToursListClient initialTours={tours || []} />
+            <ToursListClient initialTours={tours?.map(t => ({ ...t, id: String(t.id) })) || []} />
         </div>
     )
 }

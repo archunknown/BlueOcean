@@ -2,7 +2,7 @@
 import ToursSection from '@/components/sections/Tours';
 import { getAllTours } from '@/services/tours';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export default async function ToursPage() {
   const tours = await getAllTours();
