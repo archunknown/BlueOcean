@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 const navLinks = [
   { name: 'Inicio', href: '/' },
@@ -17,6 +19,7 @@ const navLinks = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement>(null);
@@ -32,6 +35,23 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Llamada inicial para establecer el estado correcto al cargar
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Check user session
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // --- LÓGICA PARA HEADER TRANSPARENTE ---
@@ -84,8 +104,12 @@ export default function Navbar() {
                 <Link
                   href={link.href}
                   className={`group relative px-2.5 py-2 text-sm font-semibold transition-all duration-300 xl:px-3 xl:text-base 2xl:px-4 2xl:text-lg ${isTransparent
-                    ? (pathname === link.href ? 'text-warmYellow' : 'text-white hover:text-warmYellow/90')
-                    : (pathname === link.href ? 'text-turquoise' : 'text-oceanBlue hover:text-turquoise')
+                    ? pathname === link.href
+                      ? 'text-warmYellow'
+                      : 'text-white hover:text-warmYellow/90'
+                    : pathname === link.href
+                      ? 'text-turquoise'
+                      : 'text-oceanBlue hover:text-turquoise'
                     }`}
                 >
                   {link.name}
@@ -93,14 +117,23 @@ export default function Navbar() {
                     className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-transform duration-300 ${isTransparent
                       ? 'bg-gradient-to-r from-warmYellow to-amber-400'
                       : 'bg-gradient-to-r from-turquoise to-cyan-400'
-                      } ${pathname === link.href
-                        ? 'scale-x-100'
-                        : 'scale-x-0 group-hover:scale-x-100'
-                      }`}
+                      } ${pathname === link.href ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}
                   ></span>
                 </Link>
               </li>
             ))}
+            {/* Auth Link */}
+            <li>
+              <Link
+                href={user ? '/admin' : '/login'}
+                className="group relative ml-2 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-700 xl:px-4 xl:py-2 xl:text-base"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {user ? 'Dashboard' : 'Ingresar'}
+              </Link>
+            </li>
           </ul>
 
           {/* Mobile Menu Button */}
@@ -245,6 +278,24 @@ export default function Navbar() {
                     </Link>
                   </motion.li>
                 ))}
+                {/* Auth Link Mobile */}
+                <motion.li
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 * navLinks.length, duration: 0.3 }}
+                  className="border-t border-white/10 pt-2 mt-2"
+                >
+                  <Link
+                    href={user ? '/admin' : '/login'}
+                    onClick={closeMobileMenu}
+                    className="group flex items-center gap-3 rounded-xl bg-blue-600 px-4 py-3 text-lg font-bold text-white transition-all duration-300 hover:bg-blue-700 sm:px-5 sm:py-4 sm:text-xl"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>{user ? 'Dashboard' : 'Ingresar'}</span>
+                  </Link>
+                </motion.li>
               </ul>
             </motion.div>
           </motion.div>

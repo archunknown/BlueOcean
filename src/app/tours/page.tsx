@@ -1,9 +1,11 @@
 // src/app/tours/page.tsx
 import ToursSection from '@/components/sections/Tours';
-import { ToursService } from '@/services/tours';
+import { getAllTours } from '@/services/tours';
+
+export const dynamic = 'force-dynamic';
 
 export default async function ToursPage() {
-  const tours = await ToursService.getAll();
+  const tours = await getAllTours();
 
   return (
     <main>

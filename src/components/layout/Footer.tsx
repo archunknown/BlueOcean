@@ -4,33 +4,17 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
-const useScroll = (threshold = 200) => {
-  const [scrolled, setScrolled] = useState(false);
+interface Props {
+  email?: string | null;
+  phoneNumber?: string | null;
+}
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > threshold);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Check initial scroll position
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [threshold]);
-
-  return scrolled;
-};
-
-export default function Footer() {
+export default function Footer({ email: customEmail, phoneNumber }: Props) {
   const currentYear = new Date().getFullYear();
-  const scrolled = useScroll(200);
   const [email, setEmail] = useState('');
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const displayEmail = customEmail || 'ytasayco59@gmail.com';
+  const displayPhone = phoneNumber || '+51 988 211 694';
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,13 +131,13 @@ export default function Footer() {
                   icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   ),
-                  text: '+51 988 211 694',
+                  text: displayPhone,
                 },
                 {
                   icon: (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   ),
-                  text: 'ytasayco59@gmail.com',
+                  text: displayEmail,
                 },
               ].map((item, idx) => (
                 <li key={idx} className="group flex items-start gap-2.5 transition-transform duration-300 hover:translate-x-1 xs:gap-3">
@@ -254,30 +238,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Botón Volver Arriba - Responsive */}
-      <AnimatePresence>
-        {scrolled && (
-          <motion.button
-            initial={{ opacity: 0, y: 100, scale: 0 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0 }}
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 z-50 group xs:bottom-7 xs:right-7 sm:bottom-8 sm:right-8"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-warmYellow to-turquoise opacity-75 blur-lg"></div>
-              <div className="relative rounded-full bg-gradient-to-br from-warmYellow to-turquoise p-3 shadow-2xl transition-all duration-300 group-hover:shadow-warmYellow/50 xs:p-3.5 sm:p-4">
-                <svg className="h-5 w-5 text-oceanBlue xs:h-5.5 xs:w-5.5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-              </div>
-            </div>
-          </motion.button>
-        )}
-      </AnimatePresence>
 
       {/* Decorative gradient orbs */}
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-turquoise/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2 sm:w-80 sm:h-80 lg:w-96 lg:h-96"></div>

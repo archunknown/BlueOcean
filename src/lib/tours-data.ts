@@ -1,4 +1,5 @@
 export interface Tour {
+  id?: string;
   slug: string;
   title: string;
   category: 'Tour' | 'Alquiler';
@@ -12,10 +13,12 @@ export interface Tour {
   itinerary?: {
     title: string;
     items: string[];
+    icon?: string;
   };
   details?: {
     title: string;
     items: string[];
+    icon?: string;
   };
 }
 

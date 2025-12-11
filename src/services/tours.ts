@@ -1,84 +1,70 @@
 import { supabase } from '@/lib/supabase';
-import { toursData, Tour as LocalTour } from '@/lib/tours-data';
-import { Database } from '@/types/database';
+import { Tour } from '@/lib/tours-data';
 
-// Tipos derivados de la BD o locales
-export type Tour = Database['public']['Tables']['tours']['Row'];
-export type GalleryImage = Database['public']['Tables']['gallery']['Row'];
+// Helper to format price for display (ensure "S/" prefix)
+function formatPrice(price: string): string {
+    if (!price) return 'S/ 0.00';
+    if (price.startsWith('S/')) return price;
+    if (price.startsWith('$')) return price.replace('$', 'S/ ');
+    return `S/ ${price}`;
+}
 
-/**
- * Servicio inteligente para obtener Tours.
- * Intenta obtener de Supabase, si falla o no hay datos, usa el fallback local.
- */
-export const ToursService = {
-    async getAll(): Promise<LocalTour[]> {
-        try {
-            const { data, error } = await supabase
-                .from('tours')
-                .select('*')
-                .returns<Tour[]>();
+export async function getAllTours(): Promise<Tour[]> {
+    const { data, error } = await supabase
+        .from('tours')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-            if (error) throw error;
+    if (error || !data) {
+        console.error('Error fetching tours:', error);
+        return [];
+    }
 
-            // Si hay datos en la BD, mapealos para que coincidan con la estructura que la UI espera
-            // (asumiendo que la estructura de BD es compatible o se transforma aquí)
-            if (data && data.length > 0) {
-                return data.map(tour => ({
-                    ...tour,
-                    // Aseguramos que los JSONs tengan el formato correcto
-                    itinerary: tour.itinerary as LocalTour['itinerary'],
-                    details: tour.details as LocalTour['details'],
-                    // Convertimos snake_case de BD a camelCase usado en componentes si es necesario
-                    // PERO, para simplificar, mis tipos de BD usan camelCase en las interfaces generadas?
-                    // No, el usuario pidió tipos de BD que usualmente son snake_case.
-                    // Revisando types/database.ts:
-                    // tours: id, slug, title, category, short_description, long_description...
-                    // UI espera: shortDescription, longDescription...
-                    // Hacemos el mapeo aquí:
-                    shortDescription: tour.short_description,
-                    longDescription: tour.long_description,
-                    imageUrl: tour.image_url,
-                    groupSize: tour.group_size || undefined,
-                })) as unknown as LocalTour[];
-            }
+    // Explicit mapping to avoid type inference issues
+    return data.map((item: any) => ({
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        price: formatPrice(item.price),
+        duration: item.duration || 'Por consultar',
+        category: item.category || 'Tour',
+        imageUrl: item.image_url,
+        shortDescription: item.short_description || '',
+        longDescription: item.long_description || '',
+        groupSize: item.group_size || 'Variado',
+        schedule: item.schedule || '',
+        itinerary: item.itinerary,
+        details: item.details
+    }));
+}
 
-            // Si no hay datos (array vacío), retornamos fallback
-            console.warn('⚠️ Supabase sin datos de tours, usando fallback local.');
-            return toursData;
+export async function getTourBySlug(slug: string): Promise<Tour | null> {
+    const { data, error } = await supabase
+        .from('tours')
+        .select('*')
+        .eq('slug', slug)
+        .single();
 
-        } catch (error) {
-            console.error('❌ Error fetching tours from Supabase:', error);
-            console.warn('⚠️ Usando data local de fallback debido a error.');
-            return toursData;
-        }
-    },
+    if (error || !data) {
+        return null;
+    }
 
-    async getBySlug(slug: string): Promise<LocalTour | undefined> {
-        try {
-            const { data, error } = await supabase
-                .from('tours')
-                .select('*')
-                .eq('slug', slug)
-                .single<Tour>();
+    // Explicit mapping here too
+    const item: any = data;
 
-            if (error) throw error;
-
-            if (data) {
-                return {
-                    ...data,
-                    itinerary: data.itinerary as LocalTour['itinerary'],
-                    details: data.details as LocalTour['details'],
-                    shortDescription: data.short_description,
-                    longDescription: data.long_description,
-                    imageUrl: data.image_url,
-                    groupSize: data.group_size || undefined,
-                } as unknown as LocalTour;
-            }
-        } catch (error) {
-            console.error(`❌ Error fetching tour ${slug} from Supabase:`, error);
-        }
-
-        // Fallback local
-        return toursData.find(t => t.slug === slug);
-    },
-};
+    return {
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        price: formatPrice(item.price),
+        duration: item.duration || 'Por consultar',
+        category: item.category || 'Tour',
+        imageUrl: item.image_url,
+        shortDescription: item.short_description || '',
+        longDescription: item.long_description || '',
+        groupSize: item.group_size || 'Variado',
+        schedule: item.schedule || '',
+        itinerary: item.itinerary,
+        details: item.details
+    };
+}

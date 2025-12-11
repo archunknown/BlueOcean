@@ -7,17 +7,22 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import OurProcess from "@/components/sections/OurProcess";
 import FAQ from "@/components/sections/FAQ";
 import InstagramFeed from "@/components/sections/InstagramFeed";
-import { ToursService } from "@/services/tours";
 import { getGalleryImages } from "@/services/gallery";
+import { getAllTours } from "@/services/tours";
+import { getGlobalSettings } from "./admin/actions";
+
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // Fetch data on the server
-  const tours = await ToursService.getAll();
-  const galleryImages = await getGalleryImages();
+  const [galleryImages, tours, settings] = await Promise.all([
+    getGalleryImages(),
+    getAllTours(),
+    getGlobalSettings()
+  ]);
 
   return (
     <main>
-      <Hero />
+      <Hero videoUrl={settings?.hero_video_url} />
       <WhyChooseUs />
       <Tours tours={tours} limit={3} showButton={true} />
       <OurProcess />
@@ -25,7 +30,7 @@ export default async function Home() {
       <InstagramFeed />
       <Testimonials />
       <FAQ />
-      <Contact />
+      <Contact email={settings?.contact_email} phoneNumber={settings?.whatsapp_primary} />
     </main>
   );
 }

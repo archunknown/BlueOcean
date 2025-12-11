@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { toursData, Tour } from '@/lib/tours-data'; // Import Tour type
+import { getTourBySlug, getAllTours } from '@/services/tours';
 import TourDetailView from './TourDetailView';
 
 // Definición de tipos para los parámetros de la ruta
@@ -7,22 +7,14 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// Genera las páginas estáticas para un mejor rendimiento
-export async function generateStaticParams() {
-  return toursData.map((tour) => ({
-    slug: tour.slug,
-  }));
-}
-
-// Helper para obtener los datos del tour por slug
-const getTourBySlug = (slug: string): Tour | undefined => {
-  return toursData.find((tour) => tour.slug === slug);
-};
+// For now, we'll rely on dynamic rendering to ensure updates are seen immediately.
+// We can re-enable static params with ISR later if needed.
+export const dynamic = 'force-dynamic';
 
 // Genera los metadatos para SEO
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const tour = getTourBySlug(slug);
+  const tour = await getTourBySlug(slug);
 
   if (!tour) {
     return {
@@ -40,7 +32,12 @@ export async function generateMetadata({ params }: Props) {
 // Su única responsabilidad es obtener los datos y pasarlos al componente de cliente
 export default async function TourDetailPage({ params }: Props) {
   const { slug } = await params;
-  const tour = getTourBySlug(slug);
+
+  // Fetch specific tour and all tours for "Related Tours" or navigation if needed by the view
+  const [tour, allTours] = await Promise.all([
+    getTourBySlug(slug),
+    getAllTours()
+  ]);
 
   // Si el tour no se encuentra, muestra la página 404
   if (!tour) {
@@ -48,5 +45,5 @@ export default async function TourDetailPage({ params }: Props) {
   }
 
   // RENDERIZAR EL COMPONENTE DE CLIENTE Y PASARLE TODOS LOS DATOS NECESARIOS
-  return <TourDetailView tour={tour} allTours={toursData} />;
+  return <TourDetailView tour={tour} allTours={allTours} />;
 }
