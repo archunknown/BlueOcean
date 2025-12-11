@@ -42,7 +42,7 @@ export async function createImage(formData: FormData) {
                 title,
                 category: category || 'Social',
                 image_url: imageUrl
-            })
+            } as any)
 
         if (error) throw error
 
@@ -78,7 +78,7 @@ export async function deleteImage(id: string, imageUrl: string) {
         const { error } = await supabase
             .from('gallery')
             .delete()
-            .eq('id', id)
+            .eq('id', parseInt(id))
 
         if (error) throw error
 
