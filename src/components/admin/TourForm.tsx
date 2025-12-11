@@ -180,13 +180,12 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                         Cupos Máximos
                     </label>
                     <input
-                        type="number"
+                        type="text"
                         id="capacity"
                         name="capacity"
                         defaultValue={initialCapacity}
-                        min="1"
                         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        placeholder="20"
+                        placeholder="Ej: 20 personas, Min 4"
                     />
                 </div>
             </div>

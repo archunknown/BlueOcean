@@ -60,14 +60,10 @@ export async function deleteImage(id: string, imageUrl: string) {
 
     try {
         // 1. Delete from Storage
-        // Extract filename from URL (e.g., .../tours-images/gallery/filename.jpg -> gallery/filename.jpg)
-        // Usually URL is publicUrl. Storage expects path relative to bucket root?
-        // Wait, 'from('tours-images').remove(['gallery/file.jpg'])'
-        // Let's assume URL format matches what we need to extract.
         if (imageUrl) {
             const urlParts = imageUrl.split('/tours-images/')
             if (urlParts.length > 1) {
-                const storagePath = urlParts[1] // "gallery/filename..."
+                const storagePath = urlParts[1]
                 await supabase.storage
                     .from('tours-images')
                     .remove([storagePath])
@@ -78,7 +74,7 @@ export async function deleteImage(id: string, imageUrl: string) {
         const { error } = await supabase
             .from('gallery')
             .delete()
-            .eq('id', parseInt(id))
+            .eq('id', id)
 
         if (error) throw error
 

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Compass, Image as ImageIcon, MessageSquare, Calendar, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 interface DashboardOverviewProps {
     stats: {
@@ -94,6 +95,21 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                     // I should probably keep Gallery if it fits. But I need "Clientes".
                     // I will ADD Clients and keep Gallery if I can.
 
+                    const CardContent = (
+                        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all cursor-pointer">
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-600">{card.name}</p>
+                                    <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+                                </div>
+                                <div className={`rounded-lg p-3 ${colorClasses[card.color as keyof typeof colorClasses]}`}>
+                                    <Icon className="h-6 w-6" />
+                                </div>
+                            </div>
+                            <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                        </div>
+                    )
+
                     return (
                         <motion.div
                             key={card.name}
@@ -101,20 +117,15 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                         >
-                            <Link href={card.href}>
-                                <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all cursor-pointer">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-gray-600">{card.name}</p>
-                                            <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-                                        </div>
-                                        <div className={`rounded-lg p-3 ${colorClasses[card.color as keyof typeof colorClasses]}`}>
-                                            <Icon className="h-6 w-6" />
-                                        </div>
-                                    </div>
-                                    <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                            {card.name === 'Reservas' ? (
+                                <div onClick={() => toast.info('Función en desarrollo', { description: 'El módulo de reservas estará disponible próximamente.' })}>
+                                    {CardContent}
                                 </div>
-                            </Link>
+                            ) : (
+                                <Link href={card.href}>
+                                    {CardContent}
+                                </Link>
+                            )}
                         </motion.div>
                     )
                 })}
