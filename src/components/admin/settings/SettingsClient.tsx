@@ -18,6 +18,8 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
     const [activeTab, setActiveTab] = useState<'company' | 'account'>('company')
     const [isLoading, setIsLoading] = useState(false)
     const [videoSelected, setVideoSelected] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [statusMessage, setStatusMessage] = useState('Iniciando carga...')
     const supabase = createClient() // Initialize browser client
 
     async function uploadVideo(file: File): Promise<string> {
@@ -47,6 +49,23 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
         const isUploadingVideo = videoFile && videoFile.size > 0
 
         setIsLoading(true)
+        setUploadProgress(0)
+
+        // Simulated Progress Interval
+        const progressInterval = setInterval(() => {
+            setUploadProgress((prev) => {
+                const newProgress = prev >= 90 ? prev : prev + 5 // Slower increment
+
+                // Update message based on progress
+                if (newProgress < 30) setStatusMessage('Preparando el video...')
+                else if (newProgress < 60) setStatusMessage('Subiendo a la nube segura...')
+                else if (newProgress < 85) setStatusMessage('Optimizando formato...')
+                else setStatusMessage('Finalizando cambios...')
+
+                return newProgress
+            })
+        }, 800)
+
         if (isUploadingVideo) {
             setVideoSelected(true)
             // Client-side validation
@@ -54,6 +73,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                 toast.error('El video excede el límite de 20MB')
                 setIsLoading(false)
                 setVideoSelected(false)
+                clearInterval(progressInterval)
                 return
             }
         }
@@ -83,8 +103,15 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
             console.error(error)
             toast.error(error.message || 'Error inesperado')
         } finally {
-            setIsLoading(false)
-            setVideoSelected(false)
+            clearInterval(progressInterval)
+            setUploadProgress(100)
+            setStatusMessage('¡Video actualizado correctamente!')
+            setTimeout(() => {
+                setIsLoading(false)
+                setVideoSelected(false)
+                setUploadProgress(0)
+                setStatusMessage('')
+            }, 1000) // Bit longer to read success
         }
     }
 
@@ -216,11 +243,21 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
 
                                 <div className="pt-4 space-y-3">
                                     {isLoading && videoSelected && (
-                                        <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg border border-blue-100 animate-pulse">
-                                            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                                            <span>
-                                                <strong>Subiendo video:</strong> Esto puede tomar unos minutos dependiendo de tu conexión. Por favor no cierres la página.
-                                            </span>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg border border-blue-100 animate-pulse">
+                                                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                                                <span className="font-medium animate-fade-in">
+                                                    {statusMessage}
+                                                </span>
+                                            </div>
+                                            {/* Progress Bar */}
+                                            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
+                                                <div
+                                                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                                                    style={{ width: `${uploadProgress}%` }}
+                                                ></div>
+                                            </div>
+                                            <p className="text-right text-xs text-gray-500 font-medium">{uploadProgress}%</p>
                                         </div>
                                     )}
                                     <button
