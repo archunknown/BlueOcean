@@ -22,8 +22,11 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
     const [statusMessage, setStatusMessage] = useState('Iniciando carga...')
     const supabase = createClient() // Initialize browser client
 
-    async function uploadVideo(file: File): Promise<string> {
-        const fileName = `hero_${Date.now()}.mp4`
+    async function uploadMedia(file: File): Promise<string> {
+        // Preserve extension
+        const fileExt = file.name.split('.').pop();
+        const fileName = `hero_${Date.now()}.${fileExt}`
+
         const { error: uploadError } = await supabase.storage
             .from('assets')
             .upload(fileName, file, {
@@ -32,7 +35,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
             })
 
         if (uploadError) {
-            throw new Error('Error al subir video a Storage: ' + uploadError.message)
+            throw new Error('Error al subir archivo a Storage: ' + uploadError.message)
         }
 
         const { data: { publicUrl } } = supabase.storage
@@ -57,7 +60,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                 const newProgress = prev >= 90 ? prev : prev + 5 // Slower increment
 
                 // Update message based on progress
-                if (newProgress < 30) setStatusMessage('Preparando el video...')
+                if (newProgress < 30) setStatusMessage('Preparando el archivo...')
                 else if (newProgress < 60) setStatusMessage('Subiendo a la nube segura...')
                 else if (newProgress < 85) setStatusMessage('Optimizando formato...')
                 else setStatusMessage('Finalizando cambios...')
@@ -82,7 +85,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
             let videoUrl = ''
             if (isUploadingVideo) {
                 // 1. Client-Side Upload
-                videoUrl = await uploadVideo(videoFile)
+                videoUrl = await uploadMedia(videoFile)
                 // 2. Remove file from payload to prevent server limits
                 formData.delete('hero_video')
                 // 3. Add URL instead
@@ -105,7 +108,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
         } finally {
             clearInterval(progressInterval)
             setUploadProgress(100)
-            setStatusMessage('¡Video actualizado correctamente!')
+            setStatusMessage('¡Archivo actualizado correctamente!')
             setTimeout(() => {
                 setIsLoading(false)
                 setVideoSelected(false)
@@ -190,18 +193,28 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                 <div className="pt-2 border-t border-gray-100">
                                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                         <Video className="h-4 w-4 text-blue-600" />
-                                        Video Principal (Hero)
+                                        Media Principal (Hero)
                                     </label>
 
                                     <div className="space-y-4">
                                         {initialSettings?.hero_video_url && (
                                             <div className="relative w-full max-w-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-900 aspect-video shadow-sm">
-                                                <video
-                                                    src={initialSettings.hero_video_url}
-                                                    className="w-full h-full object-cover"
-                                                    controls
-                                                    preload="metadata"
-                                                />
+                                                {/* Auto-detect type based on extension */}
+                                                {initialSettings.hero_video_url.match(/\.(mp4|webm)$/i) ? (
+                                                    <video
+                                                        src={initialSettings.hero_video_url}
+                                                        className="w-full h-full object-cover"
+                                                        controls
+                                                        preload="metadata"
+                                                    />
+                                                ) : (
+                                                    // Assumes image if not video
+                                                    <img
+                                                        src={initialSettings.hero_video_url}
+                                                        alt="Hero Media"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
                                                 <div className="absolute top-2 left-2 bg-green-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm backdrop-blur-sm">
                                                     ACTUAL
                                                 </div>
@@ -212,7 +225,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                             <input
                                                 name="hero_video"
                                                 type="file"
-                                                accept="video/mp4"
+                                                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp"
                                                 onChange={(e) => setVideoSelected(!!e.target.files?.length)}
                                                 className="block w-full text-sm text-gray-500
                                                     file:mr-4 file:py-2.5 file:px-4
@@ -223,9 +236,9 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                                     focus:outline-none transition-all cursor-pointer"
                                             />
                                             <p className="text-xs text-gray-500 mt-2">
-                                                <span className="font-semibold text-gray-700">Requisitos:</span> Archivo MP4, Máximo 20MB.
+                                                <span className="font-semibold text-gray-700">Formatos:</span> MP4, JPG, PNG, WEBP (Máx 20MB).
                                                 <br />
-                                                <span className="text-gray-400">Nota: Al subir un nuevo video, el anterior se eliminará automáticamente para ahorrar espacio.</span>
+                                                <span className="text-gray-400">Nota: Al subir un nuevo archivo, el anterior se eliminará automáticamente.</span>
                                             </p>
                                         </div>
                                     </div>

@@ -130,12 +130,13 @@ export async function updateGlobalSettings(formData: FormData) {
         if (hero_video.size > MAX_SIZE) {
             return { error: 'El video excede el límite de 20MB' }
         }
-        if (hero_video.type !== 'video/mp4') {
-            return { error: 'Formato inválido. Solo se permite MP4' }
+        if (hero_video.type !== 'video/mp4' && !hero_video.type.startsWith('image/')) {
+            return { error: 'Formato inválido. Solo se permite Video (MP4) o Imágenes (JPG, PNG, WEBP)' }
         }
 
-        // 2. Upload New Video
-        const fileName = `hero_${Date.now()}.mp4`
+        // 2. Upload New Video/Image
+        const fileExt = hero_video.name.split('.').pop() || 'mp4'
+        const fileName = `hero_${Date.now()}.${fileExt}`
         const { error: uploadError } = await supabase.storage
             .from('assets')
             .upload(fileName, hero_video, {

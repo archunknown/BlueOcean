@@ -12,22 +12,33 @@ export default function Hero({ videoUrl }: HeroProps) {
       {/* Fondo con Video y Overlay - Optimizado para Responsive */}
       <div className="absolute inset-0 z-0">
         {videoUrl && (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="h-full w-full object-cover object-center"
-            style={{
-              // Asegura que el video cubra toda el área sin distorsión
-              minWidth: '100%',
-              minHeight: '100%',
-            }}
-          >
-            <source src={videoUrl} type="video/mp4" />
-            {/* Fallback para navegadores que no soporten video */}
-            Tu navegador no soporta el elemento de video.
-          </video>
+          // Conditional Rendering based on file extension
+          videoUrl.match(/\.(mp4|webm)$/i) ? (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-full w-full object-cover object-center"
+              style={{
+                minWidth: '100%',
+                minHeight: '100%',
+              }}
+            >
+              <source src={videoUrl} type="video/mp4" />
+              Tu navegador no soporta el elemento de video.
+            </video>
+          ) : (
+            <img
+              src={videoUrl}
+              alt="Hero Background"
+              className="h-full w-full object-cover object-center"
+              style={{
+                minWidth: '100%',
+                minHeight: '100%',
+              }}
+            />
+          )
         )}
 
         {/* Overlay con efecto Vignette - Adaptativo por dispositivo */}

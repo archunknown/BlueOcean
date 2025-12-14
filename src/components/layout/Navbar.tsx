@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -21,8 +21,29 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuPanelRef = useRef<HTMLDivElement>(null);
+
+  // Easter Egg Logic
+  const secretClickCount = useRef(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSecretClick = (e: React.MouseEvent) => {
+    secretClickCount.current += 1;
+
+    // Reset counter if too slow (1 second window between clicks)
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      secretClickCount.current = 0;
+    }, 1000);
+
+    if (secretClickCount.current >= 3) {
+      e.preventDefault();
+      router.push('/login');
+      secretClickCount.current = 0;
+    }
+  };
 
   const isHomePage = pathname === '/';
 
@@ -81,7 +102,11 @@ export default function Navbar() {
       >
         <nav className="container mx-auto flex items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="group relative z-10 flex items-center transition-transform duration-300 hover:scale-105">
+          <Link
+            href="/"
+            onClick={(e) => handleSecretClick(e)}
+            className="group relative z-10 flex items-center transition-transform duration-300 hover:scale-105"
+          >
             <Image
               src="/logo-editado.png"
               alt="Blue Ocean Paracas"
@@ -122,18 +147,20 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-            {/* Auth Link */}
-            <li>
-              <Link
-                href={user ? '/admin' : '/login'}
-                className="group relative ml-2 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-700 xl:px-4 xl:py-2 xl:text-base"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                {user ? 'Dashboard' : 'Ingresar'}
-              </Link>
-            </li>
+            {/* Auth Link - HIDDEN FOR GUESTS (EASTER EGG MODE) */}
+            {user && (
+              <li>
+                <Link
+                  href="/admin"
+                  className="group relative ml-2 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-700 xl:px-4 xl:py-2 xl:text-base"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Dashboard
+                </Link>
+              </li>
+            )}
           </ul>
 
           {/* Mobile Menu Button */}
@@ -278,24 +305,26 @@ export default function Navbar() {
                     </Link>
                   </motion.li>
                 ))}
-                {/* Auth Link Mobile */}
-                <motion.li
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * navLinks.length, duration: 0.3 }}
-                  className="border-t border-white/10 pt-2 mt-2"
-                >
-                  <Link
-                    href={user ? '/admin' : '/login'}
-                    onClick={closeMobileMenu}
-                    className="group flex items-center gap-3 rounded-xl bg-blue-600 px-4 py-3 text-lg font-bold text-white transition-all duration-300 hover:bg-blue-700 sm:px-5 sm:py-4 sm:text-xl"
+                {/* Auth Link Mobile - HIDDEN FOR GUESTS */}
+                {user && (
+                  <motion.li
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * navLinks.length, duration: 0.3 }}
+                    className="border-t border-white/10 pt-2 mt-2"
                   >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span>{user ? 'Dashboard' : 'Ingresar'}</span>
-                  </Link>
-                </motion.li>
+                    <Link
+                      href="/admin"
+                      onClick={closeMobileMenu}
+                      className="group flex items-center gap-3 rounded-xl bg-blue-600 px-4 py-3 text-lg font-bold text-white transition-all duration-300 hover:bg-blue-700 sm:px-5 sm:py-4 sm:text-xl"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Dashboard</span>
+                    </Link>
+                  </motion.li>
+                )}
               </ul>
             </motion.div>
           </motion.div>
