@@ -95,7 +95,7 @@ export default function GalleryManager({ initialImages }: GalleryManagerProps) {
     async function handleDelete(id: string, url: string) {
         setDeletingId(id)
         try {
-            const result = await deleteImage(id, url)
+            const result = await deleteImage(id)
             if (result.error) {
                 toast.error(result.error)
             } else {
