@@ -225,7 +225,7 @@ export default function Footer({ email: customEmail, phoneNumber }: Props) {
               >
                 ❤️
               </motion.span>
-              <span>en Paracas | By Arch Adrian</span>
+              <span>en Paracas | Powered by Arch Adrian</span>
             </div>
             <div className="flex gap-3 text-[10px] xs:gap-4 xs:text-xs">
               <Link href="/privacy" className="text-white/50 hover:text-turquoise transition-colors">
