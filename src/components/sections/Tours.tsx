@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Tour } from '@/lib/tours-data'; // Usamos el tipo local para mantener compatibilidad UI
+import { Tour } from '@/types/tour-schemas';
 import { ClockIcon } from '@heroicons/react/24/solid';
 
 const containerVariants = {
@@ -28,7 +28,7 @@ const cardVariants = {
 };
 
 interface ToursProps {
-  tours: Tour[]; // Nueva prop: Los datos vienen de fuera
+  tours: Tour[];
   limit?: number;
   showButton?: boolean;
 }
@@ -37,14 +37,12 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
   const pathname = usePathname();
   const toursToDisplay = limit ? tours.slice(0, limit) : tours;
 
-  // Ocultar el botón si estamos en cualquier página de tours
   const isOnToursPage = pathname?.startsWith('/tours');
   const shouldShowButton = showButton && !isOnToursPage;
 
   return (
     <section id="tours" className="bg-lightGray pb-20 pt-28 sm:pb-24 sm:pt-32 lg:pb-28 lg:pt-36">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Encabezado */}
         <div className="mb-12 text-center sm:mb-16 lg:mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -66,7 +64,6 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
           </motion.p>
         </div>
 
-        {/* Grid de Tours */}
         <motion.div
           className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
           variants={containerVariants}
@@ -75,16 +72,14 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
           viewport={{ once: true, amount: 0.1 }}
         >
           {toursToDisplay.map((tour) => (
-            // 2. ENVOLVER TARJETA EN LINK
             <Link key={tour.slug} href={`/tours/${tour.slug}`} passHref>
               <motion.div
                 className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
                 variants={cardVariants}
               >
-                {/* Imagen */}
                 <div className="relative h-64 overflow-hidden">
                   <Image
-                    src={tour.imageUrl}
+                    src={tour.image_url}
                     alt={tour.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -101,14 +96,12 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
                   </div>
                 </div>
 
-                {/* Contenido */}
                 <div className="flex flex-1 flex-col p-5 sm:p-6">
                   <h3 className="mb-2 text-xl font-bold text-oceanBlue transition-colors group-hover:text-turquoise sm:text-2xl">
                     {tour.title}
                   </h3>
-                  {/* 3. USAR SHORTDESCRIPTION */}
                   <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600 sm:text-base">
-                    {tour.shortDescription}
+                    {tour.short_description}
                   </p>
 
                   <div className="mt-auto border-t border-gray-200 pt-4">
@@ -129,7 +122,6 @@ export default function Tours({ tours, limit, showButton = true }: ToursProps) {
           ))}
         </motion.div>
 
-        {/* CTA Ver Todos (si está en la página principal) */}
         {shouldShowButton && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

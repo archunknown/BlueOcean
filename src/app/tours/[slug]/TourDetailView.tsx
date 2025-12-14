@@ -2,14 +2,14 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { CheckCircleIcon, ClockIcon, UsersIcon, CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ClockIcon, UsersIcon, CalendarIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
-import type { Tour } from '@/lib/tours-data';
-import RelatedTours from '@/components/sections/RelatedTours'; // 1. IMPORTAR CARRUSEL
+import type { Tour } from '@/types/tour-schemas';
+import RelatedTours from '@/components/sections/RelatedTours';
 
 interface TourDetailViewProps {
   tour: Tour;
-  allTours: Tour[]; // 2. ACEPTAR LA LISTA COMPLETA DE TOURS
+  allTours: Tour[];
 }
 
 export default function TourDetailView({ tour, allTours }: TourDetailViewProps) {
@@ -35,12 +35,12 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
               </div>
             </div>
           )}
-          {tour.groupSize && (
+          {tour.group_size && (
             <div className="flex items-center">
               <UsersIcon className="h-6 w-6 text-turquoise mr-3" />
               <div>
                 <p className="font-semibold text-gray-800">Grupo</p>
-                <p className="text-gray-600">{tour.groupSize}</p>
+                <p className="text-gray-600">{tour.group_size}</p>
               </div>
             </div>
           )}
@@ -63,7 +63,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
           className="relative h-[50vh] md:h-[60vh] w-full flex items-center justify-center text-white"
         >
           <Image
-            src={tour.imageUrl}
+            src={tour.image_url}
             alt={tour.title}
             fill
             className="object-cover"
@@ -95,7 +95,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
             >
               <h2 className="text-2xl md:text-3xl font-bold text-oceanBlue mb-4">Descripción General</h2>
               <p className="text-gray-600 leading-relaxed mb-10 break-words whitespace-pre-wrap">
-                {tour.longDescription}
+                {tour.long_description}
               </p>
 
               {tour.itinerary && (
