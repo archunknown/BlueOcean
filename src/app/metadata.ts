@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.blueoceanparacastours.com'),
   title: "Blue Ocean Adventure Tours Paracas | Experiencias Inolvidables",
   description: "Descubre las Islas Ballestas, Reserva Nacional de Paracas y más con los mejores tours y guías locales. Reserva tu aventura hoy.",
   openGraph: {
     title: "Blue Ocean Adventure Tours Paracas",
     description: "Experiencias turísticas premium en Paracas. Islas Ballestas, Tubulares, Yakumama y más.",
-    url: "https://blueoceanparacas.com", // Replace with actual URL if known, or leave generic
+    url: "https://www.blueoceanparacastours.com", // Replace with actual URL if known, or leave generic
     siteName: "Blue Ocean Paracas",
     images: [
       {
