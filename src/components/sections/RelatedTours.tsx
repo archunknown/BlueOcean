@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules'; // 1. IMPORTAR AUTOPLAY
-import type { Tour } from '@/lib/tours-data';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import type { Tour } from '@/types/tour-schemas';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 // Import Swiper styles
@@ -34,7 +34,6 @@ export default function RelatedTours({ allTours, currentTourSlug }: RelatedTours
 
         <div className="relative">
           <Swiper
-            // 2. AÑADIR NUEVOS MÓDULOS Y PROPS
             modules={[Navigation, Pagination, Autoplay]}
             loop={true}
             autoplay={{
@@ -70,7 +69,7 @@ export default function RelatedTours({ allTours, currentTourSlug }: RelatedTours
                     {/* Imagen */}
                     <div className="relative h-64 overflow-hidden">
                       <Image
-                        src={tour.imageUrl}
+                        src={tour.image_url}
                         alt={tour.title}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -93,7 +92,7 @@ export default function RelatedTours({ allTours, currentTourSlug }: RelatedTours
                         {tour.title}
                       </h3>
                       <p className="mb-4 flex-1 text-sm leading-relaxed text-gray-600">
-                        {tour.shortDescription}
+                        {tour.short_description}
                       </p>
                       <div className="mt-4 text-center border-t pt-4">
                         <span className="font-bold text-oceanBlue group-hover:text-turquoise transition-colors">
