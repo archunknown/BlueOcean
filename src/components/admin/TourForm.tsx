@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import ImageUpload from '@/components/admin/ImageUpload'
 import DynamicList from '@/components/admin/DynamicList'
 import { createTour, updateTour } from '@/app/admin/tours/actions'
+import { compressImage } from '@/lib/image-compression'
 
 interface TourFormProps {
     tour?: {
@@ -64,7 +65,27 @@ export default function TourForm({ tour, mode }: TourFormProps) {
 
     async function handleSubmit(formData: FormData) {
         if (selectedImage) {
-            formData.set('image', selectedImage)
+            try {
+                // 1. Comprimir imagen (Resize a 1920px width máx, quality 0.8)
+                // Esto convierte una foto de 10MB+ en algo de ~500KB usualmente.
+                const compressedFile = await compressImage(selectedImage)
+
+                // 2. Validar peso FINAL (post-compresión)
+                const MAX_SIZE = 5 * 1024 * 1024; // 5MB (Límite de Netlify/AWS Lambda)
+
+                if (compressedFile.size > MAX_SIZE) {
+                    toast.error(`La imagen es demasiado pesada (${(compressedFile.size / 1024 / 1024).toFixed(2)}MB) incluso después de comprimir.`);
+                    return; // Detener proceso
+                }
+
+                // 3. Reemplazar la imagen original con la optimizada en el payload
+                formData.set('image', compressedFile)
+
+            } catch (error) {
+                console.error('Error compression:', error);
+                toast.error('Error al procesar la imagen. Intente con otra.');
+                return;
+            }
         }
 
         startTransition(async () => {
