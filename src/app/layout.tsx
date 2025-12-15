@@ -17,7 +17,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = appMetadata;
+export const metadata: Metadata = {
+  ...appMetadata, // Mantiene tu título, descripción y demás configuraciones
+  verification: {
+    google: 'EzW0_DJQEszjkVU0rCwrDjHtXvo-H7Oy-lJT96k3BdQ',
+  },
+};
 
 export const viewport = {
   themeColor: '#ffffff',
