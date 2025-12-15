@@ -2,22 +2,19 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://www.blueoceanparacastours.com';
+    // CORRECCIÓN: Eliminado 'www' para coincidir con tu dominio primario en Netlify
+    const baseUrl = 'https://blueoceanparacastours.com';
 
-    // Create a simple Supabase client using environment variables
-    // This avoids using createBrowserClient which would break server-side builds
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Fetch all tours from the database
     const { data: tours } = await supabase
         .from('tours')
         .select('slug, updated_at')
         .order('updated_at', { ascending: false });
 
-    // Static routes
     const staticRoutes: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
@@ -51,7 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
-    // Dynamic routes from tours
     const tourRoutes: MetadataRoute.Sitemap = tours
         ? tours.map((tour) => ({
             url: `${baseUrl}/tours/${tour.slug}`,
