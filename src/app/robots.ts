@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'https://www.blueoceanparacastours.com/sitemap.xml',
+        // CORRECCIÓN: Eliminado 'www'
+        sitemap: 'https://blueoceanparacastours.com/sitemap.xml',
     };
 }
