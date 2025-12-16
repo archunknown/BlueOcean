@@ -126,16 +126,16 @@ export async function updateGlobalSettings(formData: FormData) {
     // Handle Server-Side Video Upload (Fallback)
     if (!hero_video_url && hero_video && hero_video.size > 0) {
         // 1. Validation
-        const MAX_SIZE = 20 * 1024 * 1024 // 20MB
+        const MAX_SIZE = 5 * 1024 * 1024 // 5MB
         if (hero_video.size > MAX_SIZE) {
-            return { error: 'El video excede el límite de 20MB' }
+            return { error: 'La imagen excede el límite de 5MB' }
         }
-        if (hero_video.type !== 'video/mp4' && !hero_video.type.startsWith('image/')) {
-            return { error: 'Formato inválido. Solo se permite Video (MP4) o Imágenes (JPG, PNG, WEBP)' }
+        if (!hero_video.type.startsWith('image/')) {
+            return { error: 'Formato inválido. Solo se permiten Imágenes (JPG, PNG, WEBP)' }
         }
 
-        // 2. Upload New Video/Image
-        const fileExt = hero_video.name.split('.').pop() || 'mp4'
+        // 2. Upload New Image
+        const fileExt = hero_video.name.split('.').pop() || 'jpg'
         const fileName = `hero_${Date.now()}.${fileExt}`
         const { error: uploadError } = await supabase.storage
             .from('assets')
@@ -146,7 +146,7 @@ export async function updateGlobalSettings(formData: FormData) {
 
         if (uploadError) {
             console.error('Upload Error:', uploadError)
-            return { error: 'Error al subir el video: ' + uploadError.message }
+            return { error: 'Error al subir la imagen: ' + uploadError.message }
         }
 
         // 3. Get Public URL

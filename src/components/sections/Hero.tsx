@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface HeroProps {
   videoUrl?: string | null;
@@ -9,43 +10,37 @@ interface HeroProps {
 export default function Hero({ videoUrl }: HeroProps) {
   return (
     <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen landscape:min-h-[100vh]">
-      {/* Fondo con Video y Overlay - Optimizado para Responsive */}
-      <div className="absolute inset-0 z-0">
+      {/* Fondo con Ken Burns Animation - Optimizado para imagen estática */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {videoUrl && (
-          // Conditional Rendering based on file extension
-          videoUrl.match(/\.(mp4|webm)$/i) ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-full w-full object-cover object-center"
-              style={{
-                minWidth: '100%',
-                minHeight: '100%',
-              }}
-            >
-              <source src={videoUrl} type="video/mp4" />
-              Tu navegador no soporta el elemento de video.
-            </video>
-          ) : (
-            <img
+          <motion.div
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.1 }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "linear"
+            }}
+            className="relative h-full w-full"
+          >
+            <Image
               src={videoUrl}
               alt="Hero Background"
-              className="h-full w-full object-cover object-center"
-              style={{
-                minWidth: '100%',
-                minHeight: '100%',
-              }}
+              fill
+              priority
+              sizes="100vw"
+              quality={85}
+              className="object-cover object-center"
             />
-          )
+          </motion.div>
         )}
 
         {/* Overlay con efecto Vignette - Adaptativo por dispositivo */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60 sm:from-black/40 sm:via-transparent sm:to-black/50 lg:from-black/30 lg:via-transparent lg:to-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60 sm:from-black/40 sm:via-transparent sm:to-black/50 lg:from-black/30 lg:via-transparent lg:to-black/40 pointer-events-none z-10"></div>
 
         {/* Vignette lateral para enmarcar el contenido */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_40%,rgba(0,0,0,0.3)_100%)] sm:bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_50%,rgba(0,0,0,0.2)_100%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_40%,rgba(0,0,0,0.3)_100%)] sm:bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_50%,rgba(0,0,0,0.2)_100%)] pointer-events-none z-10"></div>
       </div>
 
       {/* Contenido Central - Optimizado para móvil */}
