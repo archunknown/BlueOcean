@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Save, Building2, User, Lock, Loader2, Video } from 'lucide-react'
+import { Save, Building2, User, Lock, Loader2, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateGlobalSettings } from '@/app/admin/actions'
 import { Settings } from '@/types/database'
@@ -72,8 +72,8 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
         if (isUploadingVideo) {
             setVideoSelected(true)
             // Client-side validation
-            if (videoFile.size > 20 * 1024 * 1024) {
-                toast.error('El video excede el límite de 20MB')
+            if (videoFile.size > 5 * 1024 * 1024) {
+                toast.error('La imagen excede el límite de 5MB')
                 setIsLoading(false)
                 setVideoSelected(false)
                 clearInterval(progressInterval)
@@ -192,29 +192,18 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
 
                                 <div className="pt-2 border-t border-gray-100">
                                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                        <Video className="h-4 w-4 text-blue-600" />
+                                        <ImageIcon className="h-4 w-4 text-blue-600" />
                                         Media Principal (Hero)
                                     </label>
 
                                     <div className="space-y-4">
                                         {initialSettings?.hero_video_url && (
                                             <div className="relative w-full max-w-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-900 aspect-video shadow-sm">
-                                                {/* Auto-detect type based on extension */}
-                                                {initialSettings.hero_video_url.match(/\.(mp4|webm)$/i) ? (
-                                                    <video
-                                                        src={initialSettings.hero_video_url}
-                                                        className="w-full h-full object-cover"
-                                                        controls
-                                                        preload="metadata"
-                                                    />
-                                                ) : (
-                                                    // Assumes image if not video
-                                                    <img
-                                                        src={initialSettings.hero_video_url}
-                                                        alt="Hero Media"
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                )}
+                                                <img
+                                                    src={initialSettings.hero_video_url}
+                                                    alt="Hero Media"
+                                                    className="w-full h-full object-cover"
+                                                />
                                                 <div className="absolute top-2 left-2 bg-green-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm backdrop-blur-sm">
                                                     ACTUAL
                                                 </div>
@@ -225,7 +214,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                             <input
                                                 name="hero_video"
                                                 type="file"
-                                                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp"
+                                                accept="image/jpeg,image/png,image/webp"
                                                 onChange={(e) => setVideoSelected(!!e.target.files?.length)}
                                                 className="block w-full text-sm text-gray-500
                                                     file:mr-4 file:py-2.5 file:px-4
@@ -236,9 +225,9 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                                     focus:outline-none transition-all cursor-pointer"
                                             />
                                             <p className="text-xs text-gray-500 mt-2">
-                                                <span className="font-semibold text-gray-700">Formatos:</span> MP4, JPG, PNG, WEBP (Máx 20MB).
+                                                <span className="font-semibold text-gray-700">Formatos:</span> JPG, PNG, WEBP (Máx 5MB).
                                                 <br />
-                                                <span className="text-gray-400">Nota: Al subir un nuevo archivo, el anterior se eliminará automáticamente.</span>
+                                                <span className="text-gray-400">Nota: Al subir una nueva imagen, la anterior se eliminará automáticamente.</span>
                                             </p>
                                         </div>
                                     </div>
@@ -279,7 +268,7 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                        {isLoading ? (videoSelected ? 'Procesando Video...' : 'Guardando...') : 'Guardar Cambios'}
+                                        {isLoading ? (videoSelected ? 'Procesando Imagen...' : 'Guardando...') : 'Guardar Cambios'}
                                     </button>
                                 </div>
                             </form>
