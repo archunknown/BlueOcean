@@ -12,7 +12,8 @@ import {
     Settings,
     Users,
     ChevronLeft,
-    LogOut
+    LogOut,
+    Calendar // Added Calendar icon
 } from 'lucide-react'
 import { signout } from '@/app/auth/actions'
 interface AdminSidebarProps {
@@ -25,6 +26,7 @@ interface AdminSidebarProps {
 const allNavItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin', 'worker'] },
     { name: 'Tours', href: '/admin/tours', icon: Compass, roles: ['admin'] },
+    { name: 'Reservas', href: '/admin/bookings', icon: Calendar, roles: ['admin'] },
     { name: 'Clientes', href: '/admin/clients', icon: Users, roles: ['admin', 'worker'] },
     { name: 'Usuarios', href: '/admin/users', icon: Users, roles: ['admin'] },
     { name: 'Galería', href: '/admin/gallery', icon: ImageIcon, roles: ['admin', 'worker'] },
