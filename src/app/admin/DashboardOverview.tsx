@@ -12,6 +12,7 @@ interface DashboardOverviewProps {
         testimonials: number
         clients: number
         bookings: number
+        pendingBookings: number
     }
     role?: 'admin' | 'worker' | null
 }
@@ -100,7 +101,14 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                             <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-600">{card.name}</p>
-                                    <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+                                    <p className="mt-2 text-3xl font-bold text-gray-900 flex items-center gap-2">
+                                        {value}
+                                        {card.name === 'Reservas' && stats.pendingBookings > 0 && (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 animate-pulse">
+                                                {stats.pendingBookings} pendientes
+                                            </span>
+                                        )}
+                                    </p>
                                 </div>
                                 <div className={`rounded-lg p-3 ${colorClasses[card.color as keyof typeof colorClasses]}`}>
                                     <Icon className="h-6 w-6" />
@@ -118,9 +126,9 @@ export default function DashboardOverview({ stats, role }: DashboardOverviewProp
                             transition={{ delay: index * 0.1 }}
                         >
                             {card.name === 'Reservas' ? (
-                                <div onClick={() => toast.info('Función en desarrollo', { description: 'El módulo de reservas estará disponible próximamente.' })}>
+                                <Link href={card.href}>
                                     {CardContent}
-                                </div>
+                                </Link>
                             ) : (
                                 <Link href={card.href}>
                                     {CardContent}
