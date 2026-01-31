@@ -43,6 +43,58 @@ export interface Settings {
 export interface Database {
     public: {
         Tables: {
+            bookings: {
+                Row: {
+                    id: string
+                    tour_id: string
+                    tour_title: string
+                    tour_date: string
+                    pax: number
+                    client_name: string
+                    client_email: string
+                    client_phone: string
+                    total_price: string
+                    status: string
+                    booking_code: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    tour_id: string
+                    tour_title: string
+                    tour_date: string
+                    pax: number
+                    client_name: string
+                    client_email: string
+                    client_phone: string
+                    total_price: string
+                    status?: string
+                    booking_code: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    tour_id?: string
+                    tour_title?: string
+                    tour_date?: string
+                    pax?: number
+                    client_name?: string
+                    client_email?: string
+                    client_phone?: string
+                    total_price?: string
+                    status?: string
+                    booking_code?: string
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "bookings_tour_id_fkey"
+                        columns: ["tour_id"]
+                        referencedRelation: "tours"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
             tours: {
                 Row: {
                     id: string
