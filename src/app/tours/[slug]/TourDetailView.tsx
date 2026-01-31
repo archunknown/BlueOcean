@@ -6,6 +6,8 @@ import { CheckCircleIcon, ClockIcon, UsersIcon, CalendarIcon } from '@heroicons/
 import Link from 'next/link';
 import type { Tour } from '@/types/tour-schemas';
 import RelatedTours from '@/components/sections/RelatedTours';
+import BookingModal from '@/components/tours/BookingModal';
+import { useState } from 'react';
 
 interface TourDetailViewProps {
   tour: Tour;
@@ -52,10 +54,12 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
     </div>
   );
 
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
   return (
     <>
       <div className="bg-lightGray">
-        {/* Hero Section */}
+        {/* ... (Existing Hero Section code same as before, no changes to Hero) ... */}
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -140,12 +144,55 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
               transition={{ duration: 0.7, delay: 0.5 }}
               className="mt-12 md:mt-0"
             >
-              <InfoCard />
+              <div className="md:sticky md:top-28">
+                <div className="rounded-2xl bg-white shadow-lg p-6 border border-gray-100">
+                  <h3 className="text-xl font-bold text-oceanBlue mb-4 border-b pb-3">Resumen del {tour.category}</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <ClockIcon className="h-6 w-6 text-turquoise mr-3" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Duración</p>
+                        <p className="text-gray-600">{tour.duration}</p>
+                      </div>
+                    </div>
+                    {tour.schedule && (
+                      <div className="flex items-center">
+                        <CalendarIcon className="h-6 w-6 text-turquoise mr-3" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Horario</p>
+                          <p className="text-gray-600">{tour.schedule}</p>
+                        </div>
+                      </div>
+                    )}
+                    {tour.group_size && (
+                      <div className="flex items-center">
+                        <UsersIcon className="h-6 w-6 text-turquoise mr-3" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Grupo</p>
+                          <p className="text-gray-600">{tour.group_size}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setIsBookingOpen(true)}
+                    className="mt-6 block w-full text-center rounded-xl bg-blue-900 py-3 font-bold text-white transition-all duration-300 hover:bg-cyan-600 active:scale-95"
+                  >
+                    ¡Reservar Ahora!
+                  </button>
+                </div>
+              </div>
             </motion.div>
 
           </div>
         </section>
       </div>
+
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
+        tour={tour}
+      />
 
       {/* 3. RENDERIZAR CARRUSEL */}
       <RelatedTours allTours={allTours} currentTourSlug={tour.slug} />
