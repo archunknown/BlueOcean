@@ -21,7 +21,10 @@ export async function createBooking(prevState: any, formData: FormData): Promise
         tourId: formData.get('tourId'),
         tourDate: formData.get('tourDate'),
         pax: formData.get('pax'),
-        clientName: formData.get('clientName'),
+        clientFirstName: formData.get('clientFirstName'),
+        clientPaternalSurname: formData.get('clientPaternalSurname'),
+        clientMaternalSurname: formData.get('clientMaternalSurname'),
+        clientCountry: formData.get('clientCountry'),
         clientDocumentType: formData.get('clientDocumentType'),
         clientDocumentNumber: formData.get('clientDocumentNumber'),
         clientPhone: formData.get('clientPhone'),
@@ -39,7 +42,19 @@ export async function createBooking(prevState: any, formData: FormData): Promise
         }
     }
 
-    const { tourId, tourDate, pax, clientName, clientDocumentType, clientDocumentNumber, clientPhone, clientEmail } = validation.data
+    const {
+        tourId,
+        tourDate,
+        pax,
+        clientFirstName,
+        clientPaternalSurname,
+        clientMaternalSurname,
+        clientCountry,
+        clientDocumentType,
+        clientDocumentNumber,
+        clientPhone,
+        clientEmail
+    } = validation.data
 
     try {
         // 3. Fetch Tour Data (Price & Title) from Server
@@ -81,14 +96,16 @@ export async function createBooking(prevState: any, formData: FormData): Promise
 
             if (existingClient) {
                 clientId = existingClient.id
-                // Optional: Update contact info (email/phone) to keep it fresh
-                // We use 'await' but wrap in a separate try/catch or just ignore errors to not block booking
+                // Update client info to ensure names are clean and contact info is fresh
                 await supabase
                     .from('clients')
                     .update({
+                        first_name: clientFirstName,
+                        paternal_surname: clientPaternalSurname,
+                        maternal_surname: clientMaternalSurname,
                         email: clientEmail,
                         phone: clientPhone,
-                        full_name: clientName // Update name just in case they fixed a typo
+                        country: clientCountry || null // Update country if provided
                     })
                     .eq('id', clientId)
             } else {
@@ -96,11 +113,15 @@ export async function createBooking(prevState: any, formData: FormData): Promise
                 const { data: newClient, error: createError } = await supabase
                     .from('clients')
                     .insert({
-                        full_name: clientName,
+                        first_name: clientFirstName,
+                        paternal_surname: clientPaternalSurname,
+                        maternal_surname: clientMaternalSurname,
                         document_type: clientDocumentType,
                         document_number: clientDocumentNumber,
                         email: clientEmail,
-                        phone: clientPhone
+                        phone: clientPhone,
+                        country: clientCountry || null,
+                        source: 'web'
                     })
                     .select('id')
                     .single()
@@ -117,19 +138,28 @@ export async function createBooking(prevState: any, formData: FormData): Promise
             // Do not fail the booking if client logic fails
         }
 
+        // Construct full name for backward compatibility
+        const fullClientName = `${clientFirstName} ${clientPaternalSurname} ${clientMaternalSurname}`
+
         // 7. Insert into Database (Strict Schema Compliance)
+        // Ensure that clientId is essentially required now, but we handle null just in case of tough server errors
+        if (!clientId) {
+            throw new Error("No se pudo registrar la identidad del cliente.")
+        }
+
         const { error: insertError } = await supabase
             .from('bookings')
             .insert({
                 booking_code: bookingCode,
                 tour_id: tourId,
-                tour_title: tour.title, // Trusted source
+                tour_title: tour.title,
                 tour_date: tourDate,
                 pax: pax,
-                client_id: clientId, // Link to client
-                client_name: clientName,
-                client_document_type: clientDocumentType, // New Field
-                client_document_number: clientDocumentNumber, // New Field
+                client_id: clientId,
+                client_name: fullClientName, // Backward compatibility
+                client_first_name: clientFirstName,
+                client_paternal_surname: clientPaternalSurname,
+                client_maternal_surname: clientMaternalSurname,
                 client_email: clientEmail,
                 client_phone: clientPhone,
                 total_price: totalPrice,
@@ -141,14 +171,14 @@ export async function createBooking(prevState: any, formData: FormData): Promise
             return { success: false, message: 'Error al procesar la reserva. Intente nuevamente.' }
         }
 
-        // 7. Generate WhatsApp Link
+        // 8. Generate WhatsApp Link
         const message = `Hola, quiero confirmar mi reserva:
 *Código:* ${bookingCode}
 *Tour:* ${tour.title}
 *Fecha:* ${tourDate}
 *Pax:* ${pax} personas
 *Total:* ${totalPrice}
-*Cliente:* ${clientName}
+*Cliente:* ${clientFirstName} ${clientPaternalSurname}
 ${clientDocumentType}: ${clientDocumentNumber}
 
 Quedo a la espera de los datos de pago.`
