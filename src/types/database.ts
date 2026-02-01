@@ -37,6 +37,8 @@ export interface Settings {
     contact_email: string | null
     is_maintenance_mode: boolean
     hero_video_url: string | null
+    yape_qr_url: string | null
+    yape_number: string | null
     created_at?: string
 }
 
@@ -288,6 +290,8 @@ export interface Database {
                     contact_email: string | null
                     is_maintenance_mode: boolean
                     hero_video_url: string | null
+                    yape_qr_url: string | null
+                    yape_number: string | null
                     created_at: string
                 }
                 Insert: {
@@ -296,6 +300,8 @@ export interface Database {
                     contact_email?: string | null
                     is_maintenance_mode?: boolean
                     hero_video_url?: string | null
+                    yape_qr_url?: string | null
+                    yape_number?: string | null
                     created_at?: string
                 }
                 Update: {
@@ -304,6 +310,8 @@ export interface Database {
                     contact_email?: string | null
                     is_maintenance_mode?: boolean
                     hero_video_url?: string | null
+                    yape_qr_url?: string | null
+                    yape_number?: string | null
                     created_at?: string
                 }
                 Relationships: []
