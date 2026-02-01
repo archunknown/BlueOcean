@@ -29,8 +29,6 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
     // Passing as query params
     const params = new URLSearchParams({
       tourId: tour.id.toString(),
-      title: tour.title,
-      price: tour.price,
       date: date,
       pax: pax.toString()
     });

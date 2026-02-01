@@ -2,26 +2,57 @@ import { createClient } from '@/utils/supabase/server'
 import CheckoutForm from '@/components/checkout/CheckoutForm'
 import Link from 'next/link'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { redirect, notFound } from 'next/navigation'
 
 interface CheckoutPageProps {
     searchParams: Promise<{
         tourId: string
-        title: string
-        price: string
         date: string
         pax: string
+        // We ignore other params as they are insecure
     }>
 }
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
     const supabase = await createClient()
-    const resolvedParams = await searchParams
+    const { tourId, date, pax } = await searchParams
 
-    // Fetch settings for QR and WhatsApp
+    if (!tourId || !date) {
+        redirect('/tours')
+    }
+
+    // 1. Fetch Secure Tour Data
+    const { data: tour, error } = await supabase
+        .from('tours')
+        .select('title, price')
+        .eq('id', tourId)
+        .single()
+
+    if (error || !tour) {
+        console.error('Checkout Error: Tour not found', error)
+        notFound()
+    }
+
+    // 2. Fetch Settings
     const { data: settings } = await supabase
         .from('settings')
         .select('*')
-        .single() // Returns simple object, not array
+        .single()
+
+    // 3. Construct Secure Params for Client Component
+    // We clean the price to be numeric for the frontend calculation
+    const priceClean = tour.price.replace(/[^0-9.]/g, '')
+    const priceNumeric = parseFloat(priceClean)
+
+    const secureParams = {
+        tourId,
+        date,
+        pax: pax || '1',
+        tour: {
+            title: tour.title,
+            price: isNaN(priceNumeric) ? 0 : priceNumeric
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -39,7 +70,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
             </div>
 
             <div className="container mx-auto max-w-6xl px-4 py-8">
-                <CheckoutForm searchParams={resolvedParams} settings={settings} />
+                <CheckoutForm secureParams={secureParams} settings={settings} />
             </div>
         </div>
     )
