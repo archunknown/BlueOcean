@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Save, Building2, User, Lock, Loader2, Image as ImageIcon } from 'lucide-react'
+import { Save, Building2, User, Lock, Loader2, Image as ImageIcon, QrCode } from 'lucide-react'
+import ImageUpload from '@/components/admin/ImageUpload'
 import { toast } from 'sonner'
 import { updateGlobalSettings } from '@/app/admin/actions'
 import { Settings } from '@/types/database'
@@ -15,126 +16,193 @@ interface SettingsClientProps {
 }
 
 export default function SettingsClient({ initialSettings, userRole, userEmail }: SettingsClientProps) {
-    const [activeTab, setActiveTab] = useState<'company' | 'account'>('company')
+    const [activeTab, setActiveTab] = useState<'general' | 'payments' | 'media' | 'account'>('general')
     const [isLoading, setIsLoading] = useState(false)
-    const [videoSelected, setVideoSelected] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
-    const [statusMessage, setStatusMessage] = useState('Iniciando carga...')
-    const supabase = createClient() // Initialize browser client
+    const [statusMessage, setStatusMessage] = useState('')
+    const [qrFile, setQrFile] = useState<File | null>(null)
+    const supabase = createClient()
+
+    // --- Upload Helpers ---
 
     async function uploadMedia(file: File): Promise<string> {
-        // Preserve extension
         const fileExt = file.name.split('.').pop();
         const fileName = `hero_${Date.now()}.${fileExt}`
-
         const { error: uploadError } = await supabase.storage
             .from('assets')
-            .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false
-            })
+            .upload(fileName, file, { cacheControl: '3600', upsert: false })
 
-        if (uploadError) {
-            throw new Error('Error al subir archivo a Storage: ' + uploadError.message)
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-            .from('assets')
-            .getPublicUrl(fileName)
-
+        if (uploadError) throw new Error('Error al subir archivo a Storage: ' + uploadError.message)
+        const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(fileName)
         return publicUrl
     }
 
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    async function uploadYapeQr(file: File): Promise<string> {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `payments/yape-qr-${Date.now()}.${fileExt}`
+        const { error: uploadError } = await supabase.storage
+            .from('settings')
+            .upload(fileName, file, { cacheControl: '3600', upsert: false })
+
+        if (uploadError) throw new Error('Error al subir QR: ' + uploadError.message)
+        const { data: { publicUrl } } = supabase.storage.from('settings').getPublicUrl(fileName)
+        return publicUrl
+    }
+
+    // --- Submit Handlers ---
+
+    async function handleGeneralSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+        setIsLoading(true)
+        try {
+            const formData = new FormData(e.currentTarget)
+            const result = await updateGlobalSettings(formData)
+            if (result.error) toast.error(result.error)
+            else toast.success('Configuración general actualizada')
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    async function handlePaymentsSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        setIsLoading(true)
+        setStatusMessage('Procesando pago...')
+        try {
+            const formData = new FormData(e.currentTarget)
+            // Use state file instead of formData because ImageUpload might have unmounted the input
+            const isUploadingYape = qrFile && qrFile.size > 0
+
+            if (isUploadingYape) {
+                if (qrFile!.size > 4 * 1024 * 1024) {
+                    toast.error('El QR excede el límite de 4MB')
+                    setIsLoading(false)
+                    return
+                }
+                const qrUrl = await uploadYapeQr(qrFile!)
+                // Note: We don't need to delete 'yape_qr' from formData because it might not even be there
+                formData.append('yape_qr_url', qrUrl)
+            }
+
+            const result = await updateGlobalSettings(formData)
+            if (result.error) toast.error(result.error)
+            else {
+                toast.success('Configuración de pagos actualizada')
+                if (isUploadingYape) window.location.reload()
+            }
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
+            setIsLoading(false)
+            setStatusMessage('')
+        }
+    }
+
+    async function handleMediaSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
+        setIsLoading(true)
+        setUploadProgress(0)
+
         const formData = new FormData(e.currentTarget)
         const videoFile = formData.get('hero_video') as File
         const isUploadingVideo = videoFile && videoFile.size > 0
 
-        setIsLoading(true)
-        setUploadProgress(0)
+        if (!isUploadingVideo) {
+            // Just in case they submitted without changing file? Though usually this form is just for the file.
+            // If there's other media settings later, standard update.
+            // For now, if no file selected, maybe warn or just nothing?
+            // Actually, if they just hit save without file?
+            toast.info('Seleccione una imagen para actualizar')
+            setIsLoading(false)
+            return
+        }
 
-        // Simulated Progress Interval
+        // Progress Simulation
         const progressInterval = setInterval(() => {
             setUploadProgress((prev) => {
-                const newProgress = prev >= 90 ? prev : prev + 5 // Slower increment
-
-                // Update message based on progress
+                const newProgress = prev >= 90 ? prev : prev + 5
                 if (newProgress < 30) setStatusMessage('Preparando el archivo...')
                 else if (newProgress < 60) setStatusMessage('Subiendo a la nube segura...')
                 else if (newProgress < 85) setStatusMessage('Optimizando formato...')
                 else setStatusMessage('Finalizando cambios...')
-
                 return newProgress
             })
         }, 800)
 
-        if (isUploadingVideo) {
-            setVideoSelected(true)
-            // Client-side validation
-            if (videoFile.size > 5 * 1024 * 1024) {
-                toast.error('La imagen excede el límite de 5MB')
-                setIsLoading(false)
-                setVideoSelected(false)
-                clearInterval(progressInterval)
-                return
-            }
-        }
-
         try {
-            let videoUrl = ''
-            if (isUploadingVideo) {
-                // 1. Client-Side Upload
-                videoUrl = await uploadMedia(videoFile)
-                // 2. Remove file from payload to prevent server limits
-                formData.delete('hero_video')
-                // 3. Add URL instead
-                formData.append('hero_video_url', videoUrl)
+            if (videoFile.size > 5 * 1024 * 1024) {
+                throw new Error('La imagen excede el límite de 5MB')
             }
+
+            const videoUrl = await uploadMedia(videoFile)
+            formData.delete('hero_video')
+            formData.append('hero_video_url', videoUrl)
 
             const result = await updateGlobalSettings(formData)
-
-            if (result.error) {
-                toast.error(result.error)
-            } else {
-                toast.success('Configuración actualizada')
-                if (isUploadingVideo) {
-                    window.location.reload()
-                }
+            if (result.error) toast.error(result.error)
+            else {
+                toast.success('Multimedia actualizada')
+                window.location.reload()
             }
         } catch (error: any) {
-            console.error(error)
-            toast.error(error.message || 'Error inesperado')
+            toast.error(error.message)
+            clearInterval(progressInterval)
         } finally {
             clearInterval(progressInterval)
             setUploadProgress(100)
-            setStatusMessage('¡Archivo actualizado correctamente!')
             setTimeout(() => {
                 setIsLoading(false)
-                setVideoSelected(false)
                 setUploadProgress(0)
                 setStatusMessage('')
-            }, 1000) // Bit longer to read success
+            }, 1000)
         }
     }
 
     return (
         <div className="space-y-6">
             {/* Tabs Navigation */}
-            <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <div className="border-b border-gray-200 overflow-x-auto">
+                <nav className="-mb-px flex space-x-8 min-w-max" aria-label="Tabs">
                     <button
-                        onClick={() => setActiveTab('company')}
+                        onClick={() => setActiveTab('general')}
                         className={`
                             group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors gap-2
-                            ${activeTab === 'company'
+                            ${activeTab === 'general'
                                 ? 'border-blue-500 text-blue-600'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }
                         `}
                     >
                         <Building2 className="h-4 w-4" />
-                        Empresa
+                        General
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('payments')}
+                        className={`
+                            group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors gap-2
+                            ${activeTab === 'payments'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }
+                        `}
+                    >
+                        <QrCode className="h-4 w-4" />
+                        Pagos
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('media')}
+                        className={`
+                            group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors gap-2
+                            ${activeTab === 'media'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }
+                        `}
+                    >
+                        <ImageIcon className="h-4 w-4" />
+                        Multimedia
                     </button>
                     <button
                         onClick={() => setActiveTab('account')}
@@ -154,19 +222,21 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
 
             {/* Tab Content */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden p-6 md:p-8">
-                {activeTab === 'company' && (
+
+                {/* --- GENERAL TAB --- */}
+                {activeTab === 'general' && (
                     <motion.div
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3 }}
                     >
                         <div className="mb-6">
-                            <h2 className="text-xl font-bold text-gray-900">Configuración Global</h2>
-                            <p className="text-sm text-gray-500">Información pública de contacto y ajustes generales.</p>
+                            <h2 className="text-xl font-bold text-gray-900">Configuración General</h2>
+                            <p className="text-sm text-gray-500">Información pública de contacto y ajustes básicos.</p>
                         </div>
 
                         {userRole === 'admin' ? (
-                            <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
+                            <form onSubmit={handleGeneralSubmit} className="space-y-6 max-w-xl">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp Principal</label>
                                     <input
@@ -189,9 +259,103 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                                     />
                                 </div>
+                                <div className="pt-4">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                        {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : <AccessRestricted />}
+                    </motion.div>
+                )}
 
-                                <div className="pt-2 border-t border-gray-100">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                {/* --- PAYMENTS TAB --- */}
+                {activeTab === 'payments' && (
+                    <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-gray-900">Métodos de Pago</h2>
+                            <p className="text-sm text-gray-500">Gestiona los códigos QR y números para pagos móviles (Yape/Plin).</p>
+                        </div>
+
+                        {userRole === 'admin' ? (
+                            <form onSubmit={handlePaymentsSubmit} className="space-y-6 max-w-xl">
+                                <div className="bg-purple-50 p-6 rounded-xl border border-purple-100 space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-800 uppercase mb-3 flex items-center gap-2">
+                                            <QrCode className="h-4 w-4 text-purple-600" />
+                                            Código QR Yape
+                                        </label>
+                                        <div className="flex flex-col sm:flex-row gap-6 items-start">
+                                            <div className="w-40 shrink-0">
+                                                <ImageUpload
+                                                    initialUrl={initialSettings?.yape_qr_url || undefined}
+                                                    onImageSelect={(file) => setQrFile(file)}
+                                                    name="yape_qr"
+                                                />
+                                            </div>
+                                            <div className="text-sm text-gray-600 space-y-2">
+                                                <p>Sube aquí el código QR de tu billetera digital.</p>
+                                                <ul className="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                                                    <li>Formato: JPG, PNG</li>
+                                                    <li>Peso Máximo: 4MB</li>
+                                                    <li>Se guardará en <code>settings/payments/</code></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-800 uppercase mb-2">Número Asociado</label>
+                                        <input
+                                            name="yape_number"
+                                            defaultValue={initialSettings?.yape_number || ''}
+                                            type="tel"
+                                            placeholder="999 999 999"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                        {isLoading ? 'Guardando...' : 'Guardar Configuración de Pagos'}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : <AccessRestricted />}
+                    </motion.div>
+                )}
+
+                {/* --- MEDIA TAB --- */}
+                {activeTab === 'media' && (
+                    <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="mb-6">
+                            <h2 className="text-xl font-bold text-gray-900">Multimedia Global</h2>
+                            <p className="text-sm text-gray-500">Imágenes y videos principales del sitio (Hero).</p>
+                        </div>
+
+                        {userRole === 'admin' ? (
+                            <form onSubmit={handleMediaSubmit} className="space-y-6 max-w-xl">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                                         <ImageIcon className="h-4 w-4 text-blue-600" />
                                         Media Principal (Hero)
                                     </label>
@@ -210,12 +374,11 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                             </div>
                                         )}
 
-                                        <div>
+                                        <div className="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
                                             <input
                                                 name="hero_video"
                                                 type="file"
                                                 accept="image/jpeg,image/png,image/webp"
-                                                onChange={(e) => setVideoSelected(!!e.target.files?.length)}
                                                 className="block w-full text-sm text-gray-500
                                                     file:mr-4 file:py-2.5 file:px-4
                                                     file:rounded-lg file:border-0
@@ -224,66 +387,46 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                                                     hover:file:bg-blue-100
                                                     focus:outline-none transition-all cursor-pointer"
                                             />
-                                            <p className="text-xs text-gray-500 mt-2">
-                                                <span className="font-semibold text-gray-700">Formatos:</span> JPG, PNG, WEBP (Máx 5MB).
-                                                <br />
-                                                <span className="text-gray-400">Nota: Al subir una nueva imagen, la anterior se eliminará automáticamente.</span>
+                                            <p className="text-xs text-gray-500 mt-3 text-center">
+                                                Subir nueva imagen. Formatos: JPG, PNG, WEBP (Máx 5MB).
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Maintenance Mode Placeholder - User didn't ask for toggle yet but schema has it */}
-                                {/* 
-                                <div className="flex items-center gap-2 pt-2">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" name="is_maintenance_mode" defaultChecked={initialSettings?.is_maintenance_mode} className="accent-blue-600 h-4 w-4" />
-                                        <span className="text-sm font-medium text-gray-700">Modo Mantenimiento</span>
-                                    </label>
-                                </div> 
-                                */}
-
-                                <div className="pt-4 space-y-3">
-                                    {isLoading && videoSelected && (
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg border border-blue-100 animate-pulse">
-                                                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                                                <span className="font-medium animate-fade-in">
-                                                    {statusMessage}
-                                                </span>
-                                            </div>
-                                            {/* Progress Bar */}
-                                            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-                                                <div
-                                                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                                                    style={{ width: `${uploadProgress}%` }}
-                                                ></div>
-                                            </div>
-                                            <p className="text-right text-xs text-gray-500 font-medium">{uploadProgress}%</p>
+                                {isLoading && (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg border border-blue-100 animate-pulse">
+                                            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                                            <span className="font-medium animate-fade-in">
+                                                {statusMessage || 'Subiendo archivo...'}
+                                            </span>
                                         </div>
-                                    )}
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
+                                            <div
+                                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="pt-2">
                                     <button
                                         type="submit"
                                         disabled={isLoading}
                                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                        {isLoading ? (videoSelected ? 'Procesando Imagen...' : 'Guardando...') : 'Guardar Cambios'}
+                                        {isLoading ? 'Subiendo...' : 'Actualizar Multimedia'}
                                     </button>
                                 </div>
                             </form>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                                <Lock className="h-10 w-10 text-gray-400 mb-2" />
-                                <h3 className="font-medium text-gray-900">Acceso Restringido</h3>
-                                <p className="text-sm text-gray-500 max-w-sm mt-1">
-                                    Solo los administradores pueden modificar la configuración global de la empresa.
-                                </p>
-                            </div>
-                        )}
+                        ) : <AccessRestricted />}
                     </motion.div>
                 )}
 
+                {/* --- ACCOUNT TAB --- */}
                 {activeTab === 'account' && (
                     <motion.div
                         initial={{ opacity: 0, x: 10 }}
@@ -312,6 +455,18 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                     </motion.div>
                 )}
             </div>
+        </div>
+    )
+}
+
+function AccessRestricted() {
+    return (
+        <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
+            <Lock className="h-10 w-10 text-gray-400 mb-2" />
+            <h3 className="font-medium text-gray-900">Acceso Restringido</h3>
+            <p className="text-sm text-gray-500 max-w-sm mt-1">
+                Solo los administradores pueden modificar esta configuración.
+            </p>
         </div>
     )
 }
