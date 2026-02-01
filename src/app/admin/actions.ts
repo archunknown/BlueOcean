@@ -117,78 +117,82 @@ export async function getGlobalSettings(): Promise<Settings | null> {
 export async function updateGlobalSettings(formData: FormData) {
     const supabase = await createSupabaseClient() as any
 
-    const whatsapp_primary = formData.get('whatsapp_primary') as string
-    const contact_email = formData.get('contact_email') as string
-    const hero_video = formData.get('hero_video') as File | null
-    // New: Accept URL directly from client upload
-    let hero_video_url = formData.get('hero_video_url') as string | undefined
+    const updateData: any = {}
 
-    // Handle Server-Side Video Upload (Fallback)
-    if (!hero_video_url && hero_video && hero_video.size > 0) {
-        // 1. Validation
-        const MAX_SIZE = 5 * 1024 * 1024 // 5MB
-        if (hero_video.size > MAX_SIZE) {
-            return { error: 'La imagen excede el límite de 5MB' }
-        }
-        if (!hero_video.type.startsWith('image/')) {
-            return { error: 'Formato inválido. Solo se permiten Imágenes (JPG, PNG, WEBP)' }
-        }
-
-        // 2. Upload New Image
-        const fileExt = hero_video.name.split('.').pop() || 'jpg'
-        const fileName = `hero_${Date.now()}.${fileExt}`
-        const { error: uploadError } = await supabase.storage
-            .from('assets')
-            .upload(fileName, hero_video, {
-                cacheControl: '3600',
-                upsert: false
-            })
-
-        if (uploadError) {
-            console.error('Upload Error:', uploadError)
-            return { error: 'Error al subir la imagen: ' + uploadError.message }
-        }
-
-        // 3. Get Public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('assets')
-            .getPublicUrl(fileName)
-
-        hero_video_url = publicUrl
+    // 1. General Settings
+    if (formData.has('whatsapp_primary')) {
+        updateData.whatsapp_primary = formData.get('whatsapp_primary') as string
+    }
+    if (formData.has('contact_email')) {
+        updateData.contact_email = formData.get('contact_email') as string
     }
 
-    // Cleanup Old Video if a new one is set
-    if (hero_video_url) {
+    // 2. Payments Settings
+    if (formData.has('yape_number')) {
+        updateData.yape_number = formData.get('yape_number') as string
+    }
+
+    // Yape QR Handling
+    let yape_qr_url = formData.get('yape_qr_url') as string | undefined
+    if (yape_qr_url) {
+        updateData.yape_qr_url = yape_qr_url
+        // GC Logic for Yape QR
         try {
             const { data: oldSettings } = await supabase
                 .from('settings')
-                .select('hero_video_url')
+                .select('yape_qr_url')
                 .eq('id', 1)
                 .single()
 
-            if (oldSettings?.hero_video_url && oldSettings.hero_video_url !== hero_video_url) {
-                // Extract filename from URL (assumes standard Supabase Storage URL structure)
-                const oldUrl = oldSettings.hero_video_url
-                const oldFileName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1)
-
-                if (oldFileName) {
-                    await supabase.storage.from('assets').remove([oldFileName])
+            if (oldSettings?.yape_qr_url && oldSettings.yape_qr_url !== yape_qr_url) {
+                const urlObj = new URL(oldSettings.yape_qr_url)
+                const pathParts = urlObj.pathname.split('/settings/')
+                if (pathParts.length > 1) {
+                    const relativePath = decodeURIComponent(pathParts[1])
+                    await supabase.storage.from('settings').remove([relativePath])
+                    console.log('GC: Removed old QR', relativePath)
                 }
             }
-        } catch (cleanupError) {
-            console.error('Cleanup Warning:', cleanupError)
-            // Non-fatal, continue
+        } catch (e) {
+            console.error('GC Error:', e)
         }
     }
 
-    // 5. Update Database
-    const updateData: any = {
-        whatsapp_primary,
-        contact_email,
+    // 3. Multimedia Handling
+    const hero_video = formData.get('hero_video') as File | null
+    let hero_video_url = formData.get('hero_video_url') as string | undefined
+
+    // Existing Video Logic (Fallback for server-side upload if needed, though mostly client-side now)
+    if (!hero_video_url && hero_video && hero_video.size > 0) {
+        const MAX_SIZE = 5 * 1024 * 1024
+        if (hero_video.size > MAX_SIZE) return { error: 'La imagen excede el límite de 5MB' }
+        if (!hero_video.type.startsWith('image/')) return { error: 'Formato inválido' }
+
+        const fileExt = hero_video.name.split('.').pop() || 'jpg'
+        const fileName = `hero_${Date.now()}.${fileExt}`
+        const { error: uploadError } = await supabase.storage.from('assets').upload(fileName, hero_video, { upsert: false })
+
+        if (uploadError) return { error: 'Error al subir imagen: ' + uploadError.message }
+        const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(fileName)
+        hero_video_url = publicUrl
     }
 
     if (hero_video_url) {
         updateData.hero_video_url = hero_video_url
+        // Cleanup Old Video
+        try {
+            const { data: oldSettings } = await supabase.from('settings').select('hero_video_url').eq('id', 1).single()
+            if (oldSettings?.hero_video_url && oldSettings.hero_video_url !== hero_video_url) {
+                const oldUrl = oldSettings.hero_video_url
+                const oldFileName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1)
+                if (oldFileName) await supabase.storage.from('assets').remove([oldFileName])
+            }
+        } catch (cleanupError) { console.error('Cleanup Warning:', cleanupError) }
+    }
+
+    // Verify there is something to update
+    if (Object.keys(updateData).length === 0) {
+        return { success: true } // Nothing to update
     }
 
     const { error } = await supabase

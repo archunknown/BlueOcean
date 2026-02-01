@@ -6,6 +6,8 @@ import { CheckCircleIcon, ClockIcon, UsersIcon, CalendarIcon } from '@heroicons/
 import Link from 'next/link';
 import type { Tour } from '@/types/tour-schemas';
 import RelatedTours from '@/components/sections/RelatedTours';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface TourDetailViewProps {
   tour: Tour;
@@ -13,6 +15,28 @@ interface TourDetailViewProps {
 }
 
 export default function TourDetailView({ tour, allTours }: TourDetailViewProps) {
+  const router = useRouter();
+  const [date, setDate] = useState('');
+  const [pax, setPax] = useState(1);
+
+  const handleBooking = () => {
+    if (!date) {
+      alert('Por favor selecciona una fecha');
+      return;
+    }
+
+    // Clean price string (e.g. "S/ 150.00" -> "150.00") if needed, or pass as is
+    // Passing as query params
+    const params = new URLSearchParams({
+      tourId: tour.id.toString(),
+      title: tour.title,
+      price: tour.price,
+      date: date,
+      pax: pax.toString()
+    });
+
+    router.push(`/checkout?${params.toString()}`);
+  };
 
   const InfoCard = () => (
     <div className="md:sticky md:top-28">
@@ -52,10 +76,12 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
     </div>
   );
 
+
+
   return (
     <>
       <div className="bg-lightGray">
-        {/* Hero Section */}
+        {/* ... (Existing Hero Section code same as before, no changes to Hero) ... */}
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -140,12 +166,60 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
               transition={{ duration: 0.7, delay: 0.5 }}
               className="mt-12 md:mt-0"
             >
-              <InfoCard />
+              <div className="md:sticky md:top-28">
+                <div className="rounded-2xl bg-white shadow-lg p-6 border border-gray-100">
+                  <h3 className="text-xl font-bold text-oceanBlue mb-4 border-b pb-3">Resumen del {tour.category}</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <ClockIcon className="h-6 w-6 text-turquoise mr-3" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Duración</p>
+                        <p className="text-gray-600">{tour.duration}</p>
+                      </div>
+                    </div>
+                    {/* ... keep existing icons ... */}
+                  </div>
+
+                  {/* Booking Inputs */}
+                  <div className="mt-6 space-y-4 border-t border-gray-100 pt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                      <input
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Personas (Pax)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={pax}
+                        onChange={(e) => setPax(parseInt(e.target.value) || 1)}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleBooking}
+                    disabled={!date}
+                    className="mt-6 block w-full text-center rounded-xl bg-blue-900 py-3 font-bold text-white transition-all duration-300 hover:bg-cyan-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ¡Reservar Ahora!
+                  </button>
+                </div>
+              </div>
             </motion.div>
 
           </div>
         </section>
       </div>
+
+
 
       {/* 3. RENDERIZAR CARRUSEL */}
       <RelatedTours allTours={allTours} currentTourSlug={tour.slug} />
