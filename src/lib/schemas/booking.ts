@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 export const bookingSchema = z.object({
-    clientName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+    clientFirstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+    clientPaternalSurname: z.string().min(2, 'El apellido paterno debe tener al menos 2 caracteres'),
+    clientMaternalSurname: z.string().min(2, 'El apellido materno debe tener al menos 2 caracteres'),
+    clientCountry: z.string().optional(),
     clientDocumentType: z.enum(['DNI', 'CE', 'PASAPORTE'], {
         errorMap: (issue, ctx) => ({ message: 'Tipo de documento inválido' })
     }),

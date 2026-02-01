@@ -27,7 +27,7 @@ export interface Client {
     document_number: string | null
     country: string | null
     notes: string | null
-    source: string
+    source: string | null
     created_at?: string
 }
 
@@ -52,7 +52,11 @@ export interface Database {
                     tour_title: string
                     tour_date: string
                     pax: number
+                    client_id: string
                     client_name: string
+                    client_first_name: string
+                    client_paternal_surname: string
+                    client_maternal_surname: string
                     client_email: string
                     client_phone: string
                     total_price: string
@@ -66,7 +70,11 @@ export interface Database {
                     tour_title: string
                     tour_date: string
                     pax: number
+                    client_id: string
                     client_name: string
+                    client_first_name: string
+                    client_paternal_surname: string
+                    client_maternal_surname: string
                     client_email: string
                     client_phone: string
                     total_price: string
@@ -80,7 +88,11 @@ export interface Database {
                     tour_title?: string
                     tour_date?: string
                     pax?: number
+                    client_id?: string
                     client_name?: string
+                    client_first_name?: string
+                    client_paternal_surname?: string
+                    client_maternal_surname?: string
                     client_email?: string
                     client_phone?: string
                     total_price?: string
@@ -241,19 +253,23 @@ export interface Database {
             clients: {
                 Row: {
                     id: string
-                    full_name: string
+                    first_name: string
+                    paternal_surname: string
+                    maternal_surname: string
                     email: string
                     phone: string | null
                     document_type: string | null
                     document_number: string | null
-                    country: string | null // Keeping potential optional fields just in case, but aligning with user request
+                    country: string | null
                     notes: string | null
-                    source: string | null // Made nullable to be safe
+                    source: string | null
                     created_at: string
                 }
                 Insert: {
                     id?: string
-                    full_name: string
+                    first_name: string
+                    paternal_surname: string
+                    maternal_surname: string
                     email: string
                     phone?: string | null
                     document_type?: string | null
@@ -265,7 +281,9 @@ export interface Database {
                 }
                 Update: {
                     id?: string
-                    full_name?: string
+                    first_name?: string
+                    paternal_surname?: string
+                    maternal_surname?: string
                     email?: string
                     phone?: string | null
                     document_type?: string | null

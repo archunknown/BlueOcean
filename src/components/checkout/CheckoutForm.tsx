@@ -3,7 +3,7 @@
 import { useActionState, useState, useEffect } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { UserIcon, EnvelopeIcon, PhoneIcon, IdentificationIcon, CalendarIcon, UsersIcon, QrCodeIcon, CreditCardIcon } from '@heroicons/react/24/outline'
+import { UserIcon, EnvelopeIcon, PhoneIcon, IdentificationIcon, CalendarIcon, UsersIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import { createBooking } from '@/app/actions/booking'
 import type { CreateBookingState } from '@/app/actions/booking'
 import type { Settings } from '@/types/database'
@@ -113,19 +113,61 @@ export default function CheckoutForm({ secureParams, settings }: CheckoutFormPro
                         </h3>
 
                         <div className="space-y-4">
+                            {/* Nombres */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
                                 <div className="relative">
                                     <UserIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                                     <input
                                         required
-                                        name="clientName"
+                                        name="clientFirstName"
                                         type="text"
-                                        className={`w-full rounded-xl border ${state.errors?.clientName ? 'border-red-500 bg-red-50' : 'border-gray-300'} pl-10 pr-4 py-3 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all`}
-                                        placeholder="Ej. Juan Pérez"
+                                        className={`w-full rounded-xl border ${state.errors?.clientFirstName ? 'border-red-500 bg-red-50' : 'border-gray-300'} pl-10 pr-4 py-3 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all`}
+                                        placeholder="Ej. Juan"
                                     />
                                 </div>
-                                {state.errors?.clientName && <p className="mt-1 text-xs text-red-600">{state.errors.clientName[0]}</p>}
+                                {state.errors?.clientFirstName && <p className="mt-1 text-xs text-red-600">{state.errors.clientFirstName[0]}</p>}
+                            </div>
+
+                            {/* Apellidos Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno</label>
+                                    <input
+                                        required
+                                        name="clientPaternalSurname"
+                                        type="text"
+                                        className={`w-full rounded-xl border ${state.errors?.clientPaternalSurname ? 'border-red-500 bg-red-50' : 'border-gray-300'} px-4 py-3 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all`}
+                                        placeholder="Ej. Pérez"
+                                    />
+                                    {state.errors?.clientPaternalSurname && <p className="mt-1 text-xs text-red-600">{state.errors.clientPaternalSurname[0]}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Apellido Materno</label>
+                                    <input
+                                        required
+                                        name="clientMaternalSurname"
+                                        type="text"
+                                        className={`w-full rounded-xl border ${state.errors?.clientMaternalSurname ? 'border-red-500 bg-red-50' : 'border-gray-300'} px-4 py-3 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all`}
+                                        placeholder="Ej. Gómez"
+                                    />
+                                    {state.errors?.clientMaternalSurname && <p className="mt-1 text-xs text-red-600">{state.errors.clientMaternalSurname[0]}</p>}
+                                </div>
+                            </div>
+
+                            {/* Pais */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">País de residencia</label>
+                                <div className="relative">
+                                    <GlobeAltIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                    <input
+                                        name="clientCountry"
+                                        type="text"
+                                        className={`w-full rounded-xl border ${state.errors?.clientCountry ? 'border-red-500 bg-red-50' : 'border-gray-300'} pl-10 pr-4 py-3 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all`}
+                                        placeholder="Ej. Perú"
+                                    />
+                                </div>
+                                {state.errors?.clientCountry && <p className="mt-1 text-xs text-red-600">{state.errors.clientCountry[0]}</p>}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
