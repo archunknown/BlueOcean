@@ -241,44 +241,38 @@ export interface Database {
             clients: {
                 Row: {
                     id: string
-                    first_name: string
-                    paternal_surname: string
-                    maternal_surname: string
+                    full_name: string
                     email: string
                     phone: string | null
                     document_type: string | null
                     document_number: string | null
-                    country: string | null
+                    country: string | null // Keeping potential optional fields just in case, but aligning with user request
                     notes: string | null
-                    source: string
+                    source: string | null // Made nullable to be safe
                     created_at: string
                 }
                 Insert: {
                     id?: string
-                    first_name: string
-                    paternal_surname: string
-                    maternal_surname: string
+                    full_name: string
                     email: string
                     phone?: string | null
                     document_type?: string | null
                     document_number?: string | null
                     country?: string | null
                     notes?: string | null
-                    source?: string
+                    source?: string | null
                     created_at?: string
                 }
                 Update: {
                     id?: string
-                    first_name?: string
-                    paternal_surname?: string
-                    maternal_surname?: string
+                    full_name?: string
                     email?: string
                     phone?: string | null
                     document_type?: string | null
                     document_number?: string | null
                     country?: string | null
                     notes?: string | null
-                    source?: string
+                    source?: string | null
                     created_at?: string
                 }
                 Relationships: []
