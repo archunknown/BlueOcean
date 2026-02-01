@@ -52,7 +52,12 @@ export async function updateSession(request: NextRequest) {
     // If this is not done, you may be causing the browser and server to go out
     // of sync and terminate the user's session prematurely!
 
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Protected Routes (Defense in Depth)
+    if (request.nextUrl.pathname.startsWith('/admin') && !user) {
+        return NextResponse.redirect(new URL('/login', request.url))
+    }
 
     return supabaseResponse
 }

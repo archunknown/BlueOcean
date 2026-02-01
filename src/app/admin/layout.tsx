@@ -19,6 +19,13 @@ export default async function AdminLayout({
 
     const role = await getUserRole()
 
+    // STRICT RBAC GUARD
+    if (role !== 'admin') {
+        // You can add 'superadmin' here if you have that role definition: role !== 'admin' && role !== 'superadmin'
+        // For now, based on strict instructions and typical setup:
+        redirect('/')
+    }
+
     return (
         <div className="flex h-screen bg-gray-50">
             {/* Sidebar */}
