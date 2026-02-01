@@ -31,17 +31,17 @@ export async function createClient(formData: FormData) {
         paternal_surname: formData.get('paternal_surname') as string,
         maternal_surname: formData.get('maternal_surname') as string,
         email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        document_number: formData.get('document_number') as string,
-        document_type: formData.get('document_type') as string,
-        country: formData.get('country') as string,
-        notes: formData.get('notes') as string,
+        phone: (formData.get('phone') as string) || null,
+        document_number: (formData.get('document_number') as string) || null,
+        document_type: (formData.get('document_type') as string) || null,
+        country: (formData.get('country') as string) || null,
+        notes: (formData.get('notes') as string) || null,
         source: 'manual'
     }
 
     const { error } = await supabase
         .from('clients')
-        .insert(rawData as any)
+        .insert(rawData)
 
     if (error) {
         return { error: error.message }
@@ -52,18 +52,18 @@ export async function createClient(formData: FormData) {
 }
 
 export async function updateClient(id: string, formData: FormData) {
-    const supabase = await createSupabaseClient() as any
+    const supabase = await createSupabaseClient()
 
     const rawData = {
         first_name: formData.get('first_name') as string,
         paternal_surname: formData.get('paternal_surname') as string,
         maternal_surname: formData.get('maternal_surname') as string,
         email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        document_number: formData.get('document_number') as string,
-        document_type: formData.get('document_type') as string,
-        country: formData.get('country') as string,
-        notes: formData.get('notes') as string,
+        phone: (formData.get('phone') as string) || null,
+        document_number: (formData.get('document_number') as string) || null,
+        document_type: (formData.get('document_type') as string) || null,
+        country: (formData.get('country') as string) || null,
+        notes: (formData.get('notes') as string) || null,
     }
 
     const { error } = await supabase
