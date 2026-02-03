@@ -71,6 +71,8 @@ export async function createBooking(prevState: any, formData: FormData): Promise
             return { success: false, message: 'Tour no encontrado o no disponible.' }
         }
 
+
+
         // 4. Calculate Total Price
         // Price is now a number from DB
         const totalValue = tour.price * pax
