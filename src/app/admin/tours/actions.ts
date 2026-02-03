@@ -71,22 +71,25 @@ async function deleteOldImage(imageUrl: string) {
     }
 }
 
+// Helper to parse JSON safely
+function safeJsonParse(jsonString: string | null, fallback: any = null) {
+    if (!jsonString) return fallback;
+    try {
+        return JSON.parse(jsonString);
+    } catch (e) {
+        return fallback;
+    }
+}
+
 export async function createTour(formData: FormData) {
     const supabase = await createClient()
 
-    // 1. Parse JSON fields safely
-    let itinerary = null
-    let details = null
-    try {
-        const itStr = formData.get('itinerary') as string
-        const detStr = formData.get('details') as string
-        if (itStr) itinerary = JSON.parse(itStr)
-        if (detStr) details = JSON.parse(detStr)
-    } catch (e) {
-        return { error: 'Error en formato JSON de itinerario o detalles' }
-    }
+    // 1. Parse JSON fields
+    const itinerary = safeJsonParse(formData.get('itinerary') as string);
+    const details = safeJsonParse(formData.get('details') as string);
+    const time_slots = safeJsonParse(formData.get('time_slots') as string, []);
 
-    // 2. Prepare Data Object for Zod Validation
+    // 2. Prepare Data Object
     const rawData = {
         title: formData.get('title'),
         price: formData.get('price'),
@@ -97,20 +100,12 @@ export async function createTour(formData: FormData) {
         schedule: formData.get('schedule'),
         category: formData.get('category'),
         image: formData.get('image'),
-        // URL will be generated later
-        // Validate URL as empty string initially or skip
+        is_active: formData.get('is_active') === 'true',
+        is_flexible_schedule: formData.get('is_flexible_schedule') === 'true',
         image_url: '',
         slug: 'temp',
-        itinerary,
-        details
     }
 
-    // We can't fully validate with Zod yet because Image is a File, and Schema expects URL string.
-    // We validate critical fields manually or use partial schema?
-    // Let's validate the "Text" parts first using a partial schema logic or just manual check for required fields 
-    // to match Zod strictness.
-
-    // Simplification: Check required manually or partial parse
     if (!rawData.title || !rawData.price || !rawData.short_description) {
         return { error: 'Faltan campos obligatorios' }
     }
@@ -124,7 +119,7 @@ export async function createTour(formData: FormData) {
         const imageUrl = await uploadImage(imageFile)
 
         // 4. Transform Data
-        const price = Number(rawData.price); // Ensure number
+        const price = Number(rawData.price);
         const slug = createSlug(String(rawData.title));
 
         // 5. Construct Final Object
@@ -140,7 +135,10 @@ export async function createTour(formData: FormData) {
             group_size: rawData.group_size ? String(rawData.group_size) : null,
             image_url: imageUrl,
             itinerary: itinerary,
-            details: details
+            details: details,
+            is_active: rawData.is_active,
+            is_flexible_schedule: rawData.is_flexible_schedule,
+            time_slots: time_slots
         }
 
         // 6. DB Insert
@@ -149,7 +147,6 @@ export async function createTour(formData: FormData) {
             .insert(tourData)
 
         if (error) {
-            // Rollback image upload if DB fails? (Advanced, skipping for now to keep simple)
             return { error: 'Error DB: ' + error.message }
         }
 
@@ -168,19 +165,12 @@ export async function updateTour(id: string, formData: FormData) {
     if (!id) return { error: 'ID es requerido' }
 
     // 1. JSON Parse
-    let itinerary = null
-    let details = null
-    try {
-        const itStr = formData.get('itinerary') as string
-        const detStr = formData.get('details') as string
-        if (itStr) itinerary = JSON.parse(itStr)
-        if (detStr) details = JSON.parse(detStr)
-    } catch (e) {
-        return { error: 'Error en formato JSON' }
-    }
+    const itinerary = safeJsonParse(formData.get('itinerary') as string);
+    const details = safeJsonParse(formData.get('details') as string);
+    const time_slots = safeJsonParse(formData.get('time_slots') as string, []);
 
     try {
-        // 2. Fetch Current Data (for Image Cleanup)
+        // 2. Fetch Current Data
         const { data: currentTour, error: fetchError } = await supabase
             .from('tours')
             .select('image_url, slug')
@@ -197,19 +187,16 @@ export async function updateTour(id: string, formData: FormData) {
         let imageChanged = false
 
         if (imageFile && imageFile.size > 0) {
-            // Validar nueva imagen
             if (imageFile.size > 5 * 1024 * 1024) throw new Error('Imagen > 5MB');
-
-            // Upload NEW
             imageUrl = await uploadImage(imageFile)
             imageChanged = true
         }
 
-        // 4. Prepared Update Data
+        // 4. Update Data
         const updateData = {
             title: String(formData.get('title')),
             category: String(formData.get('category') || 'Tour'),
-            price: Number(formData.get('price')), // Sanitize as number
+            price: Number(formData.get('price')),
             short_description: String(formData.get('short_description')),
             long_description: String(formData.get('long_description') || ''),
             duration: String(formData.get('duration') || ''),
@@ -217,7 +204,10 @@ export async function updateTour(id: string, formData: FormData) {
             group_size: formData.get('capacity') ? String(formData.get('capacity')) : null,
             image_url: imageUrl,
             itinerary: itinerary,
-            details: details
+            details: details,
+            is_active: formData.get('is_active') === 'true',
+            is_flexible_schedule: formData.get('is_flexible_schedule') === 'true',
+            time_slots: time_slots
         }
 
         // 5. Update DB
@@ -227,12 +217,10 @@ export async function updateTour(id: string, formData: FormData) {
             .eq('id', id)
 
         if (updateError) {
-            // If update failed and we uploaded a new image, technically we should delete the NEW image (orphan).
-            // Skipping for simplicity, but strictly we should.
             return { error: 'Error al actualizar: ' + updateError.message }
         }
 
-        // 6. Cleanup OLD Image (Only if DB update succeeded AND image changed)
+        // 6. Cleanup OLD Image
         if (imageChanged && currentTour.image_url) {
             await deleteOldImage(currentTour.image_url);
         }

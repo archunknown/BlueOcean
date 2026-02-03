@@ -26,15 +26,11 @@ interface TourFormProps {
         image_url?: string
         itinerary?: { title: string; items: string[]; icon?: string } | any
         details?: { title: string; items: string[]; icon?: string } | any
+        is_active?: boolean
+        is_flexible_schedule?: boolean
+        time_slots?: string[] | null
     }
     mode: 'create' | 'edit'
-}
-
-function extractNumericPrice(price: string | number | undefined): string {
-    if (!price) return ''
-    const priceStr = String(price)
-    const numericValue = priceStr.replace(/[^0-9.]/g, '')
-    return numericValue
 }
 
 export default function TourForm({ tour, mode }: TourFormProps) {
@@ -42,48 +38,55 @@ export default function TourForm({ tour, mode }: TourFormProps) {
     const [isPending, startTransition] = useTransition()
     const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
+    // New Fields State
+    const [isActive, setIsActive] = useState(tour?.is_active ?? true)
+    const [isFlexible, setIsFlexible] = useState(tour?.is_flexible_schedule ?? false)
+    const [timeSlots, setTimeSlots] = useState<string[]>(tour?.time_slots || [])
+    const [newTimeSlot, setNewTimeSlot] = useState('')
+
     // Prepare initial data for DynamicLists
-    // If we have data, use it. If not, use defaults.
     const initialItineraryData = tour?.itinerary || { title: 'Itinerario', items: [], icon: '📍' }
     const initialDetailsData = tour?.details || { title: 'Detalles', items: [], icon: '✅' }
 
-    // Determine if enabled initially.
-    // For 'create' mode, enable both by default.
-    // For 'edit' mode, enable only if data existed.
     const isCreate = mode === 'create'
     const enableItinerary = isCreate || !!tour?.itinerary
     const enableDetails = isCreate || !!tour?.details
 
-    // State tracks the actual data to be submitted (can be null if disabled)
-    // Initialize with current data if enabled, or null otherwise.
     const [itinerarySubmission, setItinerarySubmission] = useState(enableItinerary ? initialItineraryData : null)
     const [detailsSubmission, setDetailsSubmission] = useState(enableDetails ? initialDetailsData : null)
 
-    const numericPrice = tour ? extractNumericPrice(tour.price) : ''
     const initialImage = tour?.image_url || tour?.image
     const initialCapacity = tour?.group_size || tour?.capacity || ''
 
+    const handleAddTimeSlot = () => {
+        if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
+            setTimeSlots([...timeSlots, newTimeSlot].sort())
+            setNewTimeSlot('')
+        }
+    }
+
+    const removeTimeSlot = (slot: string) => {
+        setTimeSlots(timeSlots.filter(s => s !== slot))
+    }
+
     async function handleSubmit(formData: FormData) {
+        // Append hidden fields manually if not in DOM or special types
+        formData.append('is_active', String(isActive))
+        formData.append('is_flexible_schedule', String(isFlexible))
+        formData.append('time_slots', JSON.stringify(timeSlots))
+
         if (selectedImage) {
             try {
-                // 1. Comprimir imagen (Resize a 1920px width máx, quality 0.8)
-                // Esto convierte una foto de 10MB+ en algo de ~500KB usualmente.
                 const compressedFile = await compressImage(selectedImage)
-
-                // 2. Validar peso FINAL (post-compresión)
-                const MAX_SIZE = 5 * 1024 * 1024; // 5MB (Límite de Netlify/AWS Lambda)
-
+                const MAX_SIZE = 5 * 1024 * 1024;
                 if (compressedFile.size > MAX_SIZE) {
-                    toast.error(`La imagen es demasiado pesada (${(compressedFile.size / 1024 / 1024).toFixed(2)}MB) incluso después de comprimir.`);
-                    return; // Detener proceso
+                    toast.error(`La imagen es demasiado pesada (${(compressedFile.size / 1024 / 1024).toFixed(2)}MB).`);
+                    return;
                 }
-
-                // 3. Reemplazar la imagen original con la optimizada en el payload
                 formData.set('image', compressedFile)
-
             } catch (error) {
                 console.error('Error compression:', error);
-                toast.error('Error al procesar la imagen. Intente con otra.');
+                toast.error('Error al procesar la imagen.');
                 return;
             }
         }
@@ -113,15 +116,39 @@ export default function TourForm({ tour, mode }: TourFormProps) {
             action={handleSubmit}
             className="space-y-8"
         >
-            <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Imagen de Portada *
-                </label>
-                <ImageUpload
-                    initialUrl={initialImage}
-                    onImageSelect={setSelectedImage}
-                    name="image"
-                />
+            {/* Header: Title + Active Toggle */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-6">
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Imagen de Portada *
+                    </label>
+                    <ImageUpload
+                        initialUrl={initialImage}
+                        onImageSelect={setSelectedImage}
+                        name="image"
+                    />
+                </div>
+
+                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label htmlFor="is_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                        Tour Visible en Web
+                    </label>
+                    <button
+                        type="button"
+                        id="is_active"
+                        onClick={() => setIsActive(!isActive)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${isActive ? 'bg-green-500' : 'bg-gray-200'
+                            }`}
+                    >
+                        <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${isActive ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                        />
+                    </button>
+                    <span className="text-xs text-gray-400 font-mono">
+                        {isActive ? 'PUBLICADO' : 'OCULTO'}
+                    </span>
+                </div>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2">
@@ -161,23 +188,33 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                     <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
                         Precio (Soles) *
                     </label>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                            <span className="text-gray-500 font-medium">S/</span>
-                        </div>
-                        <input
-                            type="number"
-                            id="price"
-                            name="price"
-                            defaultValue={numericPrice}
-                            required
-                            step="0.01"
-                            min="0"
-                            onWheel={(e) => e.currentTarget.blur()}
-                            className="w-full rounded-lg border border-gray-300 bg-white pl-12 pr-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            placeholder="40.00"
-                        />
-                    </div>
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        defaultValue={tour?.price}
+                        required
+                        step="0.01"
+                        min="0"
+                        onWheel={(e) => e.currentTarget.blur()}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        placeholder="40.00"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Ingrese el monto numérico exacto.</p>
+                </div>
+
+                <div>
+                    <label htmlFor="capacity" className="block text-sm font-semibold text-gray-700 mb-2">
+                        Cupos Máximos / Info Grupo
+                    </label>
+                    <input
+                        type="text"
+                        id="capacity"
+                        name="capacity"
+                        defaultValue={initialCapacity}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        placeholder="Ej: 20 personas, Varía"
+                    />
                 </div>
             </div>
 
@@ -195,20 +232,77 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                         placeholder="Ej: 4 horas"
                     />
                 </div>
+            </div>
 
-                <div>
-                    <label htmlFor="capacity" className="block text-sm font-semibold text-gray-700 mb-2">
-                        Cupos Máximos
-                    </label>
-                    <input
-                        type="text"
-                        id="capacity"
-                        name="capacity"
-                        defaultValue={initialCapacity}
-                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        placeholder="Ej: 20 personas, Min 4"
-                    />
+            {/* Schedule Section */}
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-900">Configuración de Horarios</h3>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="is_flexible"
+                            checked={isFlexible}
+                            onChange={(e) => setIsFlexible(e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                        />
+                        <label htmlFor="is_flexible" className="text-sm text-gray-700 select-none cursor-pointer">
+                            ¿Horario Flexible?
+                        </label>
+                    </div>
                 </div>
+
+                {isFlexible ? (
+                    <div className="p-4 bg-blue-50 text-blue-800 text-sm rounded-lg">
+                        El cliente podrá elegir cualquier hora, o se coordinará internamente. No se mostrarán horarios fijos para reservar.
+                        <input type="hidden" name="schedule" value="Horario Flexible" />
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-500 mb-1">
+                                Agregar Horario de Salida
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="time"
+                                    value={newTimeSlot}
+                                    onChange={(e) => setNewTimeSlot(e.target.value)}
+                                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAddTimeSlot}
+                                    className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800"
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+
+                        {timeSlots.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {timeSlots.map((time) => (
+                                    <span key={time} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 shadow-sm">
+                                        {time}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeTimeSlot(time)}
+                                            className="text-gray-400 hover:text-red-500 ml-1"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <p className="text-xs text-gray-500">Estos horarios aparecerán como opciones en el formulario de reserva.</p>
+                        {/* Display Schedule Text for backwards compatibility or display */}
+                        <div className="hidden">
+                            <input type="text" name="schedule" defaultValue={tour?.schedule || ''} />
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div>
@@ -237,21 +331,6 @@ export default function TourForm({ tour, mode }: TourFormProps) {
                     rows={4}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Descripción introductoria..."
-                />
-            </div>
-
-            {/* Schedule Field */}
-            <div>
-                <label htmlFor="schedule" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Horario de Salidas
-                </label>
-                <input
-                    type="text"
-                    id="schedule"
-                    name="schedule"
-                    defaultValue={tour?.schedule || ''}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Ej: Salidas 8am, 10am, 12pm"
                 />
             </div>
 
