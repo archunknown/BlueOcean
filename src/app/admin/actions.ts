@@ -1,8 +1,14 @@
 'use server'
 
 import { createClient as createSupabaseClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { Settings } from '@/types/database'
+
+// --- Clients Actions ---
+// ... (previous client functions unedited) ...
+
+
 
 // --- Clients Actions ---
 
@@ -82,13 +88,30 @@ export async function updateClient(id: string, formData: FormData) {
 export async function deleteClient(id: string) {
     const supabase = await createSupabaseClient()
 
-    const { error } = await supabase
+    // 1. Security Check
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+        return { error: 'No autorizado' }
+    }
+
+    const adminSupabase = createAdminClient()
+
+    const { data, error } = await adminSupabase
         .from('clients')
         .delete()
         .eq('id', id)
+        .select()
 
     if (error) {
+        // Handle Foreign Key Constraint Violation (Error 23503)
+        if (error.code === '23503') {
+            return { error: 'No se puede eliminar el cliente porque tiene reservas asociadas.' }
+        }
         return { error: error.message }
+    }
+
+    if (!data || data.length === 0) {
+        return { error: 'No se pudo eliminar el cliente. Verifique si ya fue eliminado.' }
     }
 
     revalidatePath('/admin/clients')
