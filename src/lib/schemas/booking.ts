@@ -6,7 +6,7 @@ export const bookingSchema = z.object({
     clientMaternalSurname: z.string().min(2, 'El apellido materno debe tener al menos 2 caracteres'),
     clientCountry: z.string().optional(),
     clientDocumentType: z.enum(['DNI', 'CE', 'PASAPORTE'], {
-        errorMap: (issue, ctx) => ({ message: 'Tipo de documento inválido' })
+        message: 'Tipo de documento inválido'
     }),
     clientDocumentNumber: z.string().refine((val) => {
         // Validaremos esto con un superRefine o refine condicional si tuvieramos acceso al contexto, 
@@ -18,7 +18,8 @@ export const bookingSchema = z.object({
     clientEmail: z.string().email('Correo electrónico inválido'),
     pax: z.coerce.number().min(1, 'Debe haber al menos 1 pasajero'),
     tourId: z.string().uuid('ID de tour inválido'),
-    tourDate: z.string().refine((date) => !isNaN(Date.parse(date)), 'Fecha inválida') // Simple date check
+    tourDate: z.string().refine((date) => !isNaN(Date.parse(date)), 'Fecha inválida'),
+    tourTime: z.string().min(1, 'La hora es obligatoria') // Validación simple, se puede mejorar con regex HH:mm
 }).superRefine((data, ctx) => {
     if (data.clientDocumentType === 'DNI') {
         if (!/^\d{8}$/.test(data.clientDocumentNumber)) {

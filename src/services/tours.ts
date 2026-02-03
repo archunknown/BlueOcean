@@ -3,12 +3,10 @@ import { Tour, TourSchema } from '@/types/tour-schemas';
 
 // Helper to format price for display (ensure "S/" prefix)
 // Now strictly typed: accepts string, returns string
-function formatPrice(price: string): string {
-    if (!price) return 'S/ 0.00';
-    if (price.startsWith('S/')) return price;
-    if (price.startsWith('$')) return price.replace('$', 'S/ ');
-    // Validation to prevent double prefixing if logic fails elsewhere
-    return `S/ ${price}`;
+// Helper to format price for display (ensure "S/" prefix)
+// Accepts number, returns string
+function formatPrice(price: number): string {
+    return `S/ ${price.toFixed(2)}`;
 }
 
 // Helper to safely parse any DB result into our strict Tour type
@@ -24,11 +22,13 @@ function parseTour(item: unknown): Tour | null {
     const data = result.data;
 
     // 2. Formatting Enhancements (Display Logic)
-    // currently we mutate the price for display in the service (Frontend expects "S/ ...")
-    // This is a bit of a pattern violation (Service should return raw data), but maintaining existing behavior for now.
+    // The previous service logic mutated price to a string for display. 
+    // BUT the new strict Tour type expects 'price' to be a NUMBER.
+    // So we CANNOT return a formatted string here anymore if we want to satisfy the type.
+    // We return the number as is.
     return {
         ...data,
-        price: formatPrice(data.price),
+        // price: formatPrice(data.price), <-- REMOVED, data.price is already number
         duration: data.duration || 'Por consultar',
         group_size: data.group_size || 'Variado',
         short_description: data.short_description || '',

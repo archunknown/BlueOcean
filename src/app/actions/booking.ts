@@ -20,6 +20,7 @@ export async function createBooking(prevState: any, formData: FormData): Promise
     const rawData = {
         tourId: formData.get('tourId'),
         tourDate: formData.get('tourDate'),
+        tourTime: formData.get('tourTime'),
         pax: formData.get('pax'),
         clientFirstName: formData.get('clientFirstName'),
         clientPaternalSurname: formData.get('clientPaternalSurname'),
@@ -45,6 +46,7 @@ export async function createBooking(prevState: any, formData: FormData): Promise
     const {
         tourId,
         tourDate,
+        tourTime,
         pax,
         clientFirstName,
         clientPaternalSurname,
@@ -70,13 +72,11 @@ export async function createBooking(prevState: any, formData: FormData): Promise
         }
 
         // 4. Calculate Total Price
-        // Valid formats: "S/ 150.00", "S/150", "150", "$150"
-        const cleanPrice = tour.price.replace(/[^0-9.]/g, '')
-        const priceValue = parseFloat(cleanPrice)
-        const totalValue = priceValue * pax
+        // Price is now a number from DB
+        const totalValue = tour.price * pax
 
-        // Format back to original currency style (assuming S/)
-        const totalPrice = `S/ ${totalValue.toFixed(2)}`
+        // Format for display/message
+        const formattedTotalPrice = `S/ ${totalValue.toFixed(2)}`
 
         // 5. Generate Booking Code
         const randomDigits = Math.floor(1000 + Math.random() * 9000)
@@ -154,6 +154,7 @@ export async function createBooking(prevState: any, formData: FormData): Promise
                 tour_id: tourId,
                 tour_title: tour.title,
                 tour_date: tourDate,
+                tour_time: tourTime,
                 pax: pax,
                 client_id: clientId,
                 client_name: fullClientName, // Backward compatibility
@@ -162,8 +163,10 @@ export async function createBooking(prevState: any, formData: FormData): Promise
                 client_maternal_surname: clientMaternalSurname,
                 client_email: clientEmail,
                 client_phone: clientPhone,
-                total_price: totalPrice,
-                status: 'pending_payment'
+                total_price: totalValue, // Number
+                status: 'pending_payment',
+                payment_status: 'pending',
+                payment_id: null
             })
 
         if (insertError) {
@@ -176,8 +179,9 @@ export async function createBooking(prevState: any, formData: FormData): Promise
 *Código:* ${bookingCode}
 *Tour:* ${tour.title}
 *Fecha:* ${tourDate}
+*Hora:* ${tourTime}
 *Pax:* ${pax} personas
-*Total:* ${totalPrice}
+*Total:* ${formattedTotalPrice}
 *Cliente:* ${clientFirstName} ${clientPaternalSurname}
 ${clientDocumentType}: ${clientDocumentNumber}
 
@@ -195,7 +199,7 @@ Quedo a la espera de los datos de pago.`
             success: true,
             message: 'Reserva pre-confirmada. Redirigiendo...',
             bookingCode,
-            totalPrice,
+            totalPrice: formattedTotalPrice,
             whatsappUrl
         }
 

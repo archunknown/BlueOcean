@@ -124,7 +124,7 @@ export async function createTour(formData: FormData) {
         const imageUrl = await uploadImage(imageFile)
 
         // 4. Transform Data
-        const formattedPrice = String(Number(rawData.price)); // Simple sanitization
+        const price = Number(rawData.price); // Ensure number
         const slug = createSlug(String(rawData.title));
 
         // 5. Construct Final Object
@@ -132,7 +132,7 @@ export async function createTour(formData: FormData) {
             slug,
             title: String(rawData.title),
             category: String(rawData.category || 'Tour'),
-            price: formattedPrice,
+            price: price,
             short_description: String(rawData.short_description),
             long_description: String(rawData.long_description || ''),
             duration: String(rawData.duration || ''),
@@ -209,7 +209,7 @@ export async function updateTour(id: string, formData: FormData) {
         const updateData = {
             title: String(formData.get('title')),
             category: String(formData.get('category') || 'Tour'),
-            price: String(Number(formData.get('price'))), // Sanitize
+            price: Number(formData.get('price')), // Sanitize as number
             short_description: String(formData.get('short_description')),
             long_description: String(formData.get('long_description') || ''),
             duration: String(formData.get('duration') || ''),
