@@ -18,18 +18,22 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
   const router = useRouter();
   const [date, setDate] = useState('');
   const [pax, setPax] = useState(1);
+  const [selectedTime, setSelectedTime] = useState('');
 
   const handleBooking = () => {
     if (!date) {
       alert('Por favor selecciona una fecha');
       return;
     }
+    if (!selectedTime) {
+      alert('Por favor selecciona un horario');
+      return;
+    }
 
-    // Clean price string (e.g. "S/ 150.00" -> "150.00") if needed, or pass as is
-    // Passing as query params
     const params = new URLSearchParams({
-      tourId: tour.id.toString(),
+      tourId: tour.id?.toString() || '',
       date: date,
+      time: selectedTime,
       pax: pax.toString()
     });
 
@@ -102,7 +106,7 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
           >
             <span className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-1 text-sm font-medium border border-white/30 mb-3">{tour.category}</span>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-shadow-lg">{tour.title}</h1>
-            <p className="mt-2 text-3xl font-bold text-warmYellow text-shadow-md">{tour.price}</p>
+            <p className="mt-2 text-3xl font-bold text-warmYellow text-shadow-md">S/ {Number(tour.price).toFixed(2)}</p>
           </motion.div>
         </motion.section>
 
@@ -190,6 +194,40 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                         className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
                       />
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Horario</label>
+                      {tour.is_flexible_schedule ? (
+                        <input
+                          type="time"
+                          min="09:00"
+                          max="17:00"
+                          value={selectedTime}
+                          onChange={(e) => setSelectedTime(e.target.value)}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
+                        />
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          {tour.time_slots && tour.time_slots.length > 0 ? (
+                            tour.time_slots.map((time) => (
+                              <button
+                                key={time}
+                                onClick={() => setSelectedTime(time)}
+                                className={`py-2 px-2 rounded-lg text-sm font-bold border transition-all ${selectedTime === time
+                                  ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                                  : 'bg-white text-gray-700 border-gray-200 hover:border-blue-900 hover:text-blue-900'
+                                  }`}
+                              >
+                                {time}
+                              </button>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500 col-span-2">A coordinar</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Personas (Pax)</label>
                       <input
@@ -200,14 +238,19 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                         className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
                       />
                     </div>
+
+                    <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
+                      <span className="text-gray-600">Total:</span>
+                      <span className="text-2xl font-bold text-oceanBlue">S/ {(Number(tour.price) * pax).toFixed(2)}</span>
+                    </div>
                   </div>
 
                   <button
                     onClick={handleBooking}
-                    disabled={!date}
-                    className="mt-6 block w-full text-center rounded-xl bg-blue-900 py-3 font-bold text-white transition-all duration-300 hover:bg-cyan-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!date || !selectedTime}
+                    className="mt-6 block w-full text-center rounded-xl bg-blue-900 py-3 font-bold text-white transition-all duration-300 hover:bg-cyan-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                   >
-                    ¡Reservar Ahora!
+                    Reservar Ahora
                   </button>
                 </div>
               </div>
