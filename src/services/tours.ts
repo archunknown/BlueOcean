@@ -33,15 +33,25 @@ function parseTour(item: unknown): Tour | null {
         group_size: data.group_size || 'Variado',
         short_description: data.short_description || '',
         long_description: data.long_description || '',
-        schedule: data.schedule || ''
+        schedule: data.schedule || '',
+        is_active: data.is_active ?? true,
+        // Ensure time_slots is an array (DB might return null)
+        time_slots: Array.isArray(data.time_slots) ? data.time_slots : [],
+        is_flexible_schedule: data.is_flexible_schedule ?? false,
     };
 }
 
-export async function getAllTours(): Promise<Tour[]> {
-    const { data, error } = await supabase
+export async function getAllTours(options: { onlyActive?: boolean } = { onlyActive: true }): Promise<Tour[]> {
+    let query = supabase
         .from('tours')
         .select('*')
         .order('created_at', { ascending: false });
+
+    if (options?.onlyActive) {
+        query = query.eq('is_active', true);
+    }
+
+    const { data, error } = await query;
 
     if (error || !data) {
         console.error('Error fetching tours:', error);
