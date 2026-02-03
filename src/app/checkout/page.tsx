@@ -8,6 +8,7 @@ interface CheckoutPageProps {
     searchParams: Promise<{
         tourId: string
         date: string
+        time: string
         pax: string
         // We ignore other params as they are insecure
     }>
@@ -15,9 +16,9 @@ interface CheckoutPageProps {
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
     const supabase = await createClient()
-    const { tourId, date, pax } = await searchParams
+    const { tourId, date, time, pax } = await searchParams
 
-    if (!tourId || !date) {
+    if (!tourId || !date || !time) {
         redirect('/tours')
     }
 
@@ -40,17 +41,17 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
         .single()
 
     // 3. Construct Secure Params for Client Component
-    // We clean the price to be numeric for the frontend calculation
-    const priceClean = tour.price.replace(/[^0-9.]/g, '')
-    const priceNumeric = parseFloat(priceClean)
+    // Price is already numeric in DB
+    const priceNumeric = tour.price
 
     const secureParams = {
         tourId,
         date,
+        time,
         pax: pax || '1',
         tour: {
             title: tour.title,
-            price: isNaN(priceNumeric) ? 0 : priceNumeric
+            price: priceNumeric
         }
     }
 

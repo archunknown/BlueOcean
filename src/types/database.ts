@@ -51,6 +51,7 @@ export interface Database {
                     tour_id: string
                     tour_title: string
                     tour_date: string
+                    tour_time: string
                     pax: number
                     client_id: string
                     client_name: string
@@ -59,8 +60,10 @@ export interface Database {
                     client_maternal_surname: string
                     client_email: string
                     client_phone: string
-                    total_price: string
+                    total_price: number
                     status: string
+                    payment_id: string | null
+                    payment_status: 'pending' | 'approved' | 'rejected'
                     booking_code: string
                     created_at: string
                 }
@@ -69,6 +72,7 @@ export interface Database {
                     tour_id: string
                     tour_title: string
                     tour_date: string
+                    tour_time: string
                     pax: number
                     client_id: string
                     client_name: string
@@ -77,8 +81,10 @@ export interface Database {
                     client_maternal_surname: string
                     client_email: string
                     client_phone: string
-                    total_price: string
+                    total_price: number
                     status?: string
+                    payment_id?: string | null
+                    payment_status?: 'pending' | 'approved' | 'rejected'
                     booking_code: string
                     created_at?: string
                 }
@@ -87,6 +93,7 @@ export interface Database {
                     tour_id?: string
                     tour_title?: string
                     tour_date?: string
+                    tour_time?: string
                     pax?: number
                     client_id?: string
                     client_name?: string
@@ -95,8 +102,10 @@ export interface Database {
                     client_maternal_surname?: string
                     client_email?: string
                     client_phone?: string
-                    total_price?: string
+                    total_price?: number
                     status?: string
+                    payment_id?: string | null
+                    payment_status?: 'pending' | 'approved' | 'rejected'
                     booking_code?: string
                     created_at?: string
                 }
@@ -117,13 +126,16 @@ export interface Database {
                     category: string // 'Tour' | 'Alquiler'
                     short_description: string
                     long_description: string
-                    price: string
+                    price: number
                     image_url: string
                     duration: string
                     group_size: string | null
                     schedule: string | null
+                    time_slots: string[] | null
+                    is_flexible_schedule: boolean
                     itinerary: Json | null
                     details: Json | null
+                    is_active: boolean
                     created_at: string
                 }
                 Insert: {
@@ -133,13 +145,16 @@ export interface Database {
                     category: string
                     short_description: string
                     long_description: string
-                    price: string
+                    price: number
                     image_url: string
                     duration: string
                     group_size?: string | null
                     schedule?: string | null
+                    time_slots?: string[] | null
+                    is_flexible_schedule?: boolean
                     itinerary?: Json | null
                     details?: Json | null
+                    is_active?: boolean
                     created_at?: string
                 }
                 Update: {
@@ -149,13 +164,16 @@ export interface Database {
                     category?: string
                     short_description?: string
                     long_description?: string
-                    price?: string
+                    price?: number
                     image_url?: string
                     duration?: string
                     group_size?: string | null
                     schedule?: string | null
+                    time_slots?: string[] | null
+                    is_flexible_schedule?: boolean
                     itinerary?: Json | null
                     details?: Json | null
+                    is_active?: boolean
                     created_at?: string
                 }
                 Relationships: []

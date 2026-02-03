@@ -25,15 +25,17 @@ export const TourSchema = z.object({
     short_description: z.string().min(1, 'La descripción corta es obligatoria'),
     long_description: z.string().optional(),
 
-    // DB stores price as string 'S/ 100'. We validate it's a string. 
-    // Ideally we would migrate this column to numeric, but for now we enforce string format.
-    price: z.string(),
+    // Price is stored as number in DB (or string in old records), we coerce to number always.
+    price: z.coerce.number(),
 
     // We relax URL validation but require non-empty string
     image_url: z.string().min(1, 'La URL de imagen es obligatoria'),
     duration: z.string().optional(),
     group_size: z.string().nullable().optional(),
     schedule: z.string().nullable().optional(),
+    time_slots: z.array(z.string()).default([]),
+    is_flexible_schedule: z.boolean().default(false),
+    is_active: z.boolean().default(true),
 
     itinerary: TourItinerarySchema,
     details: TourDetailsSchema,
@@ -48,6 +50,7 @@ export type TourDetails = z.infer<typeof TourDetailsSchema>;
 
 // Form Schema for Admin Actions (Client Side Validation)
 export const TourFormSchema = TourSchema.extend({
-    price: z.union([z.string(), z.number()]).transform((val) => String(val)), // Allow number input, convert to string for DB
+    price: z.coerce.number(), // Input can be string or number, output is number
     image: z.any().optional(), // Pending file object validation
+    is_active: z.boolean().default(true).optional(),
 });

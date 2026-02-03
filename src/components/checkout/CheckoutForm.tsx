@@ -3,7 +3,7 @@
 import { useActionState, useState, useEffect } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { UserIcon, EnvelopeIcon, PhoneIcon, IdentificationIcon, CalendarIcon, UsersIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
+import { UserIcon, EnvelopeIcon, PhoneIcon, IdentificationIcon, CalendarIcon, UsersIcon, GlobeAltIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { createBooking } from '@/app/actions/booking'
 import type { CreateBookingState } from '@/app/actions/booking'
 import type { Settings } from '@/types/database'
@@ -12,6 +12,7 @@ interface CheckoutFormProps {
     secureParams: {
         tourId: string
         date: string
+        time: string
         pax: string
         tour: {
             title: string
@@ -57,6 +58,7 @@ export default function CheckoutForm({ secureParams, settings }: CheckoutFormPro
     const [docType, setDocType] = useState('DNI')
     const [docNumber, setDocNumber] = useState('')
     const [phone, setPhone] = useState('')
+    const [paymentMethod, setPaymentMethod] = useState<'card' | 'yape'>('card')
 
     // Redirect on success
     useEffect(() => {
@@ -100,6 +102,7 @@ export default function CheckoutForm({ secureParams, settings }: CheckoutFormPro
                 {/* Hidden Inputs for Server Action */}
                 <input type="hidden" name="tourId" value={secureParams.tourId} />
                 <input type="hidden" name="tourDate" value={secureParams.date} />
+                <input type="hidden" name="tourTime" value={secureParams.time} />
                 <input type="hidden" name="pax" value={secureParams.pax} />
 
                 {/* Left Column: Client Data & Payment */}
@@ -248,10 +251,78 @@ export default function CheckoutForm({ secureParams, settings }: CheckoutFormPro
                             <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">2</span>
                             Método de Pago
                         </h3>
-                        <div className="p-4 rounded-xl border-2 border-blue-600 bg-blue-50/50">
-                            <p className="font-bold text-gray-900 mb-1">Pago con Constancia (Yape/Plin)</p>
-                            <p className="text-sm text-gray-600">Al confirmar, se te mostrará el QR para pagar y un botón para enviar la constancia por WhatsApp.</p>
+
+                        {/* Payment Toggle */}
+                        <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('card')}
+                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${paymentMethod === 'card'
+                                    ? 'bg-white text-blue-900 shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                Tarjeta de Crédito/Débito
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('yape')}
+                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${paymentMethod === 'yape'
+                                    ? 'bg-white text-blue-900 shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                Yape / Transferencia
+                            </button>
                         </div>
+
+                        {paymentMethod === 'card' ? (
+                            /* Simulated Card Form */
+                            <div className="space-y-4">
+                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="font-bold text-gray-700">Tarjeta de Crédito o Débito</span>
+                                        <div className="flex gap-2">
+                                            <div className="h-6 w-10 bg-gray-200 rounded"></div>
+                                            <div className="h-6 w-10 bg-gray-200 rounded"></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 opacity-60 relative">
+                                        {/* Overlay to indicate simulation/security */}
+                                        <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Número de Tarjeta</label>
+                                            <input disabled type="text" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-400" placeholder="0000 0000 0000 0000" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Expiración</label>
+                                                <input disabled type="text" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-400" placeholder="MM/AA" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">CVC</label>
+                                                <input disabled type="text" className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-400" placeholder="123" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 flex items-center gap-2 text-xs text-gray-500 bg-white p-2 rounded-lg border border-gray-200">
+                                        <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        Procesamiento seguro. Serás redirigido a la pasarela de pago.
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Yape / Transfer Logic */
+                            <div className="p-4 rounded-xl border-2 border-blue-600 bg-blue-50/50">
+                                <p className="font-bold text-gray-900 mb-1">Pago con Constancia (Yape/Plin)</p>
+                                <p className="text-sm text-gray-600">Al confirmar, recibirás un código de reserva y podrás enviar tu constancia vía WhatsApp para validar tu cupo.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -277,6 +348,12 @@ export default function CheckoutForm({ secureParams, settings }: CheckoutFormPro
                                         <UsersIcon className="h-4 w-4" /> Pasajeros
                                     </p>
                                     <p className="text-gray-900 font-medium">{secureParams.pax} Personas</p>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-gray-500 text-sm flex items-center gap-2">
+                                        <ClockIcon className="h-4 w-4" /> Hora
+                                    </p>
+                                    <p className="text-gray-900 font-medium">{secureParams.time}</p>
                                 </div>
                             </div>
 

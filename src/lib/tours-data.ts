@@ -5,11 +5,13 @@ export interface Tour {
   category: 'Tour' | 'Alquiler';
   shortDescription: string;
   longDescription: string;
-  price: string;
+  price: number;
   imageUrl: string;
   duration: string;
   groupSize?: string;
   schedule?: string;
+  time_slots?: string[];
+  is_flexible_schedule: boolean;
   itinerary?: {
     title: string;
     items: string[];
@@ -29,11 +31,13 @@ export const toursData: Tour[] = [
     category: 'Tour',
     shortDescription: 'Navega en modernos deslizadores y descubre la majestuosa fauna marina de Paracas.',
     longDescription: 'Embárcate en una emocionante travesía de dos horas hacia las Islas Ballestas a bordo de nuestros modernos deslizadores de fibra de vidrio, con capacidad para 40 a 50 pasajeros. Este tour es una inmersión completa en el ecosistema marino, donde podrás admirar el enigmático Candelabro, impresionantes formaciones rocosas como el Arco del Deseo y el Perfil de Cristo. Serás testigo de la vibrante vida salvaje, observando de cerca colonias de lobos marinos, pingüinos de Humboldt y una gran diversidad de aves guaneras en su hábitat natural.',
-    price: 'S/ 40',
+    price: 40,
     imageUrl: '/tours/islas-ballestas.jpg',
     duration: '2 horas',
     groupSize: '40-50 pax',
     schedule: 'Salidas 8am, 10am, 12pm',
+    time_slots: ['08:00', '10:00', '12:00'],
+    is_flexible_schedule: false,
     itinerary: {
       title: 'Recorrido Principal',
       items: [
@@ -59,11 +63,12 @@ export const toursData: Tour[] = [
     category: 'Tour',
     shortDescription: 'Recorre los paisajes más icónicos de la reserva en la comodidad de un tour privado.',
     longDescription: 'Descubre la inmensidad y belleza del desierto costero con nuestro tour en auto por la Reserva Nacional de Paracas. Esta experiencia te llevará a través de paisajes surrealistas, playas de colores únicos y acantilados impresionantes, todo desde la comodidad y exclusividad de un vehículo privado. Es la opción perfecta para quienes desean explorar a fondo y con calma los tesoros de la reserva.',
-    price: 'S/ 90',
+    price: 90,
     imageUrl: '/tours/reserva-nacional.jpg',
     duration: 'Aprox. 4 horas',
     groupSize: 'Privado',
     schedule: 'Salidas flexibles',
+    is_flexible_schedule: true,
     itinerary: {
       title: 'Puntos de Visita',
       items: [
@@ -90,11 +95,13 @@ export const toursData: Tour[] = [
     category: 'Tour',
     shortDescription: '¡Toma el volante! Conduce tu propio buggy en un tour guiado de 20km por el desierto.',
     longDescription: 'Siente la adrenalina y la libertad de recorrer el desierto de Paracas al volante de tu propio Mini Buggy. Nuestros vehículos son automáticos y fáciles de manejar. En este tour guiado de 2 horas, recorrerás 20 kilómetros de paisajes desérticos espectaculares, combinando la emoción de la velocidad con vistas inolvidables.',
-    price: 'S/ 100',
+    price: 100,
     imageUrl: '/tours/mini-buggies.jpg',
     duration: '2 horas',
     groupSize: '1-2 personas por buggy',
     schedule: 'Accesos: 9am - 3pm',
+    time_slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
+    is_flexible_schedule: false,
     itinerary: {
       title: 'Ruta de Aventura',
       items: [
@@ -120,11 +127,12 @@ export const toursData: Tour[] = [
     category: 'Alquiler',
     shortDescription: 'Explora la Reserva Nacional de Paracas a tu propio ritmo con total libertad.',
     longDescription: '¿Prefieres la independencia? Alquila una de nuestras scooters y diseña tu propia aventura. Te proporcionamos un mapa con las rutas sugeridas y todo el equipo necesario para que explores la Reserva Nacional de Paracas con seguridad y a tu aire. Siente la brisa del mar mientras descubres playas escondidas y paisajes únicos.',
-    price: 'S/ 80',
+    price: 80,
     imageUrl: '/tours/scooter.jpg',
     duration: 'Día completo',
     groupSize: '1-2 personas',
     schedule: '9am a 5pm',
+    is_flexible_schedule: true,
     details: {
       title: 'Incluye',
       items: [
@@ -141,11 +149,12 @@ export const toursData: Tour[] = [
     category: 'Alquiler',
     shortDescription: 'Conecta con la naturaleza de forma ecológica y saludable.',
     longDescription: 'Para los amantes del deporte y la naturaleza, ofrecemos alquiler de bicicletas de montaña. Es una forma increíblemente gratificante y ecológica de experimentar la belleza de la Reserva Nacional. Sigue las rutas ciclísticas y siente la satisfacción de llegar a cada mirador con tu propio esfuerzo.',
-    price: 'S/ 25',
+    price: 25,
     imageUrl: '/tours/bicicleta.jpg',
     duration: 'Día completo',
     groupSize: 'Individual',
     schedule: '9am a 5pm',
+    is_flexible_schedule: true,
     details: {
       title: 'Incluye',
       items: [
