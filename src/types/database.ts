@@ -135,6 +135,7 @@ export interface Database {
                     is_flexible_schedule: boolean
                     itinerary: Json | null
                     details: Json | null
+                    is_active: boolean
                     created_at: string
                 }
                 Insert: {
@@ -153,6 +154,7 @@ export interface Database {
                     is_flexible_schedule?: boolean
                     itinerary?: Json | null
                     details?: Json | null
+                    is_active?: boolean
                     created_at?: string
                 }
                 Update: {
@@ -171,6 +173,7 @@ export interface Database {
                     is_flexible_schedule?: boolean
                     itinerary?: Json | null
                     details?: Json | null
+                    is_active?: boolean
                     created_at?: string
                 }
                 Relationships: []

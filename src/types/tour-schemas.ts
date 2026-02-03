@@ -33,8 +33,9 @@ export const TourSchema = z.object({
     duration: z.string().optional(),
     group_size: z.string().nullable().optional(),
     schedule: z.string().nullable().optional(),
-    time_slots: z.array(z.string()).nullable().optional(),
+    time_slots: z.array(z.string()).default([]),
     is_flexible_schedule: z.boolean().default(false),
+    is_active: z.boolean().default(true),
 
     itinerary: TourItinerarySchema,
     details: TourDetailsSchema,
@@ -51,4 +52,5 @@ export type TourDetails = z.infer<typeof TourDetailsSchema>;
 export const TourFormSchema = TourSchema.extend({
     price: z.coerce.number(), // Input can be string or number, output is number
     image: z.any().optional(), // Pending file object validation
+    is_active: z.boolean().default(true).optional(),
 });
