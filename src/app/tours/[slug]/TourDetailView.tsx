@@ -30,6 +30,8 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
       return;
     }
 
+
+
     const params = new URLSearchParams({
       tourId: tour.id?.toString() || '',
       date: date,
