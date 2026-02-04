@@ -213,7 +213,17 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                           min="09:00"
                           max="17:00"
                           value={selectedTime}
-                          onChange={(e) => setSelectedTime(e.target.value)}
+                          onChange={(e) => {
+                            const time = e.target.value;
+                            if (time < '09:00' || time > '17:00') {
+                              toast.error('El horario de atención es de 9:00 AM a 5:00 PM', {
+                                duration: 3000,
+                              });
+                              setSelectedTime(''); // Reset or keep previous? Resetting is safer to prevent invalid submission
+                              return;
+                            }
+                            setSelectedTime(time);
+                          }}
                           className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20 outline-none transition-all text-gray-600"
                         />
                       ) : (
