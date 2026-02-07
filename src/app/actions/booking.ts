@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { bookingSchema } from '@/lib/schemas/booking'
+import { createPreference } from '@/lib/mercadopago'
 
 export interface CreateBookingState {
     success: boolean
@@ -149,7 +150,7 @@ export async function createBooking(prevState: any, formData: FormData): Promise
             throw new Error("No se pudo registrar la identidad del cliente.")
         }
 
-        const { error: insertError } = await supabase
+        const { data: bookingData, error: insertError } = await supabase
             .from('bookings')
             .insert({
                 booking_code: bookingCode,
@@ -170,42 +171,33 @@ export async function createBooking(prevState: any, formData: FormData): Promise
                 payment_status: 'pending',
                 payment_id: null
             })
+            .select()
+            .single()
 
-        if (insertError) {
+        if (insertError || !bookingData) {
             console.error('Booking Error:', insertError)
             return { success: false, message: 'Error al procesar la reserva. Intente nuevamente.' }
         }
 
-        // 8. Generate WhatsApp Link
-        const message = `Hola, quiero confirmar mi reserva:
-*Código:* ${bookingCode}
-*Tour:* ${tour.title}
-*Fecha:* ${tourDate}
-*Hora:* ${tourTime}
-*Pax:* ${pax} personas
-*Total:* ${formattedTotalPrice}
-*Cliente:* ${clientFirstName} ${clientPaternalSurname}
-${clientDocumentType}: ${clientDocumentNumber}
+        // 8. Create Mercado Pago Preference
+        const bookingForPayment = {
+            ...bookingData,
+            client_document_type: clientDocumentType,
+            client_document_number: clientDocumentNumber
+        }
 
-Quedo a la espera de los datos de pago.`
+        const preference = await createPreference(bookingForPayment, tour.title)
 
-        const encodedMessage = encodeURIComponent(message)
-
-        // Fetch Settings
-        const { data: settings } = await supabase.from('settings').select('whatsapp_primary').single()
-        const companyPhone = settings?.whatsapp_primary || '51999999999'
-
-        const whatsappUrl = `https://wa.me/${companyPhone}?text=${encodedMessage}`
-
-        return {
-            success: true,
-            message: 'Reserva pre-confirmada. Redirigiendo...',
-            bookingCode,
-            totalPrice: formattedTotalPrice,
-            whatsappUrl
+        if (preference.init_point) {
+            redirect(preference.init_point)
+        } else {
+            return { success: false, message: 'Error al conectar con la pasarela de pago.' }
         }
 
     } catch (error) {
+        if ((error as any).digest?.startsWith('NEXT_REDIRECT')) {
+            throw error;
+        }
         console.error('Server Action Error:', error)
         return { success: false, message: 'Error interno del servidor' }
     }
