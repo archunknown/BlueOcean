@@ -22,7 +22,6 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
   const [selectedTime, setSelectedTime] = useState('');
 
   const handleBooking = () => {
-    // WIP Implementation
     if (!date) {
       toast.error('Por favor selecciona una fecha');
       return;
@@ -32,13 +31,6 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
       return;
     }
 
-    toast.info('🚧 Funcionalidad en desarrollo', {
-      description: 'Estamos trabajando para brindarte la mejor experiencia. ¡Gracias por tu paciencia!',
-      duration: 5000,
-    });
-
-    // Original redirection logic commented out for production deployment
-    /*
     const params = new URLSearchParams({
       tourId: tour.id?.toString() || '',
       date: date,
@@ -47,7 +39,6 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
     });
 
     router.push(`/checkout?${params.toString()}`);
-    */
   };
 
   const InfoCard = () => (
