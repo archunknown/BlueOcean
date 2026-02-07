@@ -1,116 +1,119 @@
-import { createClient } from '@/utils/supabase/server'
-import Link from 'next/link'
-import Image from 'next/image'
-import { CheckCircleIcon, QrCodeIcon, HomeIcon } from '@heroicons/react/24/outline'
-import { redirect } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server';
+import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
+import { CheckCircleIcon, CalendarIcon, ClockIcon, UserGroupIcon, HashtagIcon } from '@heroicons/react/24/outline'; // Outline for clean look, solid for main icon
 
-interface ThankYouPageProps {
-    searchParams: Promise<{
-        code: string
-    }>
-}
+export default async function ThankYouPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+    const params = await searchParams;
+    const bookingId = params.booking_id as string;
 
-export default async function ThankYouPage({ searchParams }: ThankYouPageProps) {
-    const { code } = await searchParams
-
-    if (!code) {
-        redirect('/')
+    if (!bookingId) {
+        redirect('/');
     }
 
-    const supabase = await createClient()
-
-    // 1. Fetch Booking Details (Optional, for verification)
-    const { data: booking } = await supabase
+    const supabase = await createClient();
+    const { data: booking, error } = await supabase
         .from('bookings')
         .select('*')
-        .eq('booking_code', code)
-        .single()
+        .eq('id', bookingId)
+        .single();
 
-    // 2. Fetch Settings for QR/WhatsApp
-    const { data: settings } = await supabase
-        .from('settings')
-        .select('*')
-        .single()
+    if (error || !booking) {
+        console.error("Booking not found:", error);
+        redirect('/');
+    }
 
-    const companyPhone = settings?.whatsapp_primary || '51999999999'
+    // Formato de Moneda
+    const formattedTotal = new Intl.NumberFormat('es-PE', {
+        style: 'currency',
+        currency: 'PEN',
+    }).format(Number(booking.total_price));
 
-    // Construct WhatsApp Message
-    const message = booking ? `Hola, ya realicé mi reserva:
-*Código:* ${booking.booking_code}
-*Tour:* ${booking.tour_title}
-*Total:* ${booking.total_price}
-
-Adjunto mi constancia de pago.` : `Hola, vengo de la web con el código de reserva: ${code}`
-
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${companyPhone}?text=${encodedMessage}`
+    // WhatsApp Link para Soporte
+    const whatsappMessage = `Hola, tengo una consulta sobre mi reserva ${booking.booking_code}.`;
+    const whatsappUrl = `https://wa.me/51999999999?text=${encodeURIComponent(whatsappMessage)}`;
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl overflow-hidden">
-                <div className="bg-green-50 p-8 text-center border-b border-green-100">
-                    <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                        <CheckCircleIcon className="h-12 w-12 text-green-600" />
+            <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+
+                {/* Header Verde */}
+                <div className="bg-green-500 p-8 text-center text-white">
+                    <div className="mx-auto w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
+                        <CheckCircleIcon className="w-12 h-12 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Reserva Pre-confirmada!</h1>
-                    <p className="text-gray-600">Tu código de reserva es:</p>
-                    <div className="mt-4 inline-block bg-white px-6 py-3 rounded-xl border-2 border-green-200 border-dashed">
-                        <span className="text-3xl font-mono font-black text-blue-900 tracking-wider select-all">
-                            {code}
-                        </span>
-                    </div>
+                    <h1 className="text-3xl font-black mb-2 tracking-tight">¡Reserva Confirmada!</h1>
+                    <p className="text-green-50 font-medium">
+                        Tu pago se procesó correctamente. Hemos enviado los detalles a tu correo.
+                    </p>
                 </div>
 
-                <div className="p-8 space-y-8">
-                    {/* Instructions */}
-                    <div className="text-center space-y-2">
-                        <h2 className="font-bold text-gray-900">Siguiente Paso: Realizar Pago</h2>
-                        <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                            Para confirmar tu cupo, realiza el pago usando el QR y envía la constancia por WhatsApp.
-                        </p>
+                {/* Tarjeta de Resumen */}
+                <div className="p-8 space-y-6">
+
+                    <div className="text-center pb-6 border-b border-gray-100">
+                        <p className="text-sm text-gray-400 uppercase tracking-widest font-bold mb-1">CÓDIGO DE RESERVA</p>
+                        <p className="text-4xl font-black text-gray-800 tracking-wider font-mono">{booking.booking_code}</p>
                     </div>
 
-                    {/* QR Section */}
-                    <div className="flex justify-center">
-                        <div className="w-64 h-64 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative">
-                            {settings?.yape_qr_url ? (
-                                <Image
-                                    src={settings.yape_qr_url}
-                                    alt="Yape QR"
-                                    fill
-                                    className="object-contain p-2"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-2">
-                                    <QrCodeIcon className="h-12 w-12" />
-                                    <span className="text-xs">QR no disponible</span>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="font-bold text-gray-900 text-lg">{booking.tour_title}</p>
+                                <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <CalendarIcon className="w-4 h-4" /> {booking.tour_date}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <ClockIcon className="w-4 h-4" /> {booking.tour_time}
+                                    </span>
                                 </div>
-                            )}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center border border-gray-100">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-lg shadow-sm">
+                                    <UserGroupIcon className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-bold uppercase">Pasajeros</p>
+                                    <p className="font-semibold text-gray-800">{booking.pax}</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs text-gray-500 font-bold uppercase">Total Pagado</p>
+                                <p className="font-black text-green-600 text-lg">{formattedTotal}</p>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="space-y-3">
+                    {/* Botones de Acción */}
+                    <div className="space-y-4 pt-4">
+                        <Link
+                            href="/"
+                            className="block w-full py-4 bg-gray-900 text-white font-bold rounded-xl text-center hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                        >
+                            Volver al Inicio
+                        </Link>
+
                         <a
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold py-4 rounded-xl hover:brightness-105 transition-all shadow-md active:scale-[0.98]"
+                            className="block w-full text-center text-gray-500 hover:text-green-600 font-medium text-sm transition-colors flex items-center justify-center gap-2"
                         >
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-                            Enviar Constancia
+                            <span>¿Tienes dudas?</span>
+                            <span className="underline decoration-green-600/30 hover:decoration-green-600">Contáctanos por WhatsApp</span>
                         </a>
-
-                        <Link
-                            href="/"
-                            className="flex items-center justify-center gap-2 w-full py-4 text-gray-500 font-medium hover:text-gray-800 transition-colors"
-                        >
-                            <HomeIcon className="w-5 h-5" />
-                            Volver al Inicio
-                        </Link>
                     </div>
+
                 </div>
             </div>
         </div>
-    )
+    );
 }
