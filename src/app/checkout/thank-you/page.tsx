@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+import DownloadVoucherButton from '@/components/checkout/DownloadVoucherButton';
 import { CheckCircleIcon, CalendarIcon, ClockIcon, UserGroupIcon, HashtagIcon } from '@heroicons/react/24/outline'; // Outline for clean look, solid for main icon
 
 export default async function ThankYouPage({
@@ -93,10 +94,12 @@ export default async function ThankYouPage({
                     </div>
 
                     {/* Botones de Acción */}
-                    <div className="space-y-4 pt-4">
+                    <div className="space-y-3 pt-6">
+                        <DownloadVoucherButton booking={booking} />
+
                         <Link
                             href="/"
-                            className="block w-full py-4 bg-gray-900 text-white font-bold rounded-xl text-center hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                            className="block w-full py-4 bg-white text-gray-700 font-bold rounded-xl text-center border-2 border-gray-100 hover:border-gray-300 hover:text-gray-900 transition-all active:scale-[0.98]"
                         >
                             Volver al Inicio
                         </Link>
@@ -105,7 +108,7 @@ export default async function ThankYouPage({
                             href={whatsappUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block w-full text-center text-gray-500 hover:text-green-600 font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                            className="block w-full text-center text-gray-400 hover:text-green-600 font-medium text-sm transition-colors flex items-center justify-center gap-2 pt-2"
                         >
                             <span>¿Tienes dudas?</span>
                             <span className="underline decoration-green-600/30 hover:decoration-green-600">Contáctanos por WhatsApp</span>
