@@ -201,13 +201,13 @@ export default function TourDetailView({ tour, allTours }: TourDetailViewProps) 
                       {tour.is_flexible_schedule ? (
                         <input
                           type="time"
-                          min="09:00"
+                          min="06:30"
                           max="17:00"
                           value={selectedTime}
                           onChange={(e) => {
                             const time = e.target.value;
-                            if (time < '09:00' || time > '17:00') {
-                              toast.error('El horario de atención es de 9:00 AM a 5:00 PM', {
+                            if (time < '06:30' || time > '17:00') {
+                              toast.error('El horario de atención es de 6:30 AM a 5:00 PM', {
                                 duration: 3000,
                               });
                               setSelectedTime(''); // Reset or keep previous? Resetting is safer to prevent invalid submission

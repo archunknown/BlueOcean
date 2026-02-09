@@ -5,7 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Plus, Pencil, Trash2, Search, Filter, Loader2, AlertCircle } from 'lucide-react'
-import { deleteTour } from './actions'
+import { ArchiveBoxIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
+import { toggleTourStatus } from './actions'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import {
@@ -31,6 +32,7 @@ interface Tour {
     group_size?: string | number | null;
     capacity?: string | number | null; // fallback
     duration?: string | null;
+    is_active: boolean; // Added field
 }
 
 interface ToursListClientProps {
@@ -41,30 +43,49 @@ export default function ToursListClient({ initialTours }: ToursListClientProps) 
     const router = useRouter()
 
     const [tours, setTours] = useState(initialTours)
-    const [isLoading, setIsLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
-    const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [processingId, setProcessingId] = useState<string | null>(null)
 
     // Filter tours based on search term
     const filteredTours = tours.filter(tour =>
         tour.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    async function handleDelete(id: string) {
-        setDeletingId(id)
+    async function handleToggleStatus(id: string, currentStatus: boolean) {
+        const newStatus = !currentStatus
+        setProcessingId(id)
         try {
-            const result = await deleteTour(id)
+            // Using logic from deleteTour which now calls toggleTourStatus for false, 
+            // but we need to explicitly call toggleTourStatus for true (reactivate).
+            // To imply cleaner logic, we should probably import toggleTourStatus if we exported it,
+            // or just use deleteTour for archiving.
+            // Wait, let's look at what we did in actions.ts. We exported toggleTourStatus.
+            // We need to import it here. But wait, I can't change imports in this block.
+            // I will assume I can update imports in a separate block or I will just use deleteTour for archive
+            // and I'll need to figure out how to reactivate if I only have deleteTour imported.
+            // Actually, I should update the imports first or in the same step if possible.
+            // Since this tool replaces a block, I'll do the imports in a separate call to be safe 
+            // OR I will simply use server actions directly if Next.js allows, but I need to import them.
+            // I will update the imports in a previous step or use the multi_replace tool.
+            // Ah, I see I am in the middle of replacing the component body. 
+            // I will assume I will fix the imports in the next step.
+
+            // For now, I will write the logic assuming toggleTourStatus is available.
+
+            const result = await toggleTourStatus(id, newStatus)
 
             if (result.error) throw new Error(result.error)
 
-            setTours(current => current.filter(t => t.id !== id))
-            toast.success('Tour eliminado correctamente')
+            setTours(current => current.map(t =>
+                t.id === id ? { ...t, is_active: newStatus } : t
+            ))
+            toast.success(newStatus ? 'Tour activado correctamente' : 'Tour archivado correctamente')
             router.refresh()
         } catch (error) {
-            console.error('Error deleting tour:', error)
-            toast.error('Error al eliminar el tour')
+            console.error('Error updating tour:', error)
+            toast.error('Error al actualizar el estado')
         } finally {
-            setDeletingId(null)
+            setProcessingId(null)
         }
     }
 
@@ -107,7 +128,7 @@ export default function ToursListClient({ initialTours }: ToursListClientProps) 
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                                className={`group bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${!tour.is_active ? 'opacity-75 grayscale-[0.5]' : ''} ${!tour.is_active ? 'border-gray-200' : 'border-gray-100'}`}
                             >
                                 {/* Image Area */}
                                 <div className="relative h-48 bg-gray-100 overflow-hidden">
@@ -123,8 +144,10 @@ export default function ToursListClient({ initialTours }: ToursListClientProps) 
                                             <ImageIcon className="h-10 w-10" />
                                         </div>
                                     )}
-                                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-semibold text-gray-700 shadow-sm">
-                                        {tour.category || 'Tour'}
+                                    <div className="absolute top-3 right-3 flex gap-2">
+                                        <div className={`px-2 py-1 rounded-md text-xs font-bold shadow-sm ${tour.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                            {tour.is_active ? 'ACTIVO' : 'INACTIVO'}
+                                        </div>
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 </div>
@@ -164,30 +187,39 @@ export default function ToursListClient({ initialTours }: ToursListClientProps) 
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <button
-                                                    className="flex items-center justify-center p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                    disabled={deletingId === tour.id}
+                                                    className={`flex items-center justify-center p-2 rounded-lg transition-all ${tour.is_active
+                                                        ? 'text-gray-400 hover:text-orange-600 hover:bg-orange-50'
+                                                        : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                                                        }`}
+                                                    disabled={processingId === tour.id}
+                                                    title={tour.is_active ? "Archivar / Desactivar" : "Reactivar"}
                                                 >
-                                                    {deletingId === tour.id ? (
+                                                    {processingId === tour.id ? (
                                                         <Loader2 className="h-4 w-4 animate-spin" />
                                                     ) : (
-                                                        <Trash2 className="h-4 w-4" />
+                                                        tour.is_active ? <ArchiveBoxIcon className="h-4 w-4" /> : <ArrowPathIcon className="h-4 w-4" />
                                                     )}
                                                 </button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                    <AlertDialogTitle>
+                                                        {tour.is_active ? '¿Desactivar Tour?' : '¿Reactivar Tour?'}
+                                                    </AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        Esta acción no se puede deshacer. Se eliminará permanentemente el tour "{tour.title}" y todos sus datos asociados.
+                                                        {tour.is_active
+                                                            ? `¿Seguro que deseas desactivar "${tour.title}"? No aparecerá en la web pública, pero el historial de reservas se mantendrá.`
+                                                            : `¿Deseas reactivar "${tour.title}"? Volverá a ser visible para el público.`
+                                                        }
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                                     <AlertDialogAction
-                                                        onClick={() => handleDelete(tour.id)}
-                                                        className="bg-red-600 hover:bg-red-700"
+                                                        onClick={() => handleToggleStatus(tour.id, tour.is_active)}
+                                                        className={tour.is_active ? "bg-orange-600 hover:bg-orange-700" : "bg-green-600 hover:bg-green-700"}
                                                     >
-                                                        Eliminar
+                                                        {tour.is_active ? 'Desactivar' : 'Reactivar'}
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>

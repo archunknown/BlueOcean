@@ -236,36 +236,34 @@ export async function updateTour(id: string, formData: FormData) {
     }
 }
 
-export async function deleteTour(id: string) {
+
+export async function toggleTourStatus(id: string, isActive: boolean) {
     const supabase = await createClient()
 
     try {
-        // 1. Get image URL before deleting
-        const { data: tour, error: fetchError } = await supabase
-            .from('tours')
-            .select('image_url')
-            .eq('id', id)
-            .single()
-
-        if (fetchError) throw new Error('No se encontró el tour');
-
-        // 2. Delete from DB
         const { error } = await supabase
             .from('tours')
-            .delete()
+            .update({ is_active: isActive })
             .eq('id', id)
 
         if (error) throw error
 
-        // 3. Cleanup Image
-        if (tour && tour.image_url) {
-            await deleteOldImage(tour.image_url);
-        }
-
         revalidatePath('/admin/tours')
         revalidatePath('/tours')
+
+        // Also revalidate the specific tour page if possible, but we need the slug. 
+        // For simplicity, we just revalidate the lists.
+
         return { success: true }
     } catch (error: any) {
         return { error: error.message }
     }
+}
+
+// Deprecated: Hard delete is risky for referential integrity.
+// We redirect this to soft-delete (archive) validation or just disable it.
+// Per instructions, we'll make this perform a soft delete or just warn.
+// User instruction: "reescríbela para que llame a toggleTourStatus(id, false)"
+export async function deleteTour(id: string) {
+    return toggleTourStatus(id, false)
 }

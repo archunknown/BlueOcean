@@ -15,6 +15,7 @@ export default async function UsersPage() {
     const { data: profiles, error } = await supabase
         .from('profiles')
         .select('*')
+        .order('role', { ascending: true }) // Admin first ('a' < 'w')
         .order('created_at', { ascending: false })
 
     if (error) {

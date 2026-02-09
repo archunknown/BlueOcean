@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Save, Building2, User, Lock, Loader2, Image as ImageIcon, QrCode } from 'lucide-react'
-import ImageUpload from '@/components/admin/ImageUpload'
+import { Save, Building2, User, Lock, Loader2, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateGlobalSettings } from '@/app/admin/actions'
 import { Settings } from '@/types/database'
@@ -16,11 +15,10 @@ interface SettingsClientProps {
 }
 
 export default function SettingsClient({ initialSettings, userRole, userEmail }: SettingsClientProps) {
-    const [activeTab, setActiveTab] = useState<'general' | 'payments' | 'media' | 'account'>('general')
+    const [activeTab, setActiveTab] = useState<'general' | 'media' | 'account'>('general')
     const [isLoading, setIsLoading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
     const [statusMessage, setStatusMessage] = useState('')
-    const [qrFile, setQrFile] = useState<File | null>(null)
     const supabase = createClient()
 
     // --- Upload Helpers ---
@@ -34,18 +32,6 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
 
         if (uploadError) throw new Error('Error al subir archivo a Storage: ' + uploadError.message)
         const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(fileName)
-        return publicUrl
-    }
-
-    async function uploadYapeQr(file: File): Promise<string> {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `payments/yape-qr-${Date.now()}.${fileExt}`
-        const { error: uploadError } = await supabase.storage
-            .from('settings')
-            .upload(fileName, file, { cacheControl: '3600', upsert: false })
-
-        if (uploadError) throw new Error('Error al subir QR: ' + uploadError.message)
-        const { data: { publicUrl } } = supabase.storage.from('settings').getPublicUrl(fileName)
         return publicUrl
     }
 
@@ -63,40 +49,6 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
             toast.error(error.message)
         } finally {
             setIsLoading(false)
-        }
-    }
-
-    async function handlePaymentsSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault()
-        setIsLoading(true)
-        setStatusMessage('Procesando pago...')
-        try {
-            const formData = new FormData(e.currentTarget)
-            // Use state file instead of formData because ImageUpload might have unmounted the input
-            const isUploadingYape = qrFile && qrFile.size > 0
-
-            if (isUploadingYape) {
-                if (qrFile!.size > 4 * 1024 * 1024) {
-                    toast.error('El QR excede el límite de 4MB')
-                    setIsLoading(false)
-                    return
-                }
-                const qrUrl = await uploadYapeQr(qrFile!)
-                // Note: We don't need to delete 'yape_qr' from formData because it might not even be there
-                formData.append('yape_qr_url', qrUrl)
-            }
-
-            const result = await updateGlobalSettings(formData)
-            if (result.error) toast.error(result.error)
-            else {
-                toast.success('Configuración de pagos actualizada')
-                if (isUploadingYape) window.location.reload()
-            }
-        } catch (error: any) {
-            toast.error(error.message)
-        } finally {
-            setIsLoading(false)
-            setStatusMessage('')
         }
     }
 
@@ -177,19 +129,6 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                     >
                         <Building2 className="h-4 w-4" />
                         General
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('payments')}
-                        className={`
-                            group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors gap-2
-                            ${activeTab === 'payments'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }
-                        `}
-                    >
-                        <QrCode className="h-4 w-4" />
-                        Pagos
                     </button>
                     <button
                         onClick={() => setActiveTab('media')}
@@ -274,71 +213,6 @@ export default function SettingsClient({ initialSettings, userRole, userEmail }:
                     </motion.div>
                 )}
 
-                {/* --- PAYMENTS TAB --- */}
-                {activeTab === 'payments' && (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <div className="mb-6">
-                            <h2 className="text-xl font-bold text-gray-900">Métodos de Pago</h2>
-                            <p className="text-sm text-gray-500">Gestiona los códigos QR y números para pagos móviles (Yape/Plin).</p>
-                        </div>
-
-                        {userRole === 'admin' ? (
-                            <form onSubmit={handlePaymentsSubmit} className="space-y-6 max-w-xl">
-                                <div className="bg-purple-50 p-6 rounded-xl border border-purple-100 space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-800 uppercase mb-3 flex items-center gap-2">
-                                            <QrCode className="h-4 w-4 text-purple-600" />
-                                            Código QR Yape
-                                        </label>
-                                        <div className="flex flex-col sm:flex-row gap-6 items-start">
-                                            <div className="w-40 shrink-0">
-                                                <ImageUpload
-                                                    initialUrl={initialSettings?.yape_qr_url || undefined}
-                                                    onImageSelect={(file) => setQrFile(file)}
-                                                    name="yape_qr"
-                                                />
-                                            </div>
-                                            <div className="text-sm text-gray-600 space-y-2">
-                                                <p>Sube aquí el código QR de tu billetera digital.</p>
-                                                <ul className="list-disc pl-4 space-y-1 text-xs text-gray-500">
-                                                    <li>Formato: JPG, PNG</li>
-                                                    <li>Peso Máximo: 4MB</li>
-                                                    <li>Se guardará en <code>settings/payments/</code></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-800 uppercase mb-2">Número Asociado</label>
-                                        <input
-                                            name="yape_number"
-                                            defaultValue={initialSettings?.yape_number || ''}
-                                            type="tel"
-                                            placeholder="999 999 999"
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="pt-2">
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                        {isLoading ? 'Guardando...' : 'Guardar Configuración de Pagos'}
-                                    </button>
-                                </div>
-                            </form>
-                        ) : <AccessRestricted />}
-                    </motion.div>
-                )}
 
                 {/* --- MEDIA TAB --- */}
                 {activeTab === 'media' && (
