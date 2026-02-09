@@ -1,7 +1,9 @@
 
-import { createClient } from '@/utils/supabase/server';
+
+import { createAdminClient } from '@/utils/supabase/admin';
 import { notFound } from 'next/navigation';
 import { CheckCircleIcon, XCircleIcon, UserIcon, CalendarIcon, MapIcon, CurrencyDollarIcon } from '@heroicons/react/24/solid';
+import { Database } from '@/types/database';
 
 interface VerifyPageProps {
     params: Promise<{
@@ -9,16 +11,27 @@ interface VerifyPageProps {
     }>;
 }
 
+// Custom type for the query result
+type BookingWithPartialClient = Database['public']['Tables']['bookings']['Row'] & {
+    clients: {
+        first_name: string;
+        paternal_surname: string;
+    } | null;
+}
+
 export default async function VerifyPage({ params }: VerifyPageProps) {
     const { id } = await params;
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
-    // Fetch Booking
-    const { data: booking, error } = await supabase
+    // Fetch Booking with Admin Client (Bypasses RLS)
+    const { data, error } = await supabase
         .from('bookings')
-        .select('*')
+        .select('*, clients(first_name, paternal_surname)')
         .eq('id', id)
         .single();
+
+    // Explicit cast to satisfy TS requirement
+    const booking = data as unknown as BookingWithPartialClient;
 
     if (error || !booking) {
         return (
