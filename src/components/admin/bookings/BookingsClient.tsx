@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 import { confirmBooking, approvePayment, deleteBooking } from '@/app/admin/bookings/actions'
-import { CheckCircleIcon, XCircleIcon, ClockIcon, CurrencyDollarIcon, BanknotesIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, XCircleIcon, ClockIcon, CurrencyDollarIcon, BanknotesIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline'
 import { PhoneIcon } from '@heroicons/react/24/solid'
 import { toast } from 'sonner'
-import type { Database } from '@/types/database'
-
-type Booking = Database['public']['Tables']['bookings']['Row']
+import type { BookingWithClient } from '@/types/booking-types'
+import BookingDetailModal from './BookingDetailModal'
 
 interface BookingsClientProps {
-    initialBookings: Booking[]
+    initialBookings: BookingWithClient[]
 }
 
 const statusBadges = {
@@ -39,6 +38,13 @@ const paymentLabels = {
 
 export default function BookingsClient({ initialBookings }: BookingsClientProps) {
     const [bookings, setBookings] = useState(initialBookings)
+    const [selectedBooking, setSelectedBooking] = useState<BookingWithClient | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const handleViewDetails = (booking: BookingWithClient) => {
+        setSelectedBooking(booking)
+        setIsModalOpen(true)
+    }
 
     const handleConfirm = async (id: string) => {
         toast.promise(confirmBooking(id), {
@@ -88,7 +94,7 @@ export default function BookingsClient({ initialBookings }: BookingsClientProps)
     }
 
     // Helper to generate WhatsApp Link for admin to contact client
-    const getWhatsAppLink = (booking: Booking) => {
+    const getWhatsAppLink = (booking: BookingWithClient) => {
         const message = `Hola ${booking.client_name}, te escribo de Blue Ocean sobre tu reserva ${booking.booking_code}.`
         return `https://wa.me/${booking.client_phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`
     }
@@ -151,6 +157,15 @@ export default function BookingsClient({ initialBookings }: BookingsClientProps)
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end items-center space-x-2">
+
+                                        <button
+                                            onClick={() => handleViewDetails(booking)}
+                                            className="text-gray-600 hover:text-gray-900 p-1 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors"
+                                            title="Ver Detalles"
+                                        >
+                                            <EyeIcon className="h-5 w-5" />
+                                        </button>
+
                                         <a
                                             href={getWhatsAppLink(booking)}
                                             target="_blank"
@@ -200,6 +215,12 @@ export default function BookingsClient({ initialBookings }: BookingsClientProps)
                     </div>
                 )}
             </div>
+
+            <BookingDetailModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                booking={selectedBooking}
+            />
         </div>
     )
 }

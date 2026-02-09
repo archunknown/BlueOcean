@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import BookingsClient from '@/components/admin/bookings/BookingsClient'
+import type { BookingWithClient } from '@/types/booking-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +9,7 @@ export default async function BookingsPage() {
 
     const { data: bookings, error } = await supabase
         .from('bookings')
-        .select('*')
+        .select('*, clients(*)')
         .order('created_at', { ascending: false })
 
     if (error) {
@@ -25,7 +26,7 @@ export default async function BookingsPage() {
                 </p>
             </div>
 
-            <BookingsClient initialBookings={bookings || []} />
+            <BookingsClient initialBookings={(bookings as unknown as BookingWithClient[]) || []} />
         </div>
     )
 }
