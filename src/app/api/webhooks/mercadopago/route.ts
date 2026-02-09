@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPaymentStatus } from "@/lib/mercadopago";
 import { createClient } from "@/utils/supabase/server";
+import { sendBookingConfirmation } from "@/lib/email";
 
 export async function POST(request: Request) {
     try {
@@ -52,6 +53,31 @@ export async function POST(request: Request) {
                         console.error('❌ [WEBHOOK] Error actualizando booking:', error);
                     } else {
                         console.log(`✅ [WEBHOOK] Booking ${externalReference} confirmado.`);
+
+                        // --- SEND EMAIL CONFIRMATION ---
+                        try {
+                            // Fetch full booking details with relations
+                            const { data: fullBooking, error: fetchError } = await supabase
+                                .from('bookings')
+                                .select('*, clients(*), tours(*)')
+                                .eq('id', externalReference)
+                                .single();
+
+                            if (fetchError || !fullBooking) {
+                                console.error('Error fetching details for email:', fetchError);
+                            } else {
+                                const voucherLink = `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/thank-you?bookingId=${externalReference}`;
+
+                                await sendBookingConfirmation(
+                                    fullBooking,
+                                    fullBooking.tours,
+                                    fullBooking.clients,
+                                    voucherLink
+                                );
+                            }
+                        } catch (emailError) {
+                            console.error('⚠️ [WEBHOOK] Email failed but payment passed:', emailError);
+                        }
                     }
                 }
             }
