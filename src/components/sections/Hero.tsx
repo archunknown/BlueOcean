@@ -9,7 +9,7 @@ interface HeroProps {
 
 export default function Hero({ videoUrl }: HeroProps) {
   return (
-    <section className="relative w-full overflow-hidden pt-16 xs:pt-18 sm:pt-20 md:pt-24 lg:pt-20 min-h-[70vh] sm:min-h-[80vh] lg:min-h-screen landscape:min-h-[100vh]">
+    <section className="relative w-full h-[100dvh] lg:h-screen overflow-hidden flex items-center justify-center">
       {/* Fondo con Ken Burns Animation - Optimizado para imagen estática */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         {videoUrl && (
@@ -44,19 +44,19 @@ export default function Hero({ videoUrl }: HeroProps) {
       </div>
 
       {/* Contenido Central - Optimizado para móvil */}
-      <div className="relative z-10 flex min-h-[70vh] sm:min-h-[80vh] lg:min-h-[calc(100vh-80px)] items-center justify-center px-3 py-6 xs:px-4 xs:py-8 sm:px-6 sm:py-10 md:py-12 lg:px-8 lg:py-20">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 flex justify-center mt-[env(safe-area-inset-top)] lg:mt-16">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="w-full max-w-6xl rounded-xl border border-white/20 bg-white/5 p-4 text-center shadow-2xl backdrop-blur-xl xs:rounded-2xl xs:p-5 sm:p-7 md:rounded-3xl md:p-9 lg:p-16 xl:p-20"
+          className="w-full max-w-5xl rounded-xl border border-white/20 bg-white/5 p-6 text-center shadow-2xl backdrop-blur-xl sm:p-10 lg:p-16"
         >
           {/* Título Principal - Compacto en móvil */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="text-2xl font-black uppercase leading-[1.1] tracking-tight text-white drop-shadow-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
+            className="text-[clamp(2.5rem,8vw,6rem)] font-black uppercase leading-[1.1] tracking-tight text-white drop-shadow-2xl"
           >
             <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
               Siente el Poder
@@ -71,7 +71,7 @@ export default function Hero({ videoUrl }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="mx-auto mt-2.5 max-w-3xl text-xs font-light leading-relaxed text-gray-100 xs:text-sm xs:mt-3 sm:mt-4 sm:text-base md:text-lg lg:text-xl lg:mt-5"
+            className="mx-auto mt-2.5 max-w-3xl text-[clamp(0.875rem,2vw,1.25rem)] font-light leading-relaxed text-gray-100 xs:mt-3 sm:mt-4 lg:mt-5"
           >
             Tu aventura épica en Paracas comienza aquí
           </motion.p>
