@@ -199,7 +199,7 @@ const VoucherPDF: React.FC<VoucherPDFProps> = ({ booking, qrCodeUrl }) => {
 
                     <View style={styles.row}>
                         <Text style={styles.label}>Punto de Encuentro:</Text>
-                        <Text style={styles.value}>Oficina Principal - Muelle El Chaco</Text>
+                        <Text style={styles.value}>AA.HH Alberto tataje Muñoz Mz b lote 6, Paracas 11550</Text>
                     </View>
                 </View>
 
