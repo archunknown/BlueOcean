@@ -119,7 +119,7 @@ export const BookingConfirmationEmail = ({
                                 className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3"
                                 href={voucherLink}
                             >
-                                Descargar Mi Voucher
+                                Ver y Descargar Mi Voucher
                             </Link>
                         </Section>
 
