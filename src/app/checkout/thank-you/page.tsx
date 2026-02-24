@@ -10,7 +10,7 @@ export default async function ThankYouPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const params = await searchParams;
-    const bookingId = params.booking_id as string;
+    const bookingId = (params.bookingId ?? params.booking_id) as string;
 
     if (!bookingId) {
         redirect('/');
