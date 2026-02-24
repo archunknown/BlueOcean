@@ -141,7 +141,10 @@ const VoucherPDF: React.FC<VoucherPDFProps> = ({ booking, qrCodeUrl }) => {
     // Formateo de fecha y hora
     const formatDate = (dateStr: string) => {
         try {
-            return new Date(dateStr).toLocaleDateString('es-PE', {
+            // Extraer YYYY-MM-DD para evitar desfase de zona horaria UTC vs. Perú (UTC-5)
+            const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+            const date = new Date(year, month - 1, day); // Date local, sin conversión UTC
+            return date.toLocaleDateString('es-PE', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
