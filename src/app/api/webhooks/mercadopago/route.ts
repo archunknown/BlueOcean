@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPaymentStatus } from "@/lib/mercadopago";
 import { createClient } from "@/utils/supabase/server";
 import { sendBookingConfirmation } from "@/lib/email";
+import { sendWhatsAppText } from "@/lib/whatsapp";
 
 export async function POST(request: Request) {
     try {
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
                     } else {
                         console.log(`✅ [WEBHOOK] Booking ${externalReference} confirmado.`);
 
-                        // --- SEND EMAIL CONFIRMATION ---
+                        // --- SEND EMAIL & WHATSAPP CONFIRMATION ---
                         try {
                             // Fetch full booking details with relations
                             const { data: fullBooking, error: fetchError } = await supabase
@@ -64,19 +65,36 @@ export async function POST(request: Request) {
                                 .single();
 
                             if (fetchError || !fullBooking) {
-                                console.error('Error fetching details for email:', fetchError);
+                                console.error('Error fetching details for confirmation:', fetchError);
                             } else {
                                 const voucherLink = `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/thank-you?bookingId=${externalReference}`;
 
-                                await sendBookingConfirmation(
-                                    fullBooking,
-                                    fullBooking.tours,
-                                    fullBooking.clients,
-                                    voucherLink
-                                );
+                                // Send email
+                                try {
+                                    await sendBookingConfirmation(
+                                        fullBooking,
+                                        fullBooking.tours,
+                                        fullBooking.clients,
+                                        voucherLink
+                                    );
+                                } catch (emailError) {
+                                    console.error('⚠️ [WEBHOOK] Email failed:', emailError);
+                                }
+
+                                // Send WhatsApp message
+                                try {
+                                    const clientPhone = fullBooking.client_phone;
+                                    if (clientPhone) {
+                                        const whatsappMsg = `¡Hola ${fullBooking.client_first_name || 'Viajero'}! 🌊\n\nTu pago para el tour *${fullBooking.tour_title}* ha sido confirmado con éxito.\n\n*Código de Reserva:* ${fullBooking.booking_code}\n*Fecha:* ${fullBooking.tour_date}\n*Turno:* ${fullBooking.tour_time}\n*Pasajeros:* ${fullBooking.pax}\n\nPuedes ver tu voucher digital y código QR aquí: ${voucherLink}\n\n¡Gracias por elegir Blue Ocean Paracas Tours!`;
+                                        await sendWhatsAppText(clientPhone, whatsappMsg);
+                                        console.log(`✅ [WEBHOOK] WhatsApp enviado a ${clientPhone}.`);
+                                    }
+                                } catch (wsError) {
+                                    console.error('⚠️ [WEBHOOK] WhatsApp failed:', wsError);
+                                }
                             }
-                        } catch (emailError) {
-                            console.error('⚠️ [WEBHOOK] Email failed but payment passed:', emailError);
+                        } catch (confirmError) {
+                            console.error('⚠️ [WEBHOOK] Confirmation triggers failed:', confirmError);
                         }
                     }
                 }
