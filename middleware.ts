@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
 
-export function middleware(request: NextRequest) {
-  const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Exclude webhooks from all security/maintenance logic
+  if (pathname.startsWith('/api/webhooks/')) {
+    return NextResponse.next();
+  }
+
+  const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
 
   if (isMaintenanceMode && !pathname.startsWith('/admin') && pathname !== '/maintenance.html') {
     return NextResponse.rewrite(new URL('/maintenance.html', request.url), {
@@ -11,7 +18,7 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  return NextResponse.next();
+  return await updateSession(request);
 }
 
 export const config = {

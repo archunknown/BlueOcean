@@ -346,12 +346,150 @@ export interface Database {
                 }
                 Relationships: []
             }
+            faq_embeddings: {
+                Row: {
+                    id: string
+                    pregunta: string
+                    respuesta: string
+                    embedding: number[] | null
+                    categoria: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    pregunta: string
+                    respuesta: string
+                    embedding?: number[] | null
+                    categoria?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    pregunta?: string
+                    respuesta?: string
+                    embedding?: number[] | null
+                    categoria?: string | null
+                    created_at?: string
+                }
+                Relationships: []
+            }
+            conversations: {
+                Row: {
+                    id: string
+                    phone_number: string
+                    estado: 'bot' | 'atencion_humana'
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    phone_number: string
+                    estado?: 'bot' | 'atencion_humana'
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    phone_number?: string
+                    estado?: 'bot' | 'atencion_humana'
+                    updated_at?: string
+                }
+                Relationships: []
+            }
+            custodia: {
+                Row: {
+                    id: string
+                    reserva_id: string | null
+                    tipo: 'locker' | 'mascota'
+                    codigo_qr: string
+                    estado: 'ingresado' | 'retirado'
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    reserva_id?: string | null
+                    tipo: 'locker' | 'mascota'
+                    codigo_qr: string
+                    estado?: 'ingresado' | 'retirado'
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    reserva_id?: string | null
+                    tipo?: 'locker' | 'mascota'
+                    codigo_qr?: string
+                    estado?: 'ingresado' | 'retirado'
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "custodia_reserva_id_fkey"
+                        columns: ["reserva_id"]
+                        referencedRelation: "bookings"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
+            intent_logs: {
+                Row: {
+                    id: string
+                    conversation_id: string | null
+                    input_text: string
+                    matched_intent: string | null
+                    similarity_score: number | null
+                    handled_by: 'pgvector' | 'llm'
+                    response_text: string | null
+                    latency_ms: number | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    conversation_id?: string | null
+                    input_text: string
+                    matched_intent?: string | null
+                    similarity_score?: number | null
+                    handled_by: 'pgvector' | 'llm'
+                    response_text?: string | null
+                    latency_ms?: number | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    conversation_id?: string | null
+                    input_text?: string
+                    matched_intent?: string | null
+                    similarity_score?: number | null
+                    handled_by?: 'pgvector' | 'llm'
+                    response_text?: string | null
+                    latency_ms?: number | null
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "intent_logs_conversation_id_fkey"
+                        columns: ["conversation_id"]
+                        referencedRelation: "conversations"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never
         }
         Functions: {
-            [_ in never]: never
+            match_faq: {
+                Args: {
+                    query_embedding: string
+                    match_threshold: number
+                    match_count: number
+                }
+                Returns: {
+                    id: string
+                    pregunta: string
+                    respuesta: string
+                    categoria: string
+                    similarity: number
+                }[]
+            }
         }
         Enums: {
             [_ in never]: never
