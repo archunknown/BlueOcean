@@ -13,7 +13,9 @@ import {
     Users,
     ChevronLeft,
     LogOut,
-    Calendar // Added Calendar icon
+    Calendar,
+    Briefcase,
+    BarChart
 } from 'lucide-react'
 import { signout } from '@/app/auth/actions'
 interface AdminSidebarProps {
@@ -29,6 +31,8 @@ const allNavItems = [
     { name: 'Reservas', href: '/admin/bookings', icon: Calendar, roles: ['admin'] },
     { name: 'Clientes', href: '/admin/clients', icon: Users, roles: ['admin', 'worker'] },
     { name: 'Usuarios', href: '/admin/users', icon: Users, roles: ['admin'] },
+    { name: 'Custodia', href: '/admin/custodia', icon: Briefcase, roles: ['admin', 'worker'] },
+    { name: 'Métricas Bot', href: '/admin/metrics', icon: BarChart, roles: ['admin'] },
     { name: 'Galería', href: '/admin/gallery', icon: ImageIcon, roles: ['admin', 'worker'] },
     { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare, roles: ['admin', 'worker'] },
     { name: 'Configuración', href: '/admin/settings', icon: Settings, roles: ['admin'] },
