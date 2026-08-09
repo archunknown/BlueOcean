@@ -47,20 +47,71 @@ Aquí tienes información detallada de nuestros servicios para responder con pre
 - **Precios**: Respeta estrictamente los precios listados. No ofrezcas descuentos sin autorización ni inventes tarifas adicionales.
 `;
 
+import { createPaymentPreference } from '../payments/mercadopago';
+
+export interface MessageHistory {
+    role: 'user' | 'assistant';
+    content: string;
+}
+
+const TOOL_DESCRIPTION = "Genera un enlace de pago seguro de Mercado Pago para procesar la reserva de un tour o alquiler. Úsalo SOLO cuando el usuario confirme explícitamente su intención de reservar y pagar, y tengas todos los datos (título, cantidad, precio unitario).";
+
+async function processTextToolCalls(text: string, senderPhone?: string): Promise<string> {
+    const functionRegex = /<?function=createPaymentPreference>([\s\S]*?)(?:<\/function>|$)/i;
+    const match = functionRegex.exec(text);
+    
+    if (match) {
+        try {
+            const rawJson = match[1].trim();
+            const args = JSON.parse(rawJson);
+            const initPoint = await createPaymentPreference(args.title, args.quantity, args.unitPrice, senderPhone || '');
+            
+            if (initPoint) {
+                return text.replace(functionRegex, `\n\nAquí tienes tu enlace de pago seguro con Mercado Pago:\n\n${initPoint}\n\nQuedamos a la espera de la confirmación de tu pago para registrar la reserva.`);
+            } else {
+                return text.replace(functionRegex, `\n\n[Lo siento, hubo un problema al generar el enlace de pago. Por favor, solicita asistencia manual a un asesor.]\n`);
+            }
+        } catch (e) {
+            console.error("[AI_GENERATOR] Error parsing text tool call JSON:", e);
+            return text.replace(functionRegex, `\n\n[Error interno al generar enlace de pago. Solicita asistencia de un asesor.]\n`);
+        }
+    }
+    
+    return text;
+}
+
 /**
  * Generates an AI response using the Gemini API.
  */
-async function callGemini(apiKey: string, userMessage: string): Promise<string> {
+async function callGemini(apiKey: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    const contents = history.map(h => ({
+        role: h.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: h.content }]
+    }));
+    contents.push({ role: 'user', parts: [{ text: userMessage }] });
+
     const payload = {
-        contents: [
-            {
-                parts: [{ text: userMessage }]
-            }
-        ],
+        contents,
         systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }]
+            parts: [{ text: SYSTEM_PROMPT + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." }]
         },
+        tools: [{
+            functionDeclarations: [{
+                name: "createPaymentPreference",
+                description: TOOL_DESCRIPTION,
+                parameters: {
+                    type: "OBJECT",
+                    properties: {
+                        title: { type: "STRING", description: "Título del tour o alquiler (ej. 'Tour Islas Ballestas')" },
+                        quantity: { type: "INTEGER", description: "Cantidad de personas o ítems" },
+                        unitPrice: { type: "NUMBER", description: "Precio unitario en PEN" }
+                    },
+                    required: ["title", "quantity", "unitPrice"]
+                }
+            }]
+        }],
         generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 500,
@@ -79,24 +130,59 @@ async function callGemini(apiKey: string, userMessage: string): Promise<string> 
     }
 
     const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const part = data.candidates?.[0]?.content?.parts?.[0];
+    
+    if (part?.functionCall && part.functionCall.name === 'createPaymentPreference') {
+        const args = part.functionCall.args;
+        const initPoint = await createPaymentPreference(args.title, args.quantity, args.unitPrice, senderPhone || '');
+        if (initPoint) {
+            return `¡Excelente! He generado tu enlace de pago seguro para ${args.title} (${args.quantity} pax). Puedes pagarlo con Mercado Pago aquí:\n${initPoint}`;
+        } else {
+            return `Lo siento, hubo un problema al generar el enlace de pago. Por favor, intenta nuevamente en unos minutos o solicita asistencia de un asesor.`;
+        }
+    }
+
+    let reply = part?.text;
     if (!reply) {
         throw new Error('No candidate content returned from Gemini.');
     }
+    
+    reply = await processTextToolCalls(reply, senderPhone);
     return reply.trim();
 }
 
 /**
  * Generates an AI response using the Groq API.
  */
-async function callGroq(apiKey: string, userMessage: string): Promise<string> {
+async function callGroq(apiKey: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
     const url = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    const messages = [
+        { role: 'system', content: SYSTEM_PROMPT + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." },
+        ...history,
+        { role: 'user', content: userMessage }
+    ];
+
     const payload = {
         model: 'llama-3.1-8b-instant',
-        messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: userMessage }
-        ],
+        messages,
+        tools: [{
+            type: "function",
+            function: {
+                name: "createPaymentPreference",
+                description: TOOL_DESCRIPTION,
+                parameters: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string", description: "Título del tour o alquiler" },
+                        quantity: { type: "number", description: "Cantidad de personas o ítems" },
+                        unitPrice: { type: "number", description: "Precio unitario en PEN" }
+                    },
+                    required: ["title", "quantity", "unitPrice"]
+                }
+            }
+        }],
+        tool_choice: "auto",
         temperature: 0.7,
         max_tokens: 500
     };
@@ -116,29 +202,131 @@ async function callGroq(apiKey: string, userMessage: string): Promise<string> {
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
+    const message = data.choices?.[0]?.message;
+
+    if (message?.tool_calls && message.tool_calls.length > 0) {
+        const toolCall = message.tool_calls[0];
+        if (toolCall.function.name === 'createPaymentPreference') {
+            const args = JSON.parse(toolCall.function.arguments);
+            const initPoint = await createPaymentPreference(args.title, args.quantity, args.unitPrice, senderPhone || '');
+            if (initPoint) {
+                return `¡Excelente! He generado tu enlace de pago seguro para ${args.title} (${args.quantity} pax). Puedes pagarlo con Mercado Pago aquí:\n${initPoint}`;
+            } else {
+                return `Lo siento, hubo un problema al generar el enlace de pago. Por favor, intenta nuevamente en unos minutos o solicita asistencia de un asesor.`;
+            }
+        }
+    }
+
+    let reply = message?.content;
     if (!reply) {
         throw new Error('No completion returned from Groq.');
     }
+    
+    reply = await processTextToolCalls(reply, senderPhone);
     return reply.trim();
 }
 
 /**
  * Generates an AI response based on the user's message.
  * 
+ * Capa 0: Verificación de sesión — si el estado es 'atencion_humana', omite IA y retorna vacío.
+ * Detección de intención de traspaso — si el usuario pide un operador, marca la sesión y retorna mensaje de handover.
  * Capa 1: Búsqueda vectorial semántica en Supabase con pgvector (umbral >= 0.80).
  * Capa 2: Escalado a LLM (Groq con llama-3.1-8b-instant primero; Gemini 1.5 Flash como fallback).
  * 
  * Si se provee `senderPhone`, gestiona la sesión e inserta la interacción en `intent_logs`.
  */
+
+const HANDOVER_PATTERN = /\b(operador|asesor|agente|atenci[oó]n humana|hablar con alguien|persona real|hablar con un humano)\b/i;
+const HANDOVER_REPLY = 'Entendido. He transferido tu consulta a un operador humano de Blue Ocean Paracas Tours. Un asesor te responderá por este medio a la brevedad.';
+
 export async function generateAIResponse(userMessage: string, senderPhone?: string): Promise<string> {
     const startTime = Date.now();
     let replyText = '';
-    let handledBy: 'pgvector' | 'llm' = 'pgvector';
+    let handledBy: 'pgvector' | 'llm' | 'human_takeover' = 'pgvector';
     let matchedIntent: string | null = null;
     let score: number | null = null;
 
-    // 1. Capa 1 - Similitud Vectorial Semántica (Supabase pgvector)
+    // ── Capa 0: Verificación de estado de sesión ────────────────────────
+    if (senderPhone) {
+        try {
+            const supabase = await createClient();
+            const { data: conv } = await supabase
+                .from('conversations')
+                .select('id, estado')
+                .eq('phone_number', senderPhone)
+                .maybeSingle();
+
+            if (conv && conv.estado === 'atencion_humana') {
+                console.log(`[AI_GENERATOR] Sesión ${senderPhone} en modo operador humano. Omitiendo IA.`);
+                return '';
+            }
+        } catch (err) {
+            console.error('[AI_GENERATOR] Error verificando estado de sesión:', err);
+        }
+    }
+
+    // ── Detección de intención de traspaso a operador ────────────────────
+    if (HANDOVER_PATTERN.test(userMessage)) {
+        console.log(`[AI_GENERATOR] Intención de traspaso detectada: "${userMessage}"`);
+        handledBy = 'human_takeover';
+        matchedIntent = 'human_handover';
+        replyText = HANDOVER_REPLY;
+
+        if (senderPhone) {
+            try {
+                const supabase = await createClient();
+                const latencyMs = Date.now() - startTime;
+
+                // Obtener o crear conversación
+                let conversationId: string | null = null;
+                const { data: conv, error: convError } = await supabase
+                    .from('conversations')
+                    .select('id')
+                    .eq('phone_number', senderPhone)
+                    .maybeSingle();
+
+                if (convError) {
+                    console.error('[SUPABASE_ERROR] Error fetching conversation:', convError);
+                } else if (conv) {
+                    conversationId = conv.id;
+                    // Actualizar estado a atencion_humana
+                    await supabase
+                        .from('conversations')
+                        .update({ estado: 'atencion_humana' })
+                        .eq('id', conversationId);
+                } else {
+                    const { data: newConv } = await supabase
+                        .from('conversations')
+                        .insert({ phone_number: senderPhone, estado: 'atencion_humana' })
+                        .select('id')
+                        .single();
+                    if (newConv) conversationId = newConv.id;
+                }
+
+                // Persistir log de handover
+                if (conversationId) {
+                    await supabase
+                        .from('intent_logs')
+                        .insert({
+                            conversation_id: conversationId,
+                            input_text: userMessage,
+                            matched_intent: matchedIntent,
+                            similarity_score: null,
+                            handled_by: 'human_takeover',
+                            response_text: replyText,
+                            latency_ms: latencyMs,
+                        });
+                }
+            } catch (dbErr) {
+                console.error('[AI_GENERATOR] Error en persistencia de handover:', dbErr);
+            }
+        }
+
+        return replyText;
+    }
+
+    // ── Capa 1: Similitud Vectorial Semántica (Supabase pgvector) ────────
     try {
         console.log('[AI_GENERATOR] Capa 1: Consultando similitud vectorial...');
         const faqMatches = await matchFAQ(userMessage, 0.80, 1);
@@ -154,18 +342,54 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
         console.error('[AI_GENERATOR] Error en búsqueda de Capa 1:', vectorErr);
     }
 
-    // 2. Capa 2 - Escalado a LLM si la Capa 1 no resolvió
+    // ── Capa 2: Escalado a LLM si la Capa 1 no resolvió ─────────────────
     if (!replyText) {
         console.log('[AI_GENERATOR] Capa 1 sin coincidencias. Escalando a Capa 2 (LLMs)...');
         handledBy = 'llm';
         matchedIntent = 'llm_fallback';
         score = 0.0;
 
+        let history: MessageHistory[] = [];
+        if (senderPhone) {
+            try {
+                const supabase = await createClient();
+                const { data: conv } = await supabase
+                    .from('conversations')
+                    .select('id')
+                    .eq('phone_number', senderPhone)
+                    .maybeSingle();
+                
+                if (conv) {
+                    const { data: logs } = await supabase
+                        .from('intent_logs')
+                        .select('input_text, response_text')
+                        .eq('conversation_id', conv.id)
+                        .order('created_at', { ascending: false })
+                        .limit(6);
+                    
+                    if (logs) {
+                        history = logs.reverse().flatMap(log => {
+                            const entries: MessageHistory[] = [];
+                            if (log.input_text && log.input_text.trim() !== '') {
+                                entries.push({ role: 'user', content: log.input_text });
+                            }
+                            if (log.response_text && log.response_text.trim() !== '') {
+                                entries.push({ role: 'assistant', content: log.response_text });
+                            }
+                            return entries;
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('[AI_GENERATOR] Error obteniendo historial para LLM:', err);
+            }
+        }
+
         // Intentar Groq
         if (GROK_API_KEY) {
             try {
                 console.log('[AI_GENERATOR] Capa 2: Consumiendo Groq (llama-3.1-8b-instant)...');
-                replyText = await callGroq(GROK_API_KEY, userMessage);
+                replyText = await callGroq(GROK_API_KEY, userMessage, history, senderPhone);
             } catch (groqErr) {
                 console.error('[AI_GENERATOR] Groq falló:', groqErr);
             }
@@ -175,26 +399,25 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
         if (!replyText && GEMINI_API_KEY) {
             try {
                 console.log('[AI_GENERATOR] Capa 2: Consumiendo Gemini (gemini-1.5-flash) (fallback)...');
-                replyText = await callGemini(GEMINI_API_KEY, userMessage);
+                replyText = await callGemini(GEMINI_API_KEY, userMessage, history, senderPhone);
             } catch (geminiErr) {
                 console.error('[AI_GENERATOR] Gemini falló:', geminiErr);
             }
         }
 
-        // Fallback final en caso de que todo falle
+        // Fallback final
         if (!replyText) {
             console.warn('[AI_GENERATOR] Todas las capas de IA fallaron. Usando texto de contingencia.');
             replyText = `¡Hola! Gracias por comunicarte con Blue Ocean Paracas Tours. 🌊\nEn este momento nuestro sistema de respuesta automática está experimentando una alta demanda. Por favor, dinos en qué tour o alquiler estás interesado y un asesor humano te responderá a la brevedad.`;
         }
     }
 
-    // 3. Registrar Persistencia en Base de Datos
+    // ── Registrar Persistencia en Base de Datos ──────────────────────────
     if (senderPhone) {
         try {
             const supabase = await createClient();
             const latencyMs = Date.now() - startTime;
 
-            // Obtener conversación
             let conversationId: string | null = null;
             const { data: conv, error: convError } = await supabase
                 .from('conversations')
@@ -210,7 +433,6 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
             if (conv) {
                 conversationId = conv.id;
             } else {
-                // Crear conversación si no existe
                 const { data: newConv, error: createError } = await supabase
                     .from('conversations')
                     .insert({ phone_number: senderPhone, estado: 'bot' })
@@ -256,3 +478,4 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
 
     return replyText;
 }
+

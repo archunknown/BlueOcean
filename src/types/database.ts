@@ -435,7 +435,7 @@ export interface Database {
                     input_text: string
                     matched_intent: string | null
                     similarity_score: number | null
-                    handled_by: 'pgvector' | 'llm'
+                    handled_by: 'pgvector' | 'llm' | 'human_takeover'
                     response_text: string | null
                     latency_ms: number | null
                     created_at: string
@@ -446,7 +446,7 @@ export interface Database {
                     input_text: string
                     matched_intent?: string | null
                     similarity_score?: number | null
-                    handled_by: 'pgvector' | 'llm'
+                    handled_by: 'pgvector' | 'llm' | 'human_takeover'
                     response_text?: string | null
                     latency_ms?: number | null
                     created_at?: string
@@ -457,7 +457,7 @@ export interface Database {
                     input_text?: string
                     matched_intent?: string | null
                     similarity_score?: number | null
-                    handled_by?: 'pgvector' | 'llm'
+                    handled_by?: 'pgvector' | 'llm' | 'human_takeover'
                     response_text?: string | null
                     latency_ms?: number | null
                     created_at?: string
