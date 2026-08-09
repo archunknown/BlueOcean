@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAIResponse } from '@/lib/ai/generator';
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/types/database';
+import { sendWhatsAppMessage } from '@/lib/whatsapp/send';
+
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createClient<Database>(url, key);
+}
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -46,6 +55,37 @@ export async function POST(request: NextRequest) {
       // Generar respuesta con IA
       const aiResponse = await generateAIResponse(incomingText, senderPhoneNumber);
 
+      // Si la respuesta es vacía, la sesión está en modo operador humano
+      if (!aiResponse || aiResponse.trim() === '') {
+        console.log(`[WEBHOOK] Sesión ${senderPhoneNumber} en modo humano. Persistiendo mensaje entrante.`);
+
+        // Persistir el mensaje del usuario para que sea visible en el panel de conversaciones
+        try {
+          const supabase = getSupabase();
+          const { data: conv } = await supabase
+            .from('conversations')
+            .select('id')
+            .eq('phone_number', senderPhoneNumber)
+            .maybeSingle();
+
+          if (conv?.id) {
+            await supabase.from('intent_logs').insert({
+              conversation_id: conv.id,
+              input_text: incomingText,
+              matched_intent: 'human_mode_incoming',
+              similarity_score: null,
+              handled_by: 'human_takeover',
+              response_text: '',
+              latency_ms: 0,
+            });
+          }
+        } catch (persistErr) {
+          console.error('[WEBHOOK] Error persistiendo mensaje en modo humano:', persistErr);
+        }
+
+        return NextResponse.json({ status: 'ignored_due_to_human_mode' }, { status: 200 });
+      }
+
       await sendWhatsAppMessage(senderPhoneNumber, aiResponse);
     }
   } catch (error) {
@@ -54,34 +94,4 @@ export async function POST(request: NextRequest) {
 
   // Retornar siempre 200 OK para evitar que Meta reintente el envío
   return NextResponse.json({ status: 'ok' }, { status: 200 });
-}
-
-async function sendWhatsAppMessage(to: string, messageText: string) {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-
-  const url = `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: to,
-      type: 'text',
-      text: {
-        preview_url: false,
-        body: messageText,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('Error en llamada a Graph API:', JSON.stringify(errorData, null, 2));
-  }
 }
