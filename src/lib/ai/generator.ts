@@ -3,6 +3,7 @@ import { matchFAQ } from '@/services/faq-service';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GROK_API_KEY = process.env.GROQ_API_KEY || '';
+const GROQ_MODEL = 'openai/gpt-oss-20b';
 
 const SYSTEM_PROMPT = `Eres el asistente oficial de Inteligencia Artificial de "Blue Ocean Paracas Tours", una agencia de turismo líder en Paracas, Perú.
 Tu objetivo es guiar de forma amable, clara y servicial a los turistas que consultan sobre nuestros tours, alquileres y servicios de asistencia.
@@ -84,7 +85,7 @@ async function processTextToolCalls(text: string, senderPhone?: string): Promise
  * Generates an AI response using the Gemini API.
  */
 async function callGemini(apiKey: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
     
     const contents = history.map(h => ({
         role: h.role === 'assistant' ? 'model' : 'user',
@@ -164,7 +165,7 @@ async function callGroq(apiKey: string, userMessage: string, history: MessageHis
     ];
 
     const payload = {
-        model: 'llama-3.1-8b-instant',
+        model: GROQ_MODEL,
         messages,
         tools: [{
             type: "function",
@@ -232,7 +233,7 @@ async function callGroq(apiKey: string, userMessage: string, history: MessageHis
  * Capa 0: Verificación de sesión — si el estado es 'atencion_humana', omite IA y retorna vacío.
  * Detección de intención de traspaso — si el usuario pide un operador, marca la sesión y retorna mensaje de handover.
  * Capa 1: Búsqueda vectorial semántica en Supabase con pgvector (umbral >= 0.80).
- * Capa 2: Escalado a LLM (Groq con llama-3.1-8b-instant primero; Gemini 1.5 Flash como fallback).
+ * Capa 2: Escalado a LLM (Groq con llama3-8b-8192 primero; Gemini 1.5 Flash como fallback).
  * 
  * Si se provee `senderPhone`, gestiona la sesión e inserta la interacción en `intent_logs`.
  */
@@ -388,7 +389,7 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
         // Intentar Groq
         if (GROK_API_KEY) {
             try {
-                console.log('[AI_GENERATOR] Capa 2: Consumiendo Groq (llama-3.1-8b-instant)...');
+                console.log(`[AI_GENERATOR] Capa 2: Consumiendo Groq (${GROQ_MODEL})...`);
                 replyText = await callGroq(GROK_API_KEY, userMessage, history, senderPhone);
             } catch (groqErr) {
                 console.error('[AI_GENERATOR] Groq falló:', groqErr);
