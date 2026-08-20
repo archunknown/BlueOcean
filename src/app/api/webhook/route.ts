@@ -37,12 +37,14 @@ export async function POST(request: NextRequest) {
     const message = value?.messages?.[0];
 
     if (message && message.type === 'text') {
-      // Obtener el número telefónico original
       let senderPhoneNumber = message.from;
 
-      // Si no existe 'from' o es un ID provisional (prefijo PE.) o similar, fallback al número autorizado
-      if (!senderPhoneNumber || senderPhoneNumber.startsWith('PE.')) {
-        senderPhoneNumber = process.env.WHATSAPP_TEST_RECIPIENT || '51907062681';
+      console.log(`[DEBUG] Recibido mensaje de senderPhoneNumber original: "${senderPhoneNumber}"`);
+
+      // Si no hay número de remitente válido, ignorar el evento pero loguear qué llegó
+      if (!senderPhoneNumber) {
+        console.warn('[WEBHOOK] Mensaje sin número de remitente válido. Ignorando. Payload:', JSON.stringify(message));
+        return NextResponse.json({ status: 'ignored_no_sender' }, { status: 200 });
       }
 
       // Filtrar únicamente dígitos
