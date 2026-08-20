@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 // 1. Configuración del Cliente
 // Usamos el token de prueba o string vacío para evitar crash, pero validamos después.
 const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN || ''
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN || ''
 });
 
 // 2. Constantes
@@ -15,8 +15,8 @@ const MP_FIXED_FEE = 1.50;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export const createPreference = async (booking: any, tourTitle: string) => {
-    if (!process.env.MP_ACCESS_TOKEN) {
-        throw new Error("MP_ACCESS_TOKEN no está definido en .env");
+    if (!process.env.MERCADOPAGO_ACCESS_TOKEN && !process.env.MP_ACCESS_TOKEN) {
+        throw new Error("MERCADOPAGO_ACCESS_TOKEN no está definido en .env");
     }
 
     console.log("💰 [MERCADO PAGO] Iniciando preferencia...");
