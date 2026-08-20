@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createClient } from '@/utils/supabase/client'
 import {
     MessageSquare,
     Send,
@@ -40,16 +41,62 @@ export default function ConversationsPage() {
     const [messageText, setMessageText] = useState('')
     const [sending, setSending] = useState(false)
     const chatEndRef = useRef<HTMLDivElement>(null)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    // Solicitar permiso de notificaciones del navegador al cargar la página
+    useEffect(() => {
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission()
+            }
+        }
+        // Crear elemento de audio para la alerta sonora
+        audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EuH1KX0eOyfEAaC0CItuqldDIXA2ue5PKeZi8PAiN0v/GkczsHAiKG3/ujaz0IAiWS8feibEIMCT2l9f2hbkwMCkO1/P6kaVAMC0e+/v2lakMMC0zA//2la0cLCkjA//2la0cKCknA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2la0cKCkrA//2laUcKCkrB//2laUcK')
+        audioRef.current.volume = 0.6
+    }, [])
 
     useEffect(() => {
         fetchConversations()
 
-        // Auto-refresco cada 3 segundos para mantener el chat actualizado
+        // Auto-refresco cada 30 segundos como fallback (Realtime es el mecanismo principal)
         const interval = setInterval(() => {
             fetchConversations(true)
-        }, 3000)
+        }, 30000)
 
-        return () => clearInterval(interval)
+        // Supabase Realtime: escuchar cambios en la tabla conversations
+        const supabase = createClient()
+        const channel = supabase
+            .channel('conversations-realtime')
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'conversations' },
+                (payload) => {
+                    const updated = payload.new as { id: string; phone_number: string; estado: string }
+
+                    // Si el nuevo estado es atencion_humana, disparar alerta en el navegador
+                    if (updated.estado === 'atencion_humana') {
+                        // 1. Alerta sonora
+                        audioRef.current?.play().catch(() => {})
+
+                        // 2. Notificación del navegador (funciona con la pestaña en segundo plano)
+                        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+                            new Notification('🚨 Atención Requerida — Blue Ocean', {
+                                body: `El número +${updated.phone_number} solicitó atención humana. Ingresa al panel de Conversaciones.`,
+                                icon: '/favicon.ico',
+                            })
+                        }
+                    }
+
+                    // Refrescar la lista de conversaciones silenciosamente
+                    fetchConversations(true)
+                }
+            )
+            .subscribe()
+
+        return () => {
+            clearInterval(interval)
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     useEffect(() => {

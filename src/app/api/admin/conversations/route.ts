@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database';
+import { sendHumanTakeoverAlert } from '@/lib/email';
 
 function getSupabase() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -72,6 +73,22 @@ export async function PATCH(request: NextRequest) {
         if (error) {
             console.error('[CONVERSATIONS_API] Error updating conversation:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Disparar alerta por email si se activa atención humana manualmente
+        if (estado === 'atencion_humana') {
+            // Obtener el número de teléfono de la conversación para incluirlo en el email
+            const { data: conv } = await supabase
+                .from('conversations')
+                .select('phone_number')
+                .eq('id', conversationId)
+                .single();
+
+            if (conv?.phone_number) {
+                sendHumanTakeoverAlert(conv.phone_number).catch(e =>
+                    console.error('[CONVERSATIONS_API] Error enviando alerta de handoff por email:', e)
+                );
+            }
         }
 
         return NextResponse.json({ status: 'updated', conversationId, estado });

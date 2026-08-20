@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { sendHumanTakeoverAlert } from '@/lib/email';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = 'gemini-1.5-flash';
@@ -121,6 +122,11 @@ ${faqContext}
             if (error) {
                 console.error('Error actualizando estado de conversación a atención humana:', error);
             }
+
+            // Disparar alerta por email (sin bloquear la respuesta al cliente)
+            sendHumanTakeoverAlert(phoneNumber).catch(e =>
+                console.error('[LLM_SERVICE] Error enviando alerta de handoff por email:', e)
+            );
 
             return `Transfiriendo tu consulta a un operador de la agencia. 📞 Un miembro del equipo te atenderá de forma manual por este canal en breve. ¡Muchas gracias por tu paciencia!`;
         }
