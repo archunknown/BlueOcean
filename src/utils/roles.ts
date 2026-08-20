@@ -19,5 +19,5 @@ export const getUserRole = cache(async () => {
         .single()
 
     // @ts-ignore
-    return profile?.role as 'admin' | 'worker' | null
+    return profile?.role as 'admin' | 'worker' | 'developer' | null
 })

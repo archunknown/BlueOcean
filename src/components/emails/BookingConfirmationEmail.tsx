@@ -24,6 +24,7 @@ interface BookingConfirmationEmailProps {
     pax: number;
     totalPrice: string;
     voucherLink: string;
+    whatsappPrimary: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ? process.env.NEXT_PUBLIC_BASE_URL : '';
@@ -36,6 +37,7 @@ export const BookingConfirmationEmail = ({
     pax,
     totalPrice,
     voucherLink,
+    whatsappPrimary,
 }: BookingConfirmationEmailProps) => {
     return (
         <Html>
@@ -133,7 +135,7 @@ export const BookingConfirmationEmail = ({
                         <Text className="text-[#666666] text-[12px] leading-[24px]">
                             Blue Ocean Paracas Tours<br />
                             Paracas, Ica, Perú<br />
-                            <Link href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ''}`} className="text-blue-600 underline">
+                            <Link href={`https://wa.me/${whatsappPrimary}`} className="text-blue-600 underline">
                                 Contactar por WhatsApp
                             </Link>
                         </Text>

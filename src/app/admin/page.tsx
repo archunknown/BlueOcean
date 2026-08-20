@@ -1,8 +1,16 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { getUserRole } from '@/utils/roles'
 import DashboardOverview from './DashboardOverview'
 
 export default async function AdminDashboardPage() {
+    const role = await getUserRole()
+
+    // Developer no tiene dashboard genérico, redirigir a métricas
+    if (role === 'developer') {
+        redirect('/admin/metrics')
+    }
+
     const supabase = await createClient()
 
     // Get stats
@@ -21,8 +29,6 @@ export default async function AdminDashboardPage() {
         supabase.from('bookings').select('*', { count: 'exact', head: true }),
         supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending_payment'),
     ])
-
-    const role = await getUserRole()
 
     const stats = {
         tours: toursCount || 0,
