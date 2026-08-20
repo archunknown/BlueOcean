@@ -245,7 +245,7 @@ export interface Database {
                     first_name: string | null
                     last_name: string | null
                     dni: string | null
-                    role: 'admin' | 'worker'
+                    role: 'admin' | 'worker' | 'developer'
                     created_at: string
                 }
                 Insert: {
@@ -254,7 +254,7 @@ export interface Database {
                     first_name?: string | null
                     last_name?: string | null
                     dni?: string | null
-                    role: 'admin' | 'worker'
+                    role: 'admin' | 'worker' | 'developer'
                     created_at?: string
                 }
                 Update: {
@@ -263,7 +263,7 @@ export interface Database {
                     first_name?: string | null
                     last_name?: string | null
                     dni?: string | null
-                    role?: 'admin' | 'worker'
+                    role?: 'admin' | 'worker' | 'developer'
                     created_at?: string
                 }
                 Relationships: []

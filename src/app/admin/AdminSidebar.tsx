@@ -23,7 +23,7 @@ interface AdminSidebarProps {
     user: {
         email?: string
     }
-    role?: 'admin' | 'worker' | null
+    role?: 'admin' | 'worker' | 'developer' | null
 }
 
 const allNavItems = [
@@ -33,7 +33,7 @@ const allNavItems = [
     { name: 'Clientes', href: '/admin/clients', icon: Users, roles: ['admin', 'worker'] },
     { name: 'Usuarios', href: '/admin/users', icon: Users, roles: ['admin'] },
     { name: 'Custodia', href: '/admin/custodia', icon: Briefcase, roles: ['admin', 'worker'] },
-    { name: 'Métricas Bot', href: '/admin/metrics', icon: BarChart, roles: ['admin'] },
+    { name: 'Métricas Bot', href: '/admin/metrics', icon: BarChart, roles: ['developer'] },
     { name: 'Conversaciones', href: '/admin/conversations', icon: Headphones, roles: ['admin', 'worker'] },
     { name: 'Galería', href: '/admin/gallery', icon: ImageIcon, roles: ['admin', 'worker'] },
     { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare, roles: ['admin', 'worker'] },
@@ -44,9 +44,9 @@ export default function AdminSidebar({ user, role }: AdminSidebarProps) {
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(false)
 
-    // Filter items based on role
+    // Filter items based on role — strict match against roles array
     const navItems = allNavItems.filter(item =>
-        role === 'admin' || (role && item.roles.includes(role))
+        role != null && item.roles.includes(role)
     )
 
     return (

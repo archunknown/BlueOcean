@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { confirmBooking, approvePayment, deleteBooking } from '@/app/admin/bookings/actions'
-import { CheckCircleIcon, XCircleIcon, ClockIcon, CurrencyDollarIcon, BanknotesIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, XCircleIcon, ClockIcon, CurrencyDollarIcon, BanknotesIcon, TrashIcon, EyeIcon, BellAlertIcon } from '@heroicons/react/24/outline'
 import { PhoneIcon } from '@heroicons/react/24/solid'
 import { toast } from 'sonner'
 import type { BookingWithClient } from '@/types/booking-types'
@@ -93,9 +93,17 @@ export default function BookingsClient({ initialBookings }: BookingsClientProps)
         })
     }
 
-    // Helper to generate WhatsApp Link for admin to contact client
+    // Helper to generate WhatsApp contact link
     const getWhatsAppLink = (booking: BookingWithClient) => {
         const message = `Hola ${booking.client_name}, te escribo de Blue Ocean sobre tu reserva ${booking.booking_code}.`
+        return `https://wa.me/${booking.client_phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`
+    }
+
+    // Helper to generate WhatsApp reminder link
+    const getReminderLink = (booking: BookingWithClient) => {
+        const time = booking.tour_time?.slice(0, 5) || 'la hora acordada'
+        const message =
+            `¡Hola ${booking.client_name}! 👋 Te recordamos de Blue Ocean Paracas que tienes tu tour *${booking.tour_title}* programado para el día *${booking.tour_date}* a las *${time}*. Por favor, estar puntual en el punto de encuentro. ¡Te esperamos! 🐬🌊`
         return `https://wa.me/${booking.client_phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`
     }
 
@@ -175,6 +183,18 @@ export default function BookingsClient({ initialBookings }: BookingsClientProps)
                                         >
                                             <PhoneIcon className="h-5 w-5" />
                                         </a>
+
+                                        {booking.status === 'confirmed' && (
+                                            <a
+                                                href={getReminderLink(booking)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-amber-600 hover:text-amber-800 p-1 bg-amber-50 rounded-full hover:bg-amber-100 transition-colors"
+                                                title="Enviar Recordatorio de Tour"
+                                            >
+                                                <BellAlertIcon className="h-5 w-5" />
+                                            </a>
+                                        )}
 
                                         {booking.payment_status === 'pending' && (
                                             <button
