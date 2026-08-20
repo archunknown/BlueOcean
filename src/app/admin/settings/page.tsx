@@ -24,7 +24,7 @@ export default async function SettingsPage() {
 
             <SettingsClient
                 initialSettings={settings}
-                userRole={role || 'worker'} // fallback
+                userRole={(role === 'developer' ? 'admin' : role) || 'worker'} // developer hereda permisos de admin
                 userEmail={user?.email}
             />
         </div>
