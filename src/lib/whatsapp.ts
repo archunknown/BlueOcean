@@ -9,7 +9,13 @@ export interface WhatsAppTemplateComponent {
     }>;
 }
 
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+import dns from 'dns';
+
+try {
+    dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || '';
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 const GRAPH_API_VERSION = 'v20.0';
 

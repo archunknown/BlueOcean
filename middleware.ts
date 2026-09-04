@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Exclude webhooks from all security/maintenance logic
-  if (pathname.startsWith('/api/webhooks/')) {
+  if (pathname.startsWith('/api/webhook')) {
     return NextResponse.next();
   }
 

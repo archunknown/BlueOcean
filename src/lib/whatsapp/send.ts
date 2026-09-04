@@ -1,6 +1,12 @@
+import dns from 'dns';
+
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
+
 export async function sendWhatsAppMessage(to: string, messageText: string) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_TOKEN;
 
   if (!phoneNumberId || !accessToken) {
     console.error('[WHATSAPP] Error: Variables de entorno de WhatsApp no configuradas.');
@@ -30,5 +36,7 @@ export async function sendWhatsAppMessage(to: string, messageText: string) {
   if (!response.ok) {
     const errorData = await response.json();
     console.error('[WHATSAPP] Error en llamada a Graph API:', JSON.stringify(errorData, null, 2));
+  } else {
+    console.log(`[WHATSAPP] Mensaje enviado exitosamente a ${to}`);
   }
 }
