@@ -44,7 +44,7 @@ const statCards = [
         icon: Calendar,
         color: 'orange',
         href: '/admin/bookings',
-        roles: ['admin']
+        roles: ['admin', 'worker']
     },
 ]
 
