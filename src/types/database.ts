@@ -64,6 +64,7 @@ export interface Database {
                     status: string
                     payment_id: string | null
                     payment_status: 'pending' | 'approved' | 'rejected'
+                    payment_provider: 'mercadopago' | 'manual' | null
                     booking_code: string
                     created_at: string
                 }
@@ -85,6 +86,7 @@ export interface Database {
                     status?: string
                     payment_id?: string | null
                     payment_status?: 'pending' | 'approved' | 'rejected'
+                    payment_provider?: 'mercadopago' | 'manual' | null
                     booking_code: string
                     created_at?: string
                 }
@@ -106,6 +108,7 @@ export interface Database {
                     status?: string
                     payment_id?: string | null
                     payment_status?: 'pending' | 'approved' | 'rejected'
+                    payment_provider?: 'mercadopago' | 'manual' | null
                     booking_code?: string
                     created_at?: string
                 }

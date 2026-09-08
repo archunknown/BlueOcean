@@ -1,52 +1,85 @@
 import { createClient } from '@/utils/supabase/server';
 import { matchFAQ } from '@/services/faq-service';
+import { getAllTours } from '@/services/tours';
+import type { Tour } from '@/types/tour-schemas';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GROK_API_KEY = process.env.GROQ_API_KEY || '';
 const GROQ_MODEL = 'openai/gpt-oss-20b';
 
-const SYSTEM_PROMPT = `Eres el asistente oficial de Inteligencia Artificial de "Blue Ocean Paracas Tours", una agencia de turismo líder en Paracas, Perú.
-Tu objetivo es guiar de forma amable, clara y servicial a los turistas que consultan sobre nuestros tours, alquileres y servicios de asistencia.
+const SYSTEM_PROMPT_INTRO = `Eres el asistente oficial de Inteligencia Artificial de "Blue Ocean Paracas Tours", una agencia de turismo líder en Paracas, Perú.
+Tu objetivo es guiar de forma amable, clara y servicial a los turistas que consultan sobre nuestros tours, alquileres y servicios de asistencia.`;
 
-Aquí tienes información detallada de nuestros servicios para responder con precisión:
-
-=== CATÁLOGO DE TOURS ===
-1. **Islas Ballestas (Tour)**
-   - Precio: S/ 40 por persona.
-   - Duración: 2 horas.
-   - Detalle: Navegación en modernos deslizadores seguros (capacidad 40-50 pax). Observación del Candelabro, formaciones rocosas y avistamiento de lobos marinos, pingüinos de Humboldt y aves guaneras.
-   - Horarios de Salida: 8:00 AM, 10:00 AM y 12:00 PM.
-
-2. **Reserva Nacional en Auto (Tour)**
-   - Precio: S/ 90 por persona (servicio privado).
-   - Duración: Aprox. 4 horas.
-   - Detalle: Recorrido privado por el desierto y playas hermosas (Mirador Istmo, Playa Roja, Playa La Mina, y Playa Lagunillas).
-   - Horarios de Salida: Flexibles a acordar con el cliente.
-
-3. **Mini Buggies Arenacross (Tour Aventura)**
-   - Precio: S/ 100 por vehículo (1 o 2 personas).
-   - Duración: 2 horas (recorrido guiado de 20 km).
-   - Detalle: Conduce tu propio buggy por la Reserva. Visita Playa Yumaque, Mirador Istmo y Playa Roja.
-   - Horarios de Acceso: Salidas cada hora entre 9:00 AM y 3:00 PM.
-
-=== CATÁLOGO DE ALQUILERES ===
-4. **Alquiler de Moto Scooter**
-   - Precio: S/ 80 (día completo).
-   - Horario: 9:00 AM a 5:00 PM.
-   - Incluye: Scooter moderna, cascos, mapa de la reserva y asistencia en ruta.
-
-5. **Alquiler de Bicicleta**
-   - Precio: S/ 25 (día completo).
-   - Horario: 9:00 AM a 5:00 PM.
-   - Incluye: Bicicleta de montaña, casco, mapa de rutas y kit de herramientas básico.
-
-=== REGLAS IMPORTANTES ===
+const SYSTEM_PROMPT_RULES = `=== REGLAS IMPORTANTES ===
 - **Pagos Online**: Se realizan únicamente a través de la pasarela segura MercadoPago (con confirmación automática vía webhook).
 - **Pagos Presenciales**: Se pueden realizar en la agencia en efectivo o mediante Yape/Transferencia. La reserva se mantendrá "PENDIENTE" hasta que nuestro personal valide el cobro en el panel de control.
 - **Custodia Gratuita**: Ofrecemos almacenamiento logístico temporal de equipaje y mascotas para todos nuestros clientes de forma gratuita mientras realizan sus actividades.
 - **Tono**: Amable, profesional y acogedor. Si el usuario solicita hablar con un humano o si no sabes la respuesta a una pregunta muy específica de reservas existentes, indícalo de forma atenta indicando que derivarás su consulta al personal.
-- **Precios**: Respeta estrictamente los precios listados. No ofrezcas descuentos sin autorización ni inventes tarifas adicionales.
+- **Precios**: Respeta estrictamente los precios listados en el catálogo de abajo. No ofrezcas descuentos sin autorización ni inventes tarifas adicionales.
+- **Catálogo**: El catálogo que se te entrega en cada mensaje viene directo de la base de datos y refleja los tours y alquileres activos en este momento. No asumas que existen tours que no aparecen listados, ni sigas usando precios de mensajes anteriores en esta conversación si el catálogo actual los contradice.
 `;
+
+// ── Catálogo dinámico de tours ──────────────────────────────────────────
+// Se construye consultando la tabla `tours` en cada mensaje que escala a
+// LLM, con una caché en memoria de corta duración para no golpear la BD
+// en cada mensaje de WhatsApp cuando hay varias conversaciones seguidas.
+const CATALOG_TTL_MS = 5 * 60 * 1000; // 5 minutos
+let catalogCache: { text: string; expiresAt: number } | null = null;
+
+function formatSchedule(tour: Tour): string {
+    if (tour.is_flexible_schedule) return 'Flexible, a coordinar con el cliente.';
+    if (tour.time_slots && tour.time_slots.length > 0) return tour.time_slots.join(', ');
+    return 'Consultar disponibilidad.';
+}
+
+async function getToursCatalogText(): Promise<string> {
+    const now = Date.now();
+    if (catalogCache && catalogCache.expiresAt > now) {
+        return catalogCache.text;
+    }
+
+    try {
+        const tours = await getAllTours({ onlyActive: true });
+
+        if (!tours.length) {
+            const fallback = 'En este momento no hay tours ni alquileres activos publicados. Indica al cliente que un asesor le compartirá el catálogo actualizado.';
+            catalogCache = { text: fallback, expiresAt: now + CATALOG_TTL_MS };
+            return fallback;
+        }
+
+        const grouped = tours.reduce<Record<string, Tour[]>>((acc, tour) => {
+            const key = tour.category || 'Tour';
+            (acc[key] ||= []).push(tour);
+            return acc;
+        }, {});
+
+        let text = '';
+        let counter = 1;
+        for (const [category, items] of Object.entries(grouped)) {
+            text += `\n=== ${category.toUpperCase()} ===\n`;
+            for (const t of items) {
+                text += `${counter}. **${t.title}**\n`;
+                text += `   - Precio: S/ ${t.price}.\n`;
+                text += `   - Duración: ${t.duration || 'Consultar'}.\n`;
+                text += `   - Detalle: ${t.short_description}\n`;
+                text += `   - Horario: ${formatSchedule(t)}\n\n`;
+                counter++;
+            }
+        }
+
+        catalogCache = { text, expiresAt: now + CATALOG_TTL_MS };
+        return text;
+    } catch (err) {
+        console.error('[AI_GENERATOR] Error obteniendo catálogo dinámico de tours:', err);
+        if (catalogCache) return catalogCache.text;
+        return 'No fue posible cargar el catálogo actualizado en este momento. Indica al cliente que un asesor confirmará precios y disponibilidad.';
+    }
+}
+
+async function buildSystemPrompt(): Promise<string> {
+    const catalog = await getToursCatalogText();
+    return `${SYSTEM_PROMPT_INTRO}\n\nAquí tienes el catálogo ACTUALIZADO de nuestros tours y alquileres (viene directo de la base de datos, siempre vigente):\n${catalog}\n${SYSTEM_PROMPT_RULES}`;
+}
 
 import { createPaymentPreference } from '../payments/mercadopago';
 
@@ -84,7 +117,7 @@ async function processTextToolCalls(text: string, senderPhone?: string): Promise
 /**
  * Generates an AI response using the Gemini API.
  */
-async function callGemini(apiKey: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
+async function callGemini(apiKey: string, systemPrompt: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
     
     const contents = history.map(h => ({
@@ -96,7 +129,7 @@ async function callGemini(apiKey: string, userMessage: string, history: MessageH
     const payload = {
         contents,
         systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." }]
+            parts: [{ text: systemPrompt + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." }]
         },
         tools: [{
             functionDeclarations: [{
@@ -155,11 +188,11 @@ async function callGemini(apiKey: string, userMessage: string, history: MessageH
 /**
  * Generates an AI response using the Groq API.
  */
-async function callGroq(apiKey: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
+async function callGroq(apiKey: string, systemPrompt: string, userMessage: string, history: MessageHistory[] = [], senderPhone?: string): Promise<string> {
     const url = 'https://api.groq.com/openai/v1/chat/completions';
     
     const messages = [
-        { role: 'system', content: SYSTEM_PROMPT + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." },
+        { role: 'system', content: systemPrompt + "\n\nSi necesitas procesar un pago, pide todos los detalles al usuario antes de usar la herramienta de pagos. También puedes usar el formato de texto <function=createPaymentPreference>{...}</function> si lo prefieres." },
         ...history,
         { role: 'user', content: userMessage }
     ];
@@ -386,11 +419,13 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
             }
         }
 
+        const systemPrompt = await buildSystemPrompt();
+
         // Intentar Groq
         if (GROK_API_KEY) {
             try {
                 console.log(`[AI_GENERATOR] Capa 2: Consumiendo Groq (${GROQ_MODEL})...`);
-                replyText = await callGroq(GROK_API_KEY, userMessage, history, senderPhone);
+                replyText = await callGroq(GROK_API_KEY, systemPrompt, userMessage, history, senderPhone);
             } catch (groqErr) {
                 console.error('[AI_GENERATOR] Groq falló:', groqErr);
             }
@@ -400,7 +435,7 @@ export async function generateAIResponse(userMessage: string, senderPhone?: stri
         if (!replyText && GEMINI_API_KEY) {
             try {
                 console.log('[AI_GENERATOR] Capa 2: Consumiendo Gemini (gemini-1.5-flash) (fallback)...');
-                replyText = await callGemini(GEMINI_API_KEY, userMessage, history, senderPhone);
+                replyText = await callGemini(GEMINI_API_KEY, systemPrompt, userMessage, history, senderPhone);
             } catch (geminiErr) {
                 console.error('[AI_GENERATOR] Gemini falló:', geminiErr);
             }

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'sonner'
+import { registerCustody, checkOutCustody, getActiveCustodyItems } from './actions'
 
 interface CustodiaItem {
     id: string
@@ -64,14 +65,7 @@ export default function CustodiaPage() {
     async function fetchCustodyItems() {
         setLoading(true)
         try {
-            // Fetch items currently checked in
-            const { data, error } = await supabase
-                .from('custodia')
-                .select('*, bookings:reserva_id(booking_code, client_name, tour_title)')
-                .eq('estado', 'ingresado')
-                .order('created_at', { ascending: false })
-
-            if (error) throw error
+            const data = await getActiveCustodyItems()
             setItems(data as unknown as CustodiaItem[])
         } catch (err) {
             console.error('Error fetching custody items:', err)
@@ -115,58 +109,44 @@ export default function CustodiaPage() {
         const randId = Math.random().toString(36).substring(2, 10).toUpperCase()
         const qrCode = `BO-CUST-${tipo === 'locker' ? 'LK' : 'PET'}-${randId}`
 
-        try {
-            const { data, error } = await supabase
-                .from('custodia')
-                .insert({
-                    reserva_id: foundBooking?.id || null,
-                    tipo,
-                    codigo_qr: qrCode,
-                    estado: 'ingresado'
-                })
-                .select()
-                .single()
+        const result = await registerCustody({
+            tipo,
+            codigoQr: qrCode,
+            reservaId: foundBooking?.id || null
+        })
 
-            if (error) throw error
-
-            toast.success('Registro de custodia completado con éxito.')
-            
-            // Set for print modal
-            setReceiptItem({
-                codigo: qrCode,
-                tipo,
-                clientName: foundBooking?.client_name || 'Cliente Particular',
-                bookingCode: bookingCodeInput || undefined,
-                date: new Date().toLocaleString('es-PE')
-            })
-
-            // Reset form
-            setBookingCodeInput('')
-            setFoundBooking(null)
-            fetchCustodyItems()
-        } catch (err) {
-            console.error('Error registering custody:', err)
-            toast.error('Error al registrar el ingreso de custodia.')
+        if (!result.success) {
+            toast.error(result.message)
+            return
         }
+
+        toast.success(result.message)
+
+        // Set for print modal
+        setReceiptItem({
+            codigo: qrCode,
+            tipo,
+            clientName: foundBooking?.client_name || 'Cliente Particular',
+            bookingCode: bookingCodeInput || undefined,
+            date: new Date().toLocaleString('es-PE')
+        })
+
+        // Reset form
+        setBookingCodeInput('')
+        setFoundBooking(null)
+        fetchCustodyItems()
     }
 
     async function handleCheckOut(id: string, code: string) {
-        try {
-            const { error } = await supabase
-                .from('custodia')
-                .update({
-                    estado: 'retirado'
-                })
-                .eq('id', id)
+        const result = await checkOutCustody(id)
 
-            if (error) throw error
-
-            toast.success(`Retiro procesado para el código: ${code}`)
-            fetchCustodyItems()
-        } catch (err) {
-            console.error('Error checking out custody item:', err)
-            toast.error('No se pudo procesar el retiro del equipaje.')
+        if (!result.success) {
+            toast.error(result.message)
+            return
         }
+
+        toast.success(`Retiro procesado para el código: ${code}`)
+        fetchCustodyItems()
     }
 
     function handlePrint() {

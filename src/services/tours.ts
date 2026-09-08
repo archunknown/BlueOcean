@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { Tour, TourSchema } from '@/types/tour-schemas';
 
 // Helper to format price for display (ensure "S/" prefix)
@@ -35,7 +35,7 @@ function parseTour(item: unknown): Tour | null {
 
 export async function getAllTours(options: { onlyActive?: boolean } = { onlyActive: true }): Promise<Tour[]> {
     try {
-        const supabaseClient = await createClient();
+        const supabaseClient = createAdminClient();
         let query = supabaseClient
             .from('tours')
             .select('*')
@@ -72,7 +72,7 @@ export async function getAllTours(options: { onlyActive?: boolean } = { onlyActi
 
 export async function getTourBySlug(slug: string): Promise<Tour | null> {
     try {
-        const supabaseClient = await createClient();
+        const supabaseClient = createAdminClient();
         const { data, error } = await supabaseClient
             .from('tours')
             .select('*')
